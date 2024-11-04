@@ -4,12 +4,17 @@ const webpack = require('webpack');
 const dotenv = require('dotenv');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-const env = process.env.NODE_ENV === 'production'
-    ? dotenv.config({path: '.env.production'}).parsed
-    : dotenv.config({path: '.env.development'}).parsed;
+// const env = process.env.NODE_ENV === 'production'
+//     ? dotenv.config({path: '.env.production'}).parsed
+//     : dotenv.config({path: '.env.development'}).parsed;
+//
+// const envKeys = Object.keys(env).reduce((prev, next) => {
+//     prev[`process.env.${next}`] = JSON.stringify(env[next]);
+//     return prev;
+// }, {});
 
-const envKeys = Object.keys(env).reduce((prev, next) => {
-    prev[`process.env.${next}`] = JSON.stringify(env[next]);
+const envKeys = Object.keys(process.env).reduce((prev, next) => {
+    prev[`process.env.${next}`] = JSON.stringify(process.env[next]);
     return prev;
 }, {});
 
