@@ -18,7 +18,7 @@ const LeftSidebar = ({resetForm, savedEntries, loadSavedEntry, deleteEntry}) => 
                             <p>이사 종류: {entry.moveType?.value}</p>
                         </div>
 
-                        <Button type="danger" onClick={() => deleteEntry(entry.id)}>
+                        <Button danger onClick={() => deleteEntry(entry.id)}>
                             삭제
                         </Button>
                     </Card>

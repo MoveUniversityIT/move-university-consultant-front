@@ -50,7 +50,7 @@ const Consultant = () => {
     const {isLoading, data: consultant, error: consultantMetaError} = useConsultantMetadata();
     const {data: roadDistanceData} = useRoadDistance(locationInfo);
     const [distance, setDistance] = useState(null);
-    const {mutate: consultantMutate, data: calcData, error} = useCalcConsultant();
+    const {isLoading: isLoadingConsultantMutate, mutate: consultantMutate, data: calcData} = useCalcConsultant();
 
     const resetForm = () => {
         // 폼 필드를 모두 초기화하는 함수
@@ -302,13 +302,17 @@ const Consultant = () => {
         if (e.key === ' ') {
             if (suggestions.length > 0) {
                 const firstSuggestion = suggestions[0];
-
                 const terms = searchTerm.split(',').map(term => term.trim());
+
                 terms[terms.length - 1] = firstSuggestion.itemName;
 
                 const newSearchTerm = `${terms.join(', ')}`;
 
-                setItems(prevItems => [...prevItems, firstSuggestion]);
+                const matchingItems = terms
+                    .map(term => collapseItems.find(item => item.itemName.toLowerCase() === term.toLowerCase()))
+                    .filter(Boolean);
+
+                setItems(matchingItems);
                 setSuggestions([]);
                 setSearchTerm(`${newSearchTerm}, `);
 
@@ -416,7 +420,7 @@ const Consultant = () => {
                     </div>
 
                     <div style={{width: '45%', padding: '20px'}}>
-                        <main style={{display: 'flex', flexDirection: 'column', height: '100vh'}}>
+                        <main style={{display: 'flex', flexDirection: 'column', maxHeight: '100vh'}}>
                             <Title level={3}>이사 정보</Title>
 
                             <Form layout="vertical">
@@ -536,7 +540,7 @@ const Consultant = () => {
                                         </div>
                                     )}
                                     <div style={{marginTop: '8px'}}>
-                                        <h3>유효한 아이템 목록:</h3>
+                                        <h3>선택된 아이템 목록:</h3>
                                         {items.map((item, index) => <Tag key={index}>{item.itemName}</Tag>)}
                                     </div>
                                 </Form.Item>
@@ -612,11 +616,13 @@ const Consultant = () => {
                                     />
                                 </Form.Item>
 
-                                <Button onClick={fetchConsultant}>배차 금액 조회</Button>
-                                <Button type="primary" onClick={saveEntry}
-                                        style={{marginBottom: '20px', backgroundColor: '#52c41a'}}>
-                                    저장하기
-                                </Button>
+                                <div className='btn-wra' style={{display: 'flex', gap: '10px'}}>
+                                    <Button type='primary' onClick={fetchConsultant}>배차 금액 조회</Button>
+                                    <Button type="primary" onClick={saveEntry}
+                                            style={{marginBottom: '20px', backgroundColor: '#52c41a'}}>
+                                        저장하기
+                                    </Button>
+                                </div>
                             </Form>
 
                             <div
@@ -652,7 +658,7 @@ const Consultant = () => {
                                 </div>
 
                                 <div style={{display: isCollapsed ? 'none' : 'block'}}>
-                                    <DispatchPrice data={calcData}/>
+                                    <DispatchPrice data={calcData} isLoadingConsultantMutate={isLoadingConsultantMutate}/>
                                 </div>
                             </div>
                         </main>
