@@ -20,7 +20,7 @@ const MethodAndFloorInput = ({
         <Form.Item label={label}>
             <Space.Compact>
                 <Select
-                    style={{width: '80%'}}
+                    style={{width: '150px'}}
                     placeholder="예: 엘리베이터"
                     value={method}
                     onChange={handleMethodChange(setMethod, setFloor)}
