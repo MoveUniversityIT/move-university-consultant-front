@@ -15,7 +15,7 @@ const {Title} = Typography;
 
 const Consultant = () => {
     const [moveType, setMoveType] = useState(null);
-    const [vehicleType, setVehicleType] = useState(null);
+    const [vehicleType, setVehicleType] = useState({key: 2, value: '카고'});
     const [loadLocation, setLoadLocation] = useState('');
     const [loadCityCode, setLoadCityCode] = useState(null);
     const [unloadLocation, setUnloadLocation] = useState('');
@@ -30,8 +30,8 @@ const Consultant = () => {
     const [suggestions, setSuggestions] = useState([]);
     const [errorMessage, setErrorMessage] = useState('');
     const [items, setItems] = useState([]);
-    const [loadMethod, setLoadMethod] = useState(null);
-    const [unloadMethod, setUnloadMethod] = useState(null);
+    const [loadMethod, setLoadMethod] = useState({key: 1, value: '엘레베이터'});
+    const [unloadMethod, setUnloadMethod] = useState({key: 1, value: '엘레베이터'});
     const [loadFloor, setLoadFloor] = useState(1);
     const [unloadFloor, setUnloadFloor] = useState(1);
     const [requestDate, setRequestDate] = useState(dayjs(new Date()));
@@ -600,11 +600,13 @@ const Consultant = () => {
 
                                 <div style={{display: "flex", gap: '10px'}}>
                                     {consultant?.vehicles && (
-                                        <Form.Item label="탑차 종류" style={{width: '100px'}}>
+                                        <Form.Item label="차량 종류" style={{width: '100px'}}>
                                             <Select
                                                 placeholder="예: 카고"
                                                 value={vehicleType}
-                                                onChange={(value, option) => setVehicleType({key: option.key, value})}
+                                                onChange={(value, option) => {
+                                                    setVehicleType({key: option.key, value})}
+                                                }
                                             >
                                                 {consultant.vehicles.map((vehicle) => (
                                                     <Select.Option key={vehicle.vehicleId} value={vehicle.vehicleName}>
