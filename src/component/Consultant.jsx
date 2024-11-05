@@ -57,7 +57,7 @@ const Consultant = () => {
     const resetForm = () => {
         // 폼 필드를 모두 초기화하는 함수
         setMoveType(null);
-        setVehicleType(null);
+        setVehicleType({key: 1, value: '카고'});
         setLoadLocation('');
         setLoadCityCode(null);
         setUnloadLocation('');
@@ -72,12 +72,12 @@ const Consultant = () => {
         setSuggestions([]);
         setErrorMessage('');
         setItems([]);
-        setLoadMethod(null);
-        setUnloadMethod(null);
+        setLoadMethod({key: 1, value: '엘레베이터'});
+        setUnloadMethod({key: 1, value: '엘레베이터'});
         setLoadFloor(1);
         setUnloadFloor(1);
-        setRequestDate(null);
-        setRequestTime(null);
+        setRequestDate(dayjs(new Date()));
+        setRequestTime(dayjs('08:00', 'HH:mm'));
         setLocationInfo({
             startX: null, startY: null, endX: null, endY: null
         });
