@@ -248,22 +248,17 @@ const Consultant = () => {
         if (_.isEmpty(vehicleType)) emptyFields.push("차량 종류");
         if (_.isEmpty(moveType)) emptyFields.push("이사 종류");
 
-        if (_.isEmpty(loadCityCode)) {
-            alert("상차지 법정동 코드가 존재하지 않습니다. ");
-            return false;
-        }
+        if (_.isEmpty(loadCityCode)) emptyFields.push("상차지 법정동 코드");
+        if (_.isEmpty(unloadCityCode)) emptyFields.push("하차지 법정동 코드");
 
-        if (_.isEmpty(unloadCityCode)) {
-            alert("하차지 법정동 코드가 존재하지 않습니다. ");
-            return false;
-        }
-
+        // 모든 필드를 검토한 후에 필요한 알림을 한 번에 표시
         if (emptyFields.length > 0) {
             alert(`다음 필드를 입력해주세요: ${emptyFields.join(", ")}`);
             return false;
         }
         return true;
     };
+
 
     const fetchConsultant = () => {
         if (!checkRequiredFields()) {
