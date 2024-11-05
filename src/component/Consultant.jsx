@@ -15,7 +15,7 @@ const {Title} = Typography;
 
 const Consultant = () => {
     const [moveType, setMoveType] = useState(null);
-    const [vehicleType, setVehicleType] = useState({key: 2, value: '카고'});
+    const [vehicleType, setVehicleType] = useState({key: 1, value: '카고'});
     const [loadLocation, setLoadLocation] = useState('');
     const [loadCityCode, setLoadCityCode] = useState(null);
     const [unloadLocation, setUnloadLocation] = useState('');
