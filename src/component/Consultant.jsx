@@ -9,6 +9,7 @@ import moment from "moment";
 import DispatchPrice from "@/component/DispatchPrice";
 import LeftSidebar from "@/component/LeftSidebar";
 import {LeftOutlined, RightOutlined} from "@ant-design/icons";
+import {v4 as uuidv4} from 'uuid';
 
 const {Title} = Typography;
 
@@ -87,6 +88,7 @@ const Consultant = () => {
     const saveEntry = () => {
         // 현재 입력된 정보 저장
         const entry = {
+            id: uuidv4(),
             moveType,
             vehicleType,
             loadLocation,
@@ -224,10 +226,10 @@ const Consultant = () => {
     const checkRequiredFields = () => {
         const emptyFields = [];
 
+        if (_.isEmpty(loadLocation)) emptyFields.push("상차지");
         if (_.isEmpty(moveType)) emptyFields.push("이사 종류");
-        if (_.isEmpty(loadCityCode)) emptyFields.push("상차지");
         if (_.isEmpty(loadMethod)) emptyFields.push("상차 방법");
-        if (_.isEmpty(unloadCityCode)) emptyFields.push("하차지");
+        if (_.isEmpty(unloadLocation)) emptyFields.push("하차지");
         if (_.isEmpty(unloadMethod)) emptyFields.push("하차 방법");
         if (_.isEmpty(items)) emptyFields.push("선택된 아이템");
         if (_.isEmpty(requestDate)) emptyFields.push("요청 날짜");
@@ -236,6 +238,16 @@ const Consultant = () => {
 
         if (loadLocation && loadLocation === unloadLocation) {
             alert(`상차지와 하차지가 같습니다. 다시 확인해주세요.`);
+            return false;
+        }
+
+        if (_.isEmpty(loadCityCode)) {
+            alert("상차지 법정동 코드가 존재하지 않습니다. ");
+            return false;
+        }
+
+        if (_.isEmpty(unloadCityCode)) {
+            alert("하차지 법정동 코드가 존재하지 않습니다. ");
             return false;
         }
 
@@ -251,12 +263,14 @@ const Consultant = () => {
             return;
         }
         const consultantDataForm = {
+            loadLocationName: loadLocation,
             loadCityCode: loadCityCode.substring(0, 6),
             loadSubCityCode: loadCityCode.substring(6),
             loadMethodId: loadMethod?.key,
             loadMethodName: loadMethod?.value,
             loadFloorNumber: loadFloor,
             loadHelperPeople: loadHelperList,
+            unloadLocationName: unloadLocation,
             unloadCityCode: unloadCityCode.substring(0, 6),
             unloadSubCityCode: unloadCityCode.substring(6),
             unloadMethodId: unloadMethod?.key,
@@ -268,14 +282,15 @@ const Consultant = () => {
             vehicleId: vehicleType.key,
             vehicleName: vehicleType.value,
             distance,
-            requestDate,
-            requestTime,
+            requestDate: requestDate.format('YYYY-MM-DD') || null,
+            requestTime: requestTime.format('HH:mm') || null,
             items,
             totalItemCbm,
             toPackBoxCount: boxesToBePacked
         }
 
         consultantMutate(consultantDataForm);
+        setIsCollapsed(false);
     };
 
     // 아이템 목록
@@ -356,11 +371,11 @@ const Consultant = () => {
     const isGenderAdded = (gender, listGetter) => listGetter().some(item => item.gender === gender);
 
     const handleDateChange = (date) => {
-        setRequestDate(date ? date.format('YYYY-MM-DD') : null); // 날짜만 저장
+        setRequestDate(date);
     };
 
     const handleTimeChange = (time) => {
-        setRequestTime(time ? time.format('HH:mm') : null); // 시간만 저장
+        setRequestTime(time);
     };
 
     const handleMoveTypeChange = (value, option) => {
@@ -370,6 +385,10 @@ const Consultant = () => {
             setPackedBoxes(0);
             setBoxesToBePacked(0);
         }
+    };
+
+    const deleteEntry = (id) => {
+        setSavedEntries(savedEntries.filter(entry => entry.id !== id));
     };
 
     return (
@@ -390,8 +409,11 @@ const Consultant = () => {
                 />
             ) : (
                 <>
-                    <LeftSidebar resetForm={resetForm} saveEntry={saveEntry} savedEntries={savedEntries}
-                                 loadSavedEntry={loadSavedEntry}/>
+                    <div style={{width: '15%', padding: '20px', borderRight: '1px solid #ddd'}}>
+                        <Title level={3}>상담 예약</Title>
+                        <LeftSidebar resetForm={resetForm} saveEntry={saveEntry} savedEntries={savedEntries}
+                                     loadSavedEntry={loadSavedEntry} deleteEntry={deleteEntry}/>
+                    </div>
 
                     <div style={{width: '45%', padding: '20px'}}>
                         <main style={{display: 'flex', flexDirection: 'column', height: '100vh'}}>
@@ -470,8 +492,7 @@ const Consultant = () => {
                                     <div style={{flex: '1'}}>
                                         <Form.Item label="요청일">
                                             <DatePicker
-                                                style={{width: '50%'}}
-                                                value={requestDate ? moment(requestDate, 'YYYY-MM-DD') : null}
+                                                value={requestDate}
                                                 onChange={handleDateChange}
                                             />
                                         </Form.Item>
@@ -479,8 +500,7 @@ const Consultant = () => {
                                     <div style={{flex: '1'}}>
                                         <Form.Item label="요청시간">
                                             <TimePicker
-                                                style={{width: '50%'}}
-                                                value={requestTime ? moment(requestTime, 'HH:mm') : null}
+                                                value={requestTime}
                                                 onChange={handleTimeChange}
                                                 format="HH:mm"
                                                 minuteStep={60}
@@ -495,7 +515,7 @@ const Consultant = () => {
                                         value={searchTerm}
                                         onChange={handleInputChange}
                                         onKeyDown={handleInputKeyDown}
-                                        style={{marginBottom: '8px'}}
+                                        style={{marginBottom: '8px', width: '100%'}}
                                     />
                                     {errorMessage && <div style={{color: 'red', marginTop: '4px'}}>{errorMessage}</div>}
                                     {suggestions.length > 0 && (
@@ -521,62 +541,63 @@ const Consultant = () => {
                                     </div>
                                 </Form.Item>
 
-                                {consultant?.vehicles && (
-                                    <Form.Item label="탑차 종류">
-                                        <Select
-                                            style={{width: '40%'}}
-                                            placeholder="예: 카고"
-                                            value={vehicleType}
-                                            onChange={(value, option) => setVehicleType({key: option.key, value})}
-                                        >
-                                            {consultant.vehicles.map((vehicle) => (
-                                                <Select.Option key={vehicle.vehicleId} value={vehicle.vehicleName}>
-                                                    {vehicle.vehicleName}
-                                                </Select.Option>
-                                            ))}
-                                        </Select>
-                                    </Form.Item>
-                                )}
-
-                                {consultant?.moveTypes && (
-                                    <Form.Item label="이사 종류">
-                                        <Select
-                                            style={{width: '40%'}}
-                                            placeholder="예: 단순운송"
-                                            value={moveType?.value}
-                                            onChange={handleMoveTypeChange}
-                                        >
-                                            {consultant.moveTypes.map((moveType) => (
-                                                <Select.Option key={moveType.moveTypeId} value={moveType.moveTypeName}>
-                                                    {moveType.moveTypeName}
-                                                </Select.Option>
-                                            ))}
-                                        </Select>
-                                    </Form.Item>
-                                )}
-
-                                {(moveType?.value === '반포장이사' || moveType?.value === '포장이사') && (
-                                    <>
-                                        <Form.Item label="포장된 박스">
-                                            <InputNumber
-                                                min={0}
-                                                value={packedBoxes}
-                                                onChange={setPackedBoxes}
-                                                style={{width: '100%'}}
-                                                placeholder="포장된 박스 수 입력"
-                                            />
+                                <div style={{display: "flex", gap: '10px'}}>
+                                    {consultant?.vehicles && (
+                                        <Form.Item label="탑차 종류" style={{width: '100px'}}>
+                                            <Select
+                                                placeholder="예: 카고"
+                                                value={vehicleType}
+                                                onChange={(value, option) => setVehicleType({key: option.key, value})}
+                                            >
+                                                {consultant.vehicles.map((vehicle) => (
+                                                    <Select.Option key={vehicle.vehicleId} value={vehicle.vehicleName}>
+                                                        {vehicle.vehicleName}
+                                                    </Select.Option>
+                                                ))}
+                                            </Select>
                                         </Form.Item>
-                                        <Form.Item label="포장해야 할 박스">
-                                            <InputNumber
-                                                min={0}
-                                                value={boxesToBePacked}
-                                                onChange={setBoxesToBePacked}
-                                                style={{width: '100%'}}
-                                                placeholder="포장해야 할 박스 수 입력"
-                                            />
+                                    )}
+
+                                    {consultant?.moveTypes && (
+                                        <Form.Item label="이사 종류">
+                                            <Select
+                                                placeholder="예: 단순운송"
+                                                value={moveType?.value}
+                                                onChange={handleMoveTypeChange}
+                                            >
+                                                {consultant.moveTypes.map((moveType) => (
+                                                    <Select.Option key={moveType.moveTypeId}
+                                                                   value={moveType.moveTypeName}>
+                                                        {moveType.moveTypeName}
+                                                    </Select.Option>
+                                                ))}
+                                            </Select>
                                         </Form.Item>
-                                    </>
-                                )}
+                                    )}
+
+                                    {(moveType?.value === '반포장이사' || moveType?.value === '포장이사') && (
+                                        <>
+                                            <Form.Item label="포장된 박스">
+                                                <InputNumber
+                                                    min={0}
+                                                    value={packedBoxes}
+                                                    onChange={setPackedBoxes}
+                                                    style={{width: '100%'}}
+                                                    placeholder="포장된 박스 수 입력"
+                                                />
+                                            </Form.Item>
+                                            <Form.Item label="포장할 박스">
+                                                <InputNumber
+                                                    min={0}
+                                                    value={boxesToBePacked}
+                                                    onChange={setBoxesToBePacked}
+                                                    style={{width: '100%'}}
+                                                    placeholder="포장해야 할 박스 수 입력"
+                                                />
+                                            </Form.Item>
+                                        </>
+                                    )}
+                                </div>
 
                                 <Form.Item label="총 CBM 설정">
                                     <InputNumber
