@@ -233,6 +233,11 @@ const Consultant = () => {
     const checkRequiredFields = () => {
         const emptyFields = [];
 
+        if (loadLocation && loadLocation === unloadLocation) {
+            alert(`상차지와 하차지가 같습니다. 다시 확인해주세요.`);
+            return false;
+        }
+
         if (_.isEmpty(loadLocation)) emptyFields.push("상차지");
         if (_.isEmpty(loadMethod)) emptyFields.push("상차 방법");
         if (_.isEmpty(unloadLocation)) emptyFields.push("하차지");
@@ -242,11 +247,6 @@ const Consultant = () => {
         if (_.isEmpty(requestTime)) emptyFields.push("요청 시간");
         if (_.isEmpty(vehicleType)) emptyFields.push("차량 종류");
         if (_.isEmpty(moveType)) emptyFields.push("이사 종류");
-
-        if (loadLocation && loadLocation === unloadLocation) {
-            alert(`상차지와 하차지가 같습니다. 다시 확인해주세요.`);
-            return false;
-        }
 
         if (_.isEmpty(loadCityCode)) {
             alert("상차지 법정동 코드가 존재하지 않습니다. ");
