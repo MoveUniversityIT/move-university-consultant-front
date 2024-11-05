@@ -10,6 +10,7 @@ import DispatchPrice from "@/component/DispatchPrice";
 import LeftSidebar from "@/component/LeftSidebar";
 import {LeftOutlined, RightOutlined} from "@ant-design/icons";
 import {v4 as uuidv4} from 'uuid';
+import CustomProgress from "@/component/CustomProgress";
 
 const {Title} = Typography;
 
@@ -445,276 +446,286 @@ const Consultant = () => {
     };
 
     return (
-        <div style={{display: 'flex'}}>
-            {isLoading ? (
-                // 로딩 중일 때 Progress 바 표시
-                <div style={{display: 'flex', justifyContent: 'center', marginTop: '50px'}}>
-                    <Progress type="circle" percent={80} status="active"/>
-                </div>
-            ) : consultantMetaError ? (
-                // 에러 발생 시 Alert 표시
-                <Alert
-                    message="서버와의 통신에 문제가 발생했습니다."
-                    description="상담 봇 데이터를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.(관리자에게 문의바랍니다.)"
-                    type="error"
-                    showIcon
-                    style={{marginTop: '20px'}}
-                />
-            ) : (
-                <>
-                    <div style={{width: '15%', padding: '20px', borderRight: '1px solid #ddd'}}>
-                        <Title level={3}>상담 예약</Title>
-                        <LeftSidebar resetForm={resetForm} saveEntry={saveEntry} savedEntries={savedEntries}
-                                     loadSavedEntry={loadSavedEntry} deleteEntry={deleteEntry}/>
-                    </div>
+        <div style={{position: 'relative', display: 'flex'}}>
+            {isLoading && (
+                <CustomProgress isLoading={isLoading} />
+            )}
 
-                    <div style={{width: '45%', padding: '20px'}}>
-                        <main style={{display: 'flex', flexDirection: 'column', maxHeight: '100vh'}}>
-                            <Title level={3}>이사 정보</Title>
+            {!isLoading && (
+                consultantMetaError ? (
+                    // 에러 발생 시 Alert 표시
+                    <Alert
+                        message="서버와의 통신에 문제가 발생했습니다."
+                        description="상담 봇 데이터를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.(관리자에게 문의바랍니다.)"
+                        type="error"
+                        showIcon
+                        style={{marginTop: '20px'}}
+                    />
+                ) : (
+                    <>
+                        <div style={{width: '15%', padding: '20px', borderRight: '1px solid #ddd'}}>
+                            <Title level={3}>상담 예약</Title>
+                            <LeftSidebar resetForm={resetForm} saveEntry={saveEntry} savedEntries={savedEntries}
+                                         loadSavedEntry={loadSavedEntry} deleteEntry={deleteEntry}/>
+                        </div>
 
-                            <Form layout="vertical">
-                                <div style={{display: 'flex', gap: '10px'}}>
-                                    <div style={{width: '50%'}}>
-                                        <AddressInput
-                                            label="상차지"
-                                            location={loadLocation}
-                                            setLocation={setLoadLocation}
-                                            setCityCode={setLoadCityCode}
-                                            handleCoordinates={handleLoadCoordinates}
-                                            handleLocationChange={handleLocationChange(setLoadLocation, setShowLoadAddressList, 'start')}
-                                            addressList={loadAddressList}
-                                            showAddressList={showLoadAddressList}
-                                            setShowAddressList={setShowLoadAddressList}
-                                            onSelectAddress={handleAddressSelect(setLoadLocation, setShowLoadAddressList)}
-                                        />
-                                        <MethodAndFloorInput
-                                            label="상차 방법"
-                                            method={loadMethod}
-                                            floor={loadFloor}
-                                            setMethod={setLoadMethod}
-                                            setFloor={setLoadFloor}
-                                            consultant={consultant}
-                                            handleMethodChange={handleMethodChange}
-                                            handleFloorChange={handleFloorChange}
-                                        />
-                                        <GenderSelector
-                                            label="상차 도움 인원"
-                                            addGenderCount={(gender) => addGenderCount(gender, setLoadHelperList, () => loadHelperList)}
-                                            helperList={loadHelperList}
-                                            updateGenderCount={(index, value) => updateGenderCount(index, value, setLoadHelperList, () => loadHelperList)}
-                                            isGenderAdded={(gender) => isGenderAdded(gender, () => loadHelperList)}
-                                            removeGender={(gender) => removeGender(gender, setLoadHelperList)}
-                                        />
-                                    </div>
+                        <div style={{width: '45%', padding: '20px'}}>
+                            <main style={{display: 'flex', flexDirection: 'column', maxHeight: '100vh'}}>
+                                <Title level={3}>이사 정보</Title>
 
-                                    <div style={{width: '50%'}}>
-                                        <AddressInput
-                                            label="하차지"
-                                            location={unloadLocation}
-                                            setLocation={setUnloadLocation}
-                                            setCityCode={setUnloadCityCode}
-                                            handleCoordinates={handleUnloadCoordinates}
-                                            handleLocationChange={handleLocationChange(setUnloadLocation, setShowUnloadAddressList, 'end')}
-                                            addressList={unloadAddressList}
-                                            showAddressList={showUnloadAddressList}
-                                            setShowAddressList={setShowUnloadAddressList}
-                                            onSelectAddress={handleAddressSelect(setUnloadLocation, setShowUnloadAddressList)}
-                                        />
-                                        <MethodAndFloorInput
-                                            label="하차 방법"
-                                            method={unloadMethod}
-                                            floor={unloadFloor}
-                                            setMethod={setUnloadMethod}
-                                            setFloor={setUnloadFloor}
-                                            consultant={consultant}
-                                            handleMethodChange={handleMethodChange}
-                                            handleFloorChange={handleFloorChange}
-                                        />
-                                        <GenderSelector
-                                            label="하차 도움 인원"
-                                            addGenderCount={(gender) => addGenderCount(gender, setUnloadHelperList, () => unloadHelperList)}
-                                            helperList={unloadHelperList}
-                                            updateGenderCount={(index, value) => updateGenderCount(index, value, setUnloadHelperList, () => unloadHelperList)}
-                                            isGenderAdded={(gender) => isGenderAdded(gender, () => unloadHelperList)}
-                                            removeGender={(gender) => removeGender(gender, setUnloadHelperList)}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div style={{display: "flex"}}>
-                                    <div style={{flex: '1'}}>
-                                        <Form.Item label="요청일">
-                                            <DatePicker
-                                                value={requestDate}
-                                                onChange={handleDateChange}
+                                <Form layout="vertical">
+                                    <div style={{display: 'flex', gap: '10px'}}>
+                                        <div style={{width: '50%'}}>
+                                            <AddressInput
+                                                label="상차지"
+                                                location={loadLocation}
+                                                setLocation={setLoadLocation}
+                                                setCityCode={setLoadCityCode}
+                                                handleCoordinates={handleLoadCoordinates}
+                                                handleLocationChange={handleLocationChange(setLoadLocation, setShowLoadAddressList, 'start')}
+                                                addressList={loadAddressList}
+                                                showAddressList={showLoadAddressList}
+                                                setShowAddressList={setShowLoadAddressList}
+                                                onSelectAddress={handleAddressSelect(setLoadLocation, setShowLoadAddressList)}
                                             />
-                                        </Form.Item>
-                                    </div>
-                                    <div style={{flex: '1'}}>
-                                        <Form.Item label="요청시간">
-                                            <TimePicker
-                                                value={requestTime}
-                                                onChange={handleTimeChange}
-                                                format="HH:mm"
-                                                minuteStep={60}
+                                            <MethodAndFloorInput
+                                                label="상차 방법"
+                                                method={loadMethod}
+                                                floor={loadFloor}
+                                                setMethod={setLoadMethod}
+                                                setFloor={setLoadFloor}
+                                                consultant={consultant}
+                                                handleMethodChange={handleMethodChange}
+                                                handleFloorChange={handleFloorChange}
                                             />
-                                        </Form.Item>
-                                    </div>
-                                </div>
-
-                                <Form.Item label="물품">
-                                    <Input
-                                        ref={searchTermRef}
-                                        placeholder="아이템 이름을 입력하고 콤마(,)로 구분하세요"
-                                        value={searchTerm}
-                                        onChange={handleInputChange}
-                                        onKeyDown={handleInputKeyDown}
-                                        style={{marginBottom: '8px', width: '100%'}}
-                                    />
-                                    {errorMessage && <div style={{color: 'red', marginTop: '4px'}}>{errorMessage}</div>}
-                                    {suggestions.length > 0 && (
-                                        <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px'}}>
-                                            {suggestions.map((item) => (
-                                                <Tag
-                                                    key={item.itemId}
-                                                    onClick={handleSelectItem(item)}
-                                                    style={{cursor: 'pointer'}}
-                                                >
-                                                    {item.itemName}
-                                                </Tag>
-                                            ))}
+                                            <GenderSelector
+                                                label="상차 도움 인원"
+                                                addGenderCount={(gender) => addGenderCount(gender, setLoadHelperList, () => loadHelperList)}
+                                                helperList={loadHelperList}
+                                                updateGenderCount={(index, value) => updateGenderCount(index, value, setLoadHelperList, () => loadHelperList)}
+                                                isGenderAdded={(gender) => isGenderAdded(gender, () => loadHelperList)}
+                                                removeGender={(gender) => removeGender(gender, setLoadHelperList)}
+                                            />
                                         </div>
-                                    )}
-                                    <div style={{marginTop: '8px'}}>
-                                        <h3>선택된 아이템 목록:</h3>
-                                        {items.map((item, index) => <Tag key={index}>{item.itemName}</Tag>)}
+
+                                        <div style={{width: '50%'}}>
+                                            <AddressInput
+                                                label="하차지"
+                                                location={unloadLocation}
+                                                setLocation={setUnloadLocation}
+                                                setCityCode={setUnloadCityCode}
+                                                handleCoordinates={handleUnloadCoordinates}
+                                                handleLocationChange={handleLocationChange(setUnloadLocation, setShowUnloadAddressList, 'end')}
+                                                addressList={unloadAddressList}
+                                                showAddressList={showUnloadAddressList}
+                                                setShowAddressList={setShowUnloadAddressList}
+                                                onSelectAddress={handleAddressSelect(setUnloadLocation, setShowUnloadAddressList)}
+                                            />
+                                            <MethodAndFloorInput
+                                                label="하차 방법"
+                                                method={unloadMethod}
+                                                floor={unloadFloor}
+                                                setMethod={setUnloadMethod}
+                                                setFloor={setUnloadFloor}
+                                                consultant={consultant}
+                                                handleMethodChange={handleMethodChange}
+                                                handleFloorChange={handleFloorChange}
+                                            />
+                                            <GenderSelector
+                                                label="하차 도움 인원"
+                                                addGenderCount={(gender) => addGenderCount(gender, setUnloadHelperList, () => unloadHelperList)}
+                                                helperList={unloadHelperList}
+                                                updateGenderCount={(index, value) => updateGenderCount(index, value, setUnloadHelperList, () => unloadHelperList)}
+                                                isGenderAdded={(gender) => isGenderAdded(gender, () => unloadHelperList)}
+                                                removeGender={(gender) => removeGender(gender, setUnloadHelperList)}
+                                            />
+                                        </div>
                                     </div>
-                                </Form.Item>
 
-                                <div style={{display: "flex", gap: '10px'}}>
-                                    {consultant?.vehicles && (
-                                        <Form.Item label="차량 종류" style={{width: '100px'}}>
-                                            <Select
-                                                placeholder="예: 카고"
-                                                value={vehicleType}
-                                                onChange={(value, option) => {
-                                                    setVehicleType({key: option.key, value})}
-                                                }
-                                            >
-                                                {consultant.vehicles.map((vehicle) => (
-                                                    <Select.Option key={vehicle.vehicleId} value={vehicle.vehicleName}>
-                                                        {vehicle.vehicleName}
-                                                    </Select.Option>
-                                                ))}
-                                            </Select>
-                                        </Form.Item>
-                                    )}
-
-                                    {consultant?.moveTypes && (
-                                        <Form.Item label="이사 종류">
-                                            <Select
-                                                placeholder="예: 단순운송"
-                                                value={moveType?.value}
-                                                onChange={handleMoveTypeChange}
-                                            >
-                                                {consultant.moveTypes.map((moveType) => (
-                                                    <Select.Option key={moveType.moveTypeId}
-                                                                   value={moveType.moveTypeName}>
-                                                        {moveType.moveTypeName}
-                                                    </Select.Option>
-                                                ))}
-                                            </Select>
-                                        </Form.Item>
-                                    )}
-
-                                    {(moveType?.value === '반포장이사' || moveType?.value === '포장이사') && (
-                                        <>
-                                            <Form.Item label="포장된 박스">
-                                                <InputNumber
-                                                    min={0}
-                                                    value={packedBoxes}
-                                                    onChange={setPackedBoxes}
-                                                    style={{width: '100%'}}
-                                                    placeholder="포장된 박스 수 입력"
+                                    <div style={{display: "flex"}}>
+                                        <div style={{flex: '1'}}>
+                                            <Form.Item label="요청일">
+                                                <DatePicker
+                                                    value={requestDate}
+                                                    onChange={handleDateChange}
                                                 />
                                             </Form.Item>
-                                            <Form.Item label="포장할 박스">
-                                                <InputNumber
-                                                    min={0}
-                                                    value={boxesToBePacked}
-                                                    onChange={setBoxesToBePacked}
-                                                    style={{width: '100%'}}
-                                                    placeholder="포장해야 할 박스 수 입력"
+                                        </div>
+                                        <div style={{flex: '1'}}>
+                                            <Form.Item label="요청시간">
+                                                <TimePicker
+                                                    value={requestTime}
+                                                    onChange={handleTimeChange}
+                                                    format="HH:mm"
+                                                    minuteStep={60}
                                                 />
                                             </Form.Item>
-                                        </>
-                                    )}
-                                </div>
+                                        </div>
+                                    </div>
 
-                                <Form.Item label="총 CBM 설정">
-                                    <InputNumber
-                                        min={0}
-                                        step={0.1}
-                                        precision={1}
-                                        placeholder="CBM 입력해주세요."
-                                        value={totalItemCbm}
-                                        onChange={(value) => setTotalItemCbm(value)}
-                                        formatter={(value) => `${value} CBM`}
-                                        parser={(value) => value.replace(' CBM', '')}
-                                    />
-                                </Form.Item>
+                                    <Form.Item label="물품">
+                                        <Input
+                                            ref={searchTermRef}
+                                            placeholder="아이템 이름을 입력하고 콤마(,)로 구분하세요"
+                                            value={searchTerm}
+                                            onChange={handleInputChange}
+                                            onKeyDown={handleInputKeyDown}
+                                            style={{marginBottom: '8px', width: '100%'}}
+                                        />
+                                        {errorMessage &&
+                                            <div style={{color: 'red', marginTop: '4px'}}>{errorMessage}</div>}
+                                        {suggestions.length > 0 && (
+                                            <div style={{
+                                                display: 'flex',
+                                                gap: '8px',
+                                                flexWrap: 'wrap',
+                                                marginTop: '8px'
+                                            }}>
+                                                {suggestions.map((item) => (
+                                                    <Tag
+                                                        key={item.itemId}
+                                                        onClick={handleSelectItem(item)}
+                                                        style={{cursor: 'pointer'}}
+                                                    >
+                                                        {item.itemName}
+                                                    </Tag>
+                                                ))}
+                                            </div>
+                                        )}
+                                        <div style={{marginTop: '8px'}}>
+                                            <h3>선택된 아이템 목록:</h3>
+                                            {items.map((item, index) => <Tag key={index}>{item.itemName}</Tag>)}
+                                        </div>
+                                    </Form.Item>
 
-                                <div className='btn-wra' style={{display: 'flex', gap: '10px'}}>
-                                    <Button type='primary' onClick={fetchConsultant}>배차 금액 조회</Button>
-                                    <Button type="primary" onClick={saveEntry}
-                                            style={{marginBottom: '20px', backgroundColor: '#52c41a'}}>
-                                        저장하기
-                                    </Button>
-                                </div>
-                            </Form>
+                                    <div style={{display: "flex", gap: '10px'}}>
+                                        {consultant?.vehicles && (
+                                            <Form.Item label="차량 종류" style={{width: '100px'}}>
+                                                <Select
+                                                    placeholder="예: 카고"
+                                                    value={vehicleType}
+                                                    onChange={(value, option) => {
+                                                        setVehicleType({key: option.key, value})
+                                                    }
+                                                    }
+                                                >
+                                                    {consultant.vehicles.map((vehicle) => (
+                                                        <Select.Option key={vehicle.vehicleId}
+                                                                       value={vehicle.vehicleName}>
+                                                            {vehicle.vehicleName}
+                                                        </Select.Option>
+                                                    ))}
+                                                </Select>
+                                            </Form.Item>
+                                        )}
 
-                            <div
-                                style={{
-                                    position: 'fixed',
-                                    top: 0,
-                                    right: isCollapsed ? '-38%' : '0', // 패널 슬라이드 위치 조정
-                                    width: '38%',
-                                    height: '100%',
-                                    backgroundColor: '#f8f6f6',
-                                    transition: 'right 0.3s ease',
-                                    padding: '10px',
-                                    overflow: 'auto',
-                                    boxShadow: '-2px 0 5px rgba(0,0,0,0.1)',
-                                }}
-                            >
+                                        {consultant?.moveTypes && (
+                                            <Form.Item label="이사 종류">
+                                                <Select
+                                                    placeholder="예: 단순운송"
+                                                    value={moveType?.value}
+                                                    onChange={handleMoveTypeChange}
+                                                >
+                                                    {consultant.moveTypes.map((moveType) => (
+                                                        <Select.Option key={moveType.moveTypeId}
+                                                                       value={moveType.moveTypeName}>
+                                                            {moveType.moveTypeName}
+                                                        </Select.Option>
+                                                    ))}
+                                                </Select>
+                                            </Form.Item>
+                                        )}
+
+                                        {(moveType?.value === '반포장이사' || moveType?.value === '포장이사') && (
+                                            <>
+                                                <Form.Item label="포장된 박스">
+                                                    <InputNumber
+                                                        min={0}
+                                                        value={packedBoxes}
+                                                        onChange={setPackedBoxes}
+                                                        style={{width: '100%'}}
+                                                        placeholder="포장된 박스 수 입력"
+                                                    />
+                                                </Form.Item>
+                                                <Form.Item label="포장할 박스">
+                                                    <InputNumber
+                                                        min={0}
+                                                        value={boxesToBePacked}
+                                                        onChange={setBoxesToBePacked}
+                                                        style={{width: '100%'}}
+                                                        placeholder="포장해야 할 박스 수 입력"
+                                                    />
+                                                </Form.Item>
+                                            </>
+                                        )}
+                                    </div>
+
+                                    <Form.Item label="총 CBM 설정">
+                                        <InputNumber
+                                            min={0}
+                                            step={0.1}
+                                            precision={1}
+                                            placeholder="CBM 입력해주세요."
+                                            value={totalItemCbm}
+                                            onChange={(value) => setTotalItemCbm(value)}
+                                            formatter={(value) => `${value} CBM`}
+                                            parser={(value) => value.replace(' CBM', '')}
+                                        />
+                                    </Form.Item>
+
+                                    <div className='btn-wra' style={{display: 'flex', gap: '10px'}}>
+                                        <Button type='primary' onClick={fetchConsultant}>배차 금액 조회</Button>
+                                        <Button type="primary" onClick={saveEntry}
+                                                style={{marginBottom: '20px', backgroundColor: '#52c41a'}}>
+                                            저장하기
+                                        </Button>
+                                    </div>
+                                </Form>
+
                                 <div
                                     style={{
-                                        position: 'absolute',
-                                        top: '50%',
-                                        left: '-20px',
-                                        transform: 'translateY(-50%)',
-                                        cursor: 'pointer',
-                                        backgroundColor: '#fff',
-                                        border: '1px solid #ccc',
-                                        padding: '5px 10px',
-                                        borderRadius: '5px',
-                                        boxShadow: '0px 0px 5px rgba(0,0,0,0.3)', // 그림자 추가
+                                        position: 'fixed',
+                                        top: 0,
+                                        right: isCollapsed ? '-38%' : '0', // 패널 슬라이드 위치 조정
+                                        width: '38%',
+                                        height: '100%',
+                                        backgroundColor: '#f8f6f6',
+                                        transition: 'right 0.3s ease',
+                                        padding: '10px',
+                                        overflow: 'auto',
+                                        boxShadow: '-2px 0 5px rgba(0,0,0,0.1)',
                                     }}
-                                    onClick={() => setIsCollapsed(!isCollapsed)}
                                 >
-                                    {isCollapsed ? <LeftOutlined/> : <RightOutlined/>}
-                                </div>
+                                    <div
+                                        style={{
+                                            position: 'absolute',
+                                            top: '50%',
+                                            left: '-20px',
+                                            transform: 'translateY(-50%)',
+                                            cursor: 'pointer',
+                                            backgroundColor: '#fff',
+                                            border: '1px solid #ccc',
+                                            padding: '5px 10px',
+                                            borderRadius: '5px',
+                                            boxShadow: '0px 0px 5px rgba(0,0,0,0.3)', // 그림자 추가
+                                        }}
+                                        onClick={() => setIsCollapsed(!isCollapsed)}
+                                    >
+                                        {isCollapsed ? <LeftOutlined/> : <RightOutlined/>}
+                                    </div>
 
-                                <div style={{display: isCollapsed ? 'none' : 'block'}}>
-                                    <DispatchPrice data={calcConsultantData} isLoadingConsultantMutate={isLoadingConsultantMutate}/>
+                                    <div style={{display: isCollapsed ? 'none' : 'block'}}>
+                                        <DispatchPrice data={calcConsultantData}
+                                                       isLoadingConsultantMutate={isLoadingConsultantMutate}/>
+                                    </div>
                                 </div>
-                            </div>
-                        </main>
-                    </div>
-                    <div style={{width: '40%', padding: '20px'}}>
-                        테스트
-                    </div>
-                </>
+                            </main>
+                        </div>
+                        <div style={{width: '40%', padding: '20px'}}>
+                            테스트
+                        </div>
+                    </>
+                )
             )}
         </div>
     );
