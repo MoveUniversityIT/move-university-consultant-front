@@ -1,17 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const webpack = require('webpack');
-const dotenv = require('dotenv');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-
-// const env = process.env.NODE_ENV === 'production'
-//     ? dotenv.config({path: '.env.production'}).parsed
-//     : dotenv.config({path: '.env.development'}).parsed;
-//
-// const envKeys = Object.keys(env).reduce((prev, next) => {
-//     prev[`process.env.${next}`] = JSON.stringify(env[next]);
-//     return prev;
-// }, {});
 
 const envKeys = Object.keys(process.env).reduce((prev, next) => {
     prev[`process.env.${next}`] = JSON.stringify(process.env[next]);
@@ -42,7 +32,6 @@ module.exports = {
                 exclude: /\.module\.css$/i,
                 use: [MiniCssExtractPlugin.loader, 'css-loader'], // MiniCssExtractPlugin.loader 사용
             },
-            // CSS Module ([filename].module.css)
             {
                 test: /\.module\.css$/,
                 use: [
@@ -95,7 +84,7 @@ module.exports = {
         splitChunks: {
             chunks: 'all',
             minSize: 30000,
-            maxSize: 250000, // 최대 청크 크기를 250KB로 설정
+            maxSize: 250000,
             minChunks: 1,
             maxAsyncRequests: 20,
             maxInitialRequests: 20,
@@ -118,7 +107,7 @@ module.exports = {
             },
         },
     },
-    devtool: 'cheap-module-source-map', // 디버깅을 위한 소스맵 생성
+    devtool: 'cheap-module-source-map',
     devServer: {
         historyApiFallback: true,
         static: path.resolve(__dirname, 'public'),

@@ -15,10 +15,11 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-scripts": "5.0.1",
+    "uuid": "^11.0.2",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "cross-env NODE_ENV=development webpack serve --mode development",
+    "start": "cross-env NODE_ENV=development REACT_APP_BASE_URL=http://localhost:8080/v1 webpack serve --mode development",
     "build": "cross-env NODE_ENV=development webpack --config webpack.config.js --mode development",
     "start:prod": "cross-env NODE_ENV=production webpack serve --mode production",
     "build:prod": "cross-env NODE_ENV=production webpack --config webpack.config.js --mode production"
