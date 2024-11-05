@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Alert, Button, DatePicker, Form, Input, InputNumber, Progress, Select, Tag, TimePicker, Typography} from 'antd';
 import {useAddressSearch, useCalcConsultant, useConsultantMetadata, useRoadDistance} from "@hook/useConsultant";
 import _ from 'lodash';
@@ -27,6 +27,7 @@ const Consultant = () => {
     const [showLoadAddressList, setShowLoadAddressList] = useState(false);
     const [showUnloadAddressList, setShowUnloadAddressList] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const searchTermRef = useRef(null);
     const [suggestions, setSuggestions] = useState([]);
     const [errorMessage, setErrorMessage] = useState('');
     const [items, setItems] = useState([]);
@@ -233,14 +234,14 @@ const Consultant = () => {
         const emptyFields = [];
 
         if (_.isEmpty(loadLocation)) emptyFields.push("상차지");
-        if (_.isEmpty(moveType)) emptyFields.push("이사 종류");
         if (_.isEmpty(loadMethod)) emptyFields.push("상차 방법");
         if (_.isEmpty(unloadLocation)) emptyFields.push("하차지");
         if (_.isEmpty(unloadMethod)) emptyFields.push("하차 방법");
         if (_.isEmpty(items)) emptyFields.push("선택된 아이템");
         if (_.isEmpty(requestDate)) emptyFields.push("요청 날짜");
         if (_.isEmpty(requestTime)) emptyFields.push("요청 시간");
-        if (_.isEmpty(vehicleType)) emptyFields.push("탑차 유형");
+        if (_.isEmpty(vehicleType)) emptyFields.push("차량 종류");
+        if (_.isEmpty(moveType)) emptyFields.push("이사 종류");
 
         if (loadLocation && loadLocation === unloadLocation) {
             alert(`상차지와 하차지가 같습니다. 다시 확인해주세요.`);
@@ -318,6 +319,7 @@ const Consultant = () => {
             )
             .filter(Boolean);
 
+        searchTermRef.current.focus();
         setItems(matchingItems);
         setSuggestions([]);
         setSearchTerm(`${newSearchTerm}, `);
@@ -567,6 +569,7 @@ const Consultant = () => {
 
                                 <Form.Item label="물품">
                                     <Input
+                                        ref={searchTermRef}
                                         placeholder="아이템 이름을 입력하고 콤마(,)로 구분하세요"
                                         value={searchTerm}
                                         onChange={handleInputChange}
@@ -580,11 +583,6 @@ const Consultant = () => {
                                                 <Tag
                                                     key={item.itemId}
                                                     onClick={handleSelectItem(item)}
-                                                    // onClick={() => {
-                                                    //     setSearchTerm((prev) => `${prev}${item.itemName}, `);
-                                                    //     setItems((prevItems) => [...prevItems, item]);
-                                                    //     setSuggestions([]);
-                                                    // }}
                                                     style={{cursor: 'pointer'}}
                                                 >
                                                     {item.itemName}
