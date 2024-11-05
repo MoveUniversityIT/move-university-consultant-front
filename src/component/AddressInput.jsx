@@ -2,7 +2,7 @@ import React, { forwardRef } from 'react';
 import { Form, Input } from 'antd';
 
 const AddressInput = forwardRef(({ label, location, handleLocationChange, setCityCode, handleCoordinates, addressList, showAddressList, onSelectAddress, setShowAddressList }, ref) => (
-    <Form.Item label={label} style={{ position: 'relative', width: '100%' }} ref={ref}>
+    <Form.Item label={label} style={{ position: 'relative', width: '240px' }} ref={ref}>
         <Input
             placeholder="주소를 입력하세요"
             value={location}
