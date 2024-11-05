@@ -5,7 +5,7 @@ import _ from 'lodash';
 import AddressInput from "@/component/AddressInput";
 import MethodAndFloorInput from "@/component/MethodAndFloorInput";
 import GenderSelector from "@/component/GenderSelector";
-import moment from "moment";
+import dayjs from 'dayjs';
 import DispatchPrice from "@/component/DispatchPrice";
 import LeftSidebar from "@/component/LeftSidebar";
 import {LeftOutlined, RightOutlined} from "@ant-design/icons";
@@ -34,8 +34,8 @@ const Consultant = () => {
     const [unloadMethod, setUnloadMethod] = useState(null);
     const [loadFloor, setLoadFloor] = useState(1);
     const [unloadFloor, setUnloadFloor] = useState(1);
-    const [requestDate, setRequestDate] = useState(null);
-    const [requestTime, setRequestTime] = useState(null);
+    const [requestDate, setRequestDate] = useState(dayjs(new Date()));
+    const [requestTime, setRequestTime] = useState(dayjs('08:00', 'HH:mm'));
     const [locationInfo, setLocationInfo] = useState({
         startX: null, startY: null, endX: null, endY: null
     });
@@ -51,6 +51,7 @@ const Consultant = () => {
     const {data: roadDistanceData} = useRoadDistance(locationInfo);
     const [distance, setDistance] = useState(null);
     const {isLoading: isLoadingConsultantMutate, mutate: consultantMutate, data: calcData} = useCalcConsultant();
+    const [calcConsultantData, setCalcConsultantData] = useState(null);
 
     const resetForm = () => {
         // 폼 필드를 모두 초기화하는 함수
@@ -83,6 +84,7 @@ const Consultant = () => {
         setPackedBoxes(0);
         setBoxesToBePacked(0);
         setTotalItemCbm(0);
+        setCalcConsultantData(null);
     };
 
     const saveEntry = () => {
@@ -156,6 +158,10 @@ const Consultant = () => {
             endY: coordinates?.y ?? null
         }));
     }
+
+    useEffect(() => {
+        setCalcConsultantData(calcData);
+    }, [calcData])
 
     useEffect(() => {
         if (roadDistanceData) {
@@ -298,6 +304,27 @@ const Consultant = () => {
 
     const [skipChangeEvent, setSkipChangeEvent] = useState(false);
 
+    const handleSelectItem = (item) => (e) => {
+        const firstSuggestion = item;
+        const terms = searchTerm.split(',').map(term => term.trim());
+
+        terms[terms.length - 1] = firstSuggestion.itemName;
+
+        const newSearchTerm = `${terms.join(', ')}`;
+
+        const matchingItems = terms
+            .map(term => collapseItems.find(item => (
+                item.itemName.toLowerCase() === term.toLowerCase()))
+            )
+            .filter(Boolean);
+
+        setItems(matchingItems);
+        setSuggestions([]);
+        setSearchTerm(`${newSearchTerm}, `);
+
+        e.preventDefault();
+    }
+
     const handleInputKeyDown = (e) => {
         if (e.key === ' ') {
             if (suggestions.length > 0) {
@@ -347,6 +374,30 @@ const Consultant = () => {
             .map(term => collapseItems.find(item => item.itemName.toLowerCase() === term.toLowerCase()))
             .filter(Boolean);
 
+        // const matchingItems = terms
+        //     .map(term => {
+        //         const match = term.match(/^([ㄱ-ㅎ|가-힣a-zA-Z]+)(\d+)$/i);
+        //
+        //         if (match) {
+        //             const textPart = match[1];
+        //             const numberPart = parseInt(match[2], 10);
+        //
+        //             const item = collapseItems.find(item =>
+        //                 item.itemName.toLowerCase() === textPart.toLowerCase()
+        //             );
+        //
+        //             if (item) {
+        //                 return Array(numberPart).fill(item); // 숫자에 따라 아이템 생성
+        //             }
+        //         }
+        //
+        //         return null;
+        //     })
+        //     .flat() // 중첩 배열 평탄화
+        //     .filter(Boolean);
+
+        console.log(matchingItems);
+
         setSearchTerm(value);
         setItems(matchingItems);
     };
@@ -379,6 +430,7 @@ const Consultant = () => {
     };
 
     const handleTimeChange = (time) => {
+        console.log(time);
         setRequestTime(time);
     };
 
@@ -527,11 +579,12 @@ const Consultant = () => {
                                             {suggestions.map((item) => (
                                                 <Tag
                                                     key={item.itemId}
-                                                    onClick={() => {
-                                                        setSearchTerm((prev) => `${prev}${item.itemName}, `);
-                                                        setItems((prevItems) => [...prevItems, item]);
-                                                        setSuggestions([]);
-                                                    }}
+                                                    onClick={handleSelectItem(item)}
+                                                    // onClick={() => {
+                                                    //     setSearchTerm((prev) => `${prev}${item.itemName}, `);
+                                                    //     setItems((prevItems) => [...prevItems, item]);
+                                                    //     setSuggestions([]);
+                                                    // }}
                                                     style={{cursor: 'pointer'}}
                                                 >
                                                     {item.itemName}
@@ -658,7 +711,7 @@ const Consultant = () => {
                                 </div>
 
                                 <div style={{display: isCollapsed ? 'none' : 'block'}}>
-                                    <DispatchPrice data={calcData} isLoadingConsultantMutate={isLoadingConsultantMutate}/>
+                                    <DispatchPrice data={calcConsultantData} isLoadingConsultantMutate={isLoadingConsultantMutate}/>
                                 </div>
                             </div>
                         </main>
