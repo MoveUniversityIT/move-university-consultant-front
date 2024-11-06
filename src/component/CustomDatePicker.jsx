@@ -76,7 +76,11 @@ const CustomDatePicker = ({requestDate, handleDateChange}) => {
             <DatePicker
                 value={requestDate}
                 onChange={(date) => {
-                    handleDateChange(isNoHandsDay(date))(date);
+                    if(date === null) {
+                        handleDateChange(false)(null);
+                    }else {
+                        handleDateChange(isNoHandsDay(date))(date);
+                    }
                 }}
                 onPanelChange={handlePanelChange}
                 cellRender={dateCellRender}
