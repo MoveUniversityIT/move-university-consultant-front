@@ -106,7 +106,7 @@ const AddItem = ({ itemList, onItemAdded }) => {
                     {info && <Alert message={info} type="success" showIcon closable />}
                 </Form.Item>
 
-                <Form.Item label="CBM (숫자만, 소수점 가능)">
+                <Form.Item label="CBM">
                     <InputNumber
                         style={{ width: '100%' }}
                         placeholder="CBM을 입력하세요"
@@ -118,7 +118,7 @@ const AddItem = ({ itemList, onItemAdded }) => {
                     />
                 </Form.Item>
 
-                <Form.Item label="물품 추가 비용(현재 계산에 사용 안함)">
+                <Form.Item label="물품 추가 비용(배차 비용 계산시 사용안하고 있음)">
                     <InputNumber
                         style={{ width: '100%' }}
                         placeholder="물품 추가 비용을 입력하세요"
@@ -130,7 +130,7 @@ const AddItem = ({ itemList, onItemAdded }) => {
                     />
                 </Form.Item>
 
-                <Form.Item label="무게 (숫자만)">
+                <Form.Item label="무게">
                     <InputNumber
                         style={{ width: '100%' }}
                         placeholder="무게를 입력하세요"
