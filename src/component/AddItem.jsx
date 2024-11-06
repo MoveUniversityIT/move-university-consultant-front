@@ -118,7 +118,7 @@ const AddItem = ({ itemList, onItemAdded }) => {
                     />
                 </Form.Item>
 
-                <Form.Item label="물품 추가 비용(배차 비용 계산시 사용안하고 있음)">
+                <Form.Item label="물품 추가 비용(배차 금액 계산시 사용안하고 있음)">
                     <InputNumber
                         style={{ width: '100%' }}
                         placeholder="물품 추가 비용을 입력하세요"
