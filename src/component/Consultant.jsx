@@ -406,7 +406,7 @@ const Consultant = () => {
         if (!listGetter().some(item => item.gender === selectedGender)) {
             listSetter((prevList) => [
                 ...prevList,
-                {gender: selectedGender, peopleNumber: 1}
+                {gender: selectedGender, peopleCount: 1}
             ]);
         }
     };
@@ -414,7 +414,7 @@ const Consultant = () => {
     const updateGenderCount = (index, value, listSetter, listGetter) => {
         listSetter((prevList) =>
             prevList.map((item, idx) =>
-                idx === index ? {...item, peopleNumber: value || 0} : item
+                idx === index ? {...item, peopleCount: value || 0} : item
             )
         );
     };
@@ -666,18 +666,20 @@ const Consultant = () => {
                                         )}
                                     </div>
 
-                                    <Form.Item label="총 CBM 설정">
-                                        <InputNumber
-                                            min={0}
-                                            step={0.1}
-                                            precision={1}
-                                            placeholder="CBM 입력해주세요."
-                                            value={totalItemCbm}
-                                            onChange={(value) => setTotalItemCbm(value)}
-                                            formatter={(value) => `${value} CBM`}
-                                            parser={(value) => value.replace(' CBM', '')}
-                                        />
-                                    </Form.Item>
+                                    <div style={{display: "flex", gap: "10px"}}>
+                                        <Form.Item label="총 CBM 설정">
+                                            <InputNumber
+                                                min={0}
+                                                step={0.1}
+                                                precision={1}
+                                                placeholder="CBM 입력해주세요."
+                                                value={totalItemCbm}
+                                                onChange={(value) => setTotalItemCbm(value)}
+                                                formatter={(value) => `${value} CBM`}
+                                                parser={(value) => value.replace(' CBM', '')}
+                                            />
+                                        </Form.Item>
+                                    </div>
 
                                     <div className='btn-wra' style={{display: 'flex', gap: '10px'}}>
                                         <Button type='primary' onClick={fetchConsultant}>배차 금액 조회</Button>

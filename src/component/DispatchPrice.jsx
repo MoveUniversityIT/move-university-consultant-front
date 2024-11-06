@@ -20,6 +20,7 @@ const labels = {
     unloadLocationPriceFactor: "하차지 난이도 추가 요금",
     totalDifficultyPriceFactor: "상차지 난이도 + 하차지 난이도 추가 요금",
     dokcha: "독차가",
+    disCountDokchaPrice: "추가할인된 독차가",
     dokchaCbmPerFee: "독차 + 기본가 + 추가 CBM당 요금",
     datePriceFactor: "요청 날짜 추가 요금",
     timePriceFactor: "요청 시간 추가 요금",
