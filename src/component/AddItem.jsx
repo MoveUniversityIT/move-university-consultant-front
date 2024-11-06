@@ -121,7 +121,7 @@ const AddItem = ({ itemList, onItemAdded }) => {
                 <Form.Item label="물품 추가 비용(현재 계산에 사용 안함)">
                     <InputNumber
                         style={{ width: '100%' }}
-                        placeholder="추가 비용 비용을 입력하세요"
+                        placeholder="물품 추가 비용을 입력하세요"
                         value={additionalFee}
                         onChange={(value) => setAdditionalFee(value)}
                         min={0}
