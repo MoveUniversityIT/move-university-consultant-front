@@ -11,6 +11,8 @@ import LeftSidebar from "@/component/LeftSidebar";
 import {LeftOutlined, RightOutlined} from "@ant-design/icons";
 import {v4 as uuidv4} from 'uuid';
 import CustomProgress from "@/component/CustomProgress";
+import CustomDatePicker from "@/component/CustomDatePicker";
+import SpecialDateCheckBox from "@/component/SpecialDateCheckBox";
 
 const {Title} = Typography;
 
@@ -51,9 +53,10 @@ const Consultant = () => {
     const {data: locationList} = useAddressSearch(locationSearch);
     const {isLoading, data: consultant, error: consultantMetaError} = useConsultantMetadata();
     const {data: roadDistanceData} = useRoadDistance(locationInfo);
-    const [distance, setDistance] = useState(null);
+    const [distance, setDistance] = useState(0);
     const {isLoading: isLoadingConsultantMutate, mutate: consultantMutate, data: calcData} = useCalcConsultant();
     const [calcConsultantData, setCalcConsultantData] = useState(null);
+    const [dateCheckList, setDateCheckList] = useState([]);     // 특수일 리스트
 
     const resetForm = () => {
         // 폼 필드를 모두 초기화하는 함수
@@ -82,7 +85,7 @@ const Consultant = () => {
         setLocationInfo({
             startX: null, startY: null, endX: null, endY: null
         });
-        setDistance(null);
+        setDistance(0);
         setPackedBoxes(0);
         setBoxesToBePacked(0);
         setTotalItemCbm(0);
@@ -171,7 +174,6 @@ const Consultant = () => {
         }
     }, [roadDistanceData]);
 
-    // `locationList` 업데이트 시 `addressList` 업데이트
     useEffect(() => {
         if (locationList && locationSearch?.address) {
             if (locationSearch?.address === loadLocation) {
@@ -423,7 +425,14 @@ const Consultant = () => {
 
     const isGenderAdded = (gender, listGetter) => listGetter().some(item => item.gender === gender);
 
-    const handleDateChange = (date) => {
+    const handleDateChange = (isNoHandsSon) => (date) => {
+
+        if (isNoHandsSon) {
+            setDateCheckList(["NO_HANDS_SON"]);
+        } else {
+            setDateCheckList([]);
+        }
+
         setRequestDate(date);
     };
 
@@ -448,12 +457,11 @@ const Consultant = () => {
     return (
         <div style={{position: 'relative', display: 'flex'}}>
             {isLoading && (
-                <CustomProgress isLoading={isLoading} />
+                <CustomProgress isLoading={isLoading}/>
             )}
 
             {!isLoading && (
                 consultantMetaError ? (
-                    // 에러 발생 시 Alert 표시
                     <Alert
                         message="서버와의 통신에 문제가 발생했습니다."
                         description="상담 봇 데이터를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.(관리자에게 문의바랍니다.)"
@@ -545,10 +553,8 @@ const Consultant = () => {
                                     <div style={{display: "flex"}}>
                                         <div style={{flex: '1'}}>
                                             <Form.Item label="요청일">
-                                                <DatePicker
-                                                    value={requestDate}
-                                                    onChange={handleDateChange}
-                                                />
+                                                <CustomDatePicker requestDate={requestDate}
+                                                                  handleDateChange={handleDateChange}/>
                                             </Form.Item>
                                         </div>
                                         <div style={{flex: '1'}}>
@@ -721,8 +727,16 @@ const Consultant = () => {
                                 </div>
                             </main>
                         </div>
-                        <div style={{width: '40%', padding: '20px'}}>
-                            테스트
+                        <div style={{display: 'flex', flexDirection: 'column', width: '40%', padding: '50px 10%', gap: '10px'}}>
+                            <Form.Item label="거리">
+                                <Input
+                                    value={`${distance} Km`}
+                                    disabled
+                                />
+                            </Form.Item>
+                            <Form.Item label="특수일">
+                                <SpecialDateCheckBox dateCheckList={dateCheckList}/>
+                            </Form.Item>
                         </div>
                     </>
                 )
