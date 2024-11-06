@@ -53,7 +53,27 @@ const AddItem = ({ itemList, onItemAdded }) => {
     };
 
     const handleAddItem = () => {
-        if (!selectedCategory || !itemInput.trim() || error) return;
+        // 모든 필드가 입력되었는지 확인하는 유효성 검사
+        if (!selectedCategory) {
+            alert("대분류를 선택하세요.");
+            return;
+        }
+        if (!itemInput.trim()) {
+            alert("아이템 이름을 입력하세요.");
+            return;
+        }
+        if (cbmInput === null || cbmInput === '') {
+            alert("CBM 값을 입력하세요.");
+            return;
+        }
+        if (additionalFee === null || additionalFee === '') {
+            alert("추가 비용 유형을 입력하세요.");
+            return;
+        }
+        if (weight === null || weight === '') {
+            alert("무게 값을 입력하세요.");
+            return;
+        }
 
         const confirmed = window.confirm("전송하시겠습니까?");
         if (!confirmed) return;
