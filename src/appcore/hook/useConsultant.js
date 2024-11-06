@@ -1,5 +1,11 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
-import {getCalcConsultant, getConsultantMetadata, getKakaoAddress, getRoadDistance} from "@api/consultantApi";
+import {
+    getCalcConsultant,
+    getConsultantMetadata,
+    getKakaoAddress,
+    getRoadDistance,
+    getSpecialDay
+} from "@api/consultantApi";
 
 // 상담 봇 메타 데이터 조회
 export const useConsultantMetadata = () => {
@@ -42,6 +48,17 @@ export const useCalcConsultant = () => {
         onSuccess: (data) => {
         }
     });
+}
+
+// 특수일(손 없는날) 조회
+export const useSpecialDay = () => {
+    return useMutation({
+        mutationFn: (year) => getSpecialDay(year),
+        retry: false,
+        onError: (error) => {
+            alert('특수일(손없는 날) 데이터를 가져오는데 실패했습니다.');
+        },
+    })
 }
 
 

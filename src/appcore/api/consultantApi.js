@@ -50,4 +50,11 @@ export const getCalcConsultant = async (consultantDataForm) => {
     return response?.data?.data;
 }
 
+// 특수일(손 없는날) 조회
+export const getSpecialDay = async (year) => {
+    const response = await API.get(`/consultant/special-day?year=${year}`);
+
+    return response?.data?.data;
+}
+
 
