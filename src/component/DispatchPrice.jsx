@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Typography, Table, Progress} from 'antd';
+import CustomProgress from "@/component/CustomProgress";
 
 const {Title} = Typography;
 
@@ -23,9 +24,10 @@ const labels = {
     datePriceFactor: "요청 날짜 추가 요금",
     timePriceFactor: "요청 시간 추가 요금",
     vehicleTypeFee: "차량 추가 요금",
-    vehiclePrice: "차량 1대당 가격",
     boxPriceFactor: "박스 추가/할인 요금",
-    todayOrTomorrowPriceFactor: "당일, 내일 추가 요금"
+    todayOrTomorrowPriceFactor: "당일, 내일 추가 요금",
+    vehiclePrice: "차량 1대당 가격",
+    vehicleRoundingHalfUp: '차량 1대당(반올림) 가격',
 };
 
 const helperLabels = {
@@ -40,25 +42,10 @@ const helperLabels = {
 };
 
 const DispatchPrice = ({data, isLoadingConsultantMutate}) => {
-    const [progress, setProgress] = useState(0);
     const [dispatchData, setDispatchData] = useState({});
 
     useEffect(() => {
-        let currentProgress = 0;
-
-        const interval = setInterval(() => {
-            if (currentProgress < 80) {
-                currentProgress += 2; // 5초 동안 80%까지 증가
-            } else if (currentProgress < 90) {
-                currentProgress += 1; // 그 후 2초 동안 90%까지 증가
-            } else {
-                clearInterval(interval);
-            }
-            setProgress(currentProgress);
-        }, 125)
-
         if (data) {
-            setProgress(100);
             setDispatchData(data);
         }
     }, [data]);
@@ -173,7 +160,7 @@ const DispatchPrice = ({data, isLoadingConsultantMutate}) => {
     return (
         <div style={{padding: '20px'}}>
             {isLoadingConsultantMutate ? (
-                <Progress percent={progress}/>
+                <CustomProgress isLoading={isLoadingConsultantMutate} />
             ) : (
                 <>
                     <Title level={3}>배차 금액 총계</Title>
