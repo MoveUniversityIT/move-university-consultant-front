@@ -4,7 +4,7 @@ import {
     getConsultantMetadata,
     getKakaoAddress,
     getRoadDistance,
-    getSpecialDay
+    getSpecialDay, postSaveItem
 } from "@api/consultantApi";
 
 // 상담 봇 메타 데이터 조회
@@ -57,6 +57,23 @@ export const useSpecialDay = () => {
         retry: false,
         onError: (error) => {
             alert('특수일(손없는 날) 데이터를 가져오는데 실패했습니다.');
+        },
+    })
+}
+
+// 물품 등록
+export const useSaveItem = () => {
+    return useMutation({
+        mutationFn: (item) => postSaveItem(item),
+        retry: false,
+        onSuccess: (response) => {
+            // 서버에서 받은 성공 메시지
+            const successMessage = response?.data?.message || "아이템이 성공적으로 추가되었습니다.";
+            alert(successMessage);
+        },
+        onError:(error) => {
+            const errorMessage = error?.response?.data?.errorMessage || "아이템 추가 중 오류가 발생했습니다.";
+            alert(errorMessage);
         },
     })
 }

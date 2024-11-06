@@ -57,4 +57,10 @@ export const getSpecialDay = async (year) => {
     return response?.data?.data;
 }
 
+// 물품 등록
+export const postSaveItem = async (item) => {
+    const response = await API.post('/consultant/item', item);
+
+    return response?.data?.data;
+}
 

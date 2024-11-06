@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Alert, Button, DatePicker, Form, Input, InputNumber, Progress, Select, Tag, TimePicker, Typography} from 'antd';
+import {Alert, Button, Divider, Form, Input, InputNumber, Select, Tag, TimePicker, Typography} from 'antd';
 import {useAddressSearch, useCalcConsultant, useConsultantMetadata, useRoadDistance} from "@hook/useConsultant";
 import _ from 'lodash';
 import AddressInput from "@/component/AddressInput";
@@ -13,6 +13,8 @@ import {v4 as uuidv4} from 'uuid';
 import CustomProgress from "@/component/CustomProgress";
 import CustomDatePicker from "@/component/CustomDatePicker";
 import SpecialDateCheckBox from "@/component/SpecialDateCheckBox";
+import AddItem from "@/component/AddItem";
+import {useQueryClient} from "@tanstack/react-query";
 
 const {Title} = Typography;
 
@@ -54,6 +56,7 @@ const Consultant = () => {
     const {isLoading, data: consultant, error: consultantMetaError} = useConsultantMetadata();
     const {data: roadDistanceData} = useRoadDistance(locationInfo);
     const [distance, setDistance] = useState(0);
+    const queryClient = useQueryClient();
     const {isLoading: isLoadingConsultantMutate, mutate: consultantMutate, data: calcData} = useCalcConsultant();
     const [calcConsultantData, setCalcConsultantData] = useState(null);
     const [dateCheckList, setDateCheckList] = useState([]);     // 특수일 리스트
@@ -454,6 +457,11 @@ const Consultant = () => {
         setSavedEntries(savedEntries.filter(entry => entry.id !== id));
     };
 
+    const handleItemAdded = () => {
+        queryClient.invalidateQueries('consultantMetadata');
+    };
+
+
     return (
         <div style={{position: 'relative', display: 'flex'}}>
             {isLoading && (
@@ -702,6 +710,7 @@ const Consultant = () => {
                                         padding: '10px',
                                         overflow: 'auto',
                                         boxShadow: '-2px 0 5px rgba(0,0,0,0.1)',
+                                        zIndex: 1000
                                     }}
                                 >
                                     <div
@@ -729,7 +738,13 @@ const Consultant = () => {
                                 </div>
                             </main>
                         </div>
-                        <div style={{display: 'flex', flexDirection: 'column', width: '40%', padding: '50px 10%', gap: '10px'}}>
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: '40%',
+                            padding: '50px 10%',
+                            gap: '10px'
+                        }}>
                             <Form.Item label="거리">
                                 <Input
                                     value={`${distance} Km`}
@@ -739,6 +754,9 @@ const Consultant = () => {
                             <Form.Item label="특수일">
                                 <SpecialDateCheckBox dateCheckList={dateCheckList}/>
                             </Form.Item>
+
+                            <Divider>아이템 추가 임시 공간</Divider>
+                            <AddItem itemList={consultant?.items} onItemAdded={handleItemAdded}/>
                         </div>
                     </>
                 )
