@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Select, InputNumber, Alert } from 'antd';
-import { useSaveItem } from '@hook/useConsultant';
+import {useGetItem, useSaveItem, useUpdateItem} from '@hook/useConsultant'; // 업데이트 함수 추가
 import dayjs from 'dayjs';
 
 const { Option } = Select;
@@ -8,13 +8,17 @@ const { Option } = Select;
 const AddItem = ({ itemList, onItemAdded }) => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [items, setItems] = useState({});
+    const [itemId, setItemId] = useState(null);
     const [itemInput, setItemInput] = useState('');
     const [cbmInput, setCbmInput] = useState(null);
     const [additionalFee, setAdditionalFee] = useState(null);
     const [weight, setWeight] = useState(null);
     const [error, setError] = useState(null);
     const [info, setInfo] = useState(null);
+    const [isUpdateMode, setIsUpdateMode] = useState(false);
+    const { mutate: getItemMutate } = useGetItem();
     const { mutate: itemMutate } = useSaveItem();
+    const { mutate: updateItemMutate } = useUpdateItem();
 
     useEffect(() => {
         setItems(itemList);
@@ -26,6 +30,8 @@ const AddItem = ({ itemList, onItemAdded }) => {
         setSelectedCategory(value);
         setError(null);
         setInfo(null);
+        setIsUpdateMode(false); // 카테고리가 변경될 때 수정 모드를 해제합니다.
+        resetFields();
     };
 
     const handleItemInputChange = (value) => {
@@ -33,27 +39,53 @@ const AddItem = ({ itemList, onItemAdded }) => {
 
         if (value.trim()) {
             let duplicateCategory = null;
+            let duplicateItem = null;
+
             const isDuplicate = Object.entries(items).some(([category, categoryItems]) => {
-                const exists = categoryItems.some((item) => item.itemName === value);
-                if (exists) duplicateCategory = category;
-                return exists;
+                const item = categoryItems.find((item) => item.itemName === value);
+                if (item) {
+                    duplicateCategory = category;
+                    duplicateItem = item;
+                    return true;
+                }
+                return false;
             });
 
             if (isDuplicate) {
                 setError(`이미 존재하는 아이템입니다: ${value} (카테고리: ${duplicateCategory})`);
                 setInfo(null);
+                setIsUpdateMode(true);
+                getItemMutate(duplicateItem.itemId, {
+                    onSuccess: (data) => {
+                        setItemId(duplicateItem.itemId)
+                        setSelectedCategory(duplicateCategory)
+                        setItemInput(data.itemName)
+                        setCbmInput(data.cbm)
+                        setAdditionalFee(data.additionalFee)
+                        setWeight(data.weight)
+                    }
+                })
             } else {
                 setError(null);
                 setInfo(`추가 가능한 아이템입니다: ${value} (카테고리: ${selectedCategory})`);
+                setIsUpdateMode(false);
+                resetFields();
             }
         } else {
             setError(null);
             setInfo(null);
+            setIsUpdateMode(false);
         }
     };
 
-    const handleAddItem = () => {
-        // 모든 필드가 입력되었는지 확인하는 유효성 검사
+    const resetFields = () => {
+        setItemId(null);
+        setCbmInput(null);
+        setAdditionalFee(null);
+        setWeight(null);
+    };
+
+    const handleAddOrUpdateItem = () => {
         if (!selectedCategory) {
             alert("대분류를 선택하세요.");
             return;
@@ -75,7 +107,7 @@ const AddItem = ({ itemList, onItemAdded }) => {
             return;
         }
 
-        const confirmed = window.confirm("전송하시겠습니까?");
+        const confirmed = window.confirm(isUpdateMode ? "수정하시겠습니까?" : "전송하시겠습니까?");
         if (!confirmed) return;
 
         const item = {
@@ -86,18 +118,34 @@ const AddItem = ({ itemList, onItemAdded }) => {
             weight: weight,
         };
 
-        itemMutate(item, {
-            onSuccess: () => {
-                onItemAdded();
-                setSelectedCategory(null);
-                setItemInput('');
-                setCbmInput(null);
-                setAdditionalFee(null);
-                setWeight(null);
-                setError(null);
-                setInfo(null);
-            }
-        });
+        if (isUpdateMode) {
+            updateItemMutate({itemId, item}, {
+                onSuccess: () => {
+                    onItemAdded();
+                    setIsUpdateMode(false);
+                    resetForm();
+                }
+            });
+        } else {
+            // 아이템 추가 로직
+            itemMutate(item, {
+                onSuccess: () => {
+                    onItemAdded();
+                    resetForm();
+                }
+            });
+        }
+    };
+
+    const resetForm = () => {
+        setSelectedCategory(null);
+        setItemInput('');
+        setCbmInput(null);
+        setAdditionalFee(null);
+        setWeight(null);
+        setError(null);
+        setInfo(null);
+        setIsUpdateMode(false);
     };
 
     return (
@@ -144,7 +192,6 @@ const AddItem = ({ itemList, onItemAdded }) => {
                         placeholder="물품 추가 비용을 입력하세요"
                         value={additionalFee}
                         onChange={(value) => setAdditionalFee(value)}
-                        min={0}
                         step={0.1}
                         disabled={!selectedCategory}
                     />
@@ -165,10 +212,10 @@ const AddItem = ({ itemList, onItemAdded }) => {
                 <Form.Item>
                     <Button
                         type="primary"
-                        onClick={handleAddItem}
-                        disabled={!selectedCategory || !itemInput.trim() || !!error}
+                        onClick={handleAddOrUpdateItem}
+                        disabled={!selectedCategory || !itemInput.trim()}
                     >
-                        저장
+                        {isUpdateMode ? '수정' : '저장'}
                     </Button>
                 </Form.Item>
             </Form>

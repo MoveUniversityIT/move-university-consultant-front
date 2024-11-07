@@ -57,6 +57,13 @@ export const getSpecialDay = async (year) => {
     return response?.data?.data;
 }
 
+// 물품 조회
+export const getItem = async (id) => {
+    const response = await API.get(`/consultant/item/${id}`);
+
+    return response?.data?.data;
+}
+
 // 물품 등록
 export const postSaveItem = async (item) => {
     const response = await API.post('/consultant/item', item);
@@ -64,3 +71,9 @@ export const postSaveItem = async (item) => {
     return response?.data?.data;
 }
 
+// 물품 수정
+export const putUpdateItem = async (id, item) => {
+    const response = await API.put(`/consultant/item/${id}`, item);
+
+    return response?.data?.data;
+}
