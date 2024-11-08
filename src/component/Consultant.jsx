@@ -324,8 +324,10 @@ const Consultant = () => {
         const newSearchTerm = `${terms.join(', ')}`;
 
         const matchingItems = terms
-            .map(term => collapseItems.find(item => (
-                item && term && item.itemName.toLowerCase() === term.toLowerCase()))
+            .map(term =>
+                term ? collapseItems.find(item =>
+                    item?.itemName && item.itemName.toLowerCase() === term.toLowerCase()
+                ) : null
             )
             .filter(Boolean);
 
@@ -348,7 +350,11 @@ const Consultant = () => {
                 const newSearchTerm = `${terms.join(', ')}`;
 
                 const matchingItems = terms
-                    .map(term => collapseItems.find(item => item.itemName.toLowerCase() === term.toLowerCase()))
+                    .map(term =>
+                        term ? collapseItems.find(item =>
+                            item?.itemName && item.itemName.toLowerCase() === term.toLowerCase()
+                        ) : null
+                    )
                     .filter(Boolean);
 
                 setItems(matchingItems);
@@ -383,30 +389,12 @@ const Consultant = () => {
         }
 
         const matchingItems = terms
-            .map(term => collapseItems.find(item => item && term && item.itemName.toLowerCase() === term.toLowerCase()))
+            .map(term =>
+                term ? collapseItems.find(item =>
+                    item?.itemName && item.itemName.toLowerCase() === term.toLowerCase()
+                ) : null
+            )
             .filter(Boolean);
-
-        // const matchingItems = terms
-        //     .map(term => {
-        //         const match = term.match(/^([ㄱ-ㅎ|가-힣a-zA-Z]+)(\d+)$/i);
-        //
-        //         if (match) {
-        //             const textPart = match[1];
-        //             const numberPart = parseInt(match[2], 10);
-        //
-        //             const item = collapseItems.find(item =>
-        //                 item.itemName.toLowerCase() === textPart.toLowerCase()
-        //             );
-        //
-        //             if (item) {
-        //                 return Array(numberPart).fill(item); // 숫자에 따라 아이템 생성
-        //             }
-        //         }
-        //
-        //         return null;
-        //     })
-        //     .flat() // 중첩 배열 평탄화
-        //     .filter(Boolean);
 
         setSearchTerm(value);
         setItems(matchingItems);
