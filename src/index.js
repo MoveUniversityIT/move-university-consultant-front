@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import '@style/reset.css'
 import App from './App';
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import {BrowserRouter} from "react-router-dom";
 
 // React Query의 QueryClient 생성
 const queryClient = new QueryClient(
@@ -19,6 +20,8 @@ const queryClient = new QueryClient(
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <QueryClientProvider client={queryClient}>
-        <App/>
+        <BrowserRouter>
+            <App/>
+        </BrowserRouter>
     </QueryClientProvider>
 );

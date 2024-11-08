@@ -2,7 +2,7 @@ import {useMutation, useQuery} from "@tanstack/react-query";
 import {
     getCalcConsultant,
     getConsultantMetadata, getItem,
-    getKakaoAddress,
+    getKakaoAddress, getPendingItem,
     getRoadDistance,
     getSpecialDay, postSaveItem, putUpdateItem
 } from "@api/consultantApi";
@@ -12,7 +12,8 @@ export const useConsultantMetadata = () => {
     return useQuery({
         queryKey: ['consultantMetadata'],
         queryFn: getConsultantMetadata,
-        retry: false
+        retry: false,
+        refetchInterval: 1000 * 60 * 10,
     })
 }
 
@@ -70,6 +71,15 @@ export const useGetItem = () => {
             const errorMessage = error?.response?.data?.errorMessage || "아이템 조회 중 오류가 발생했습니다.";
             alert(errorMessage);
         },
+    })
+}
+
+// 물품 목록 조회(cbm 또는 weight 값이 0)
+export const usePendingItem = () => {
+    return useQuery({
+        queryKey: ['pendingItem'],
+        queryFn: getPendingItem,
+        retry: false,
     })
 }
 

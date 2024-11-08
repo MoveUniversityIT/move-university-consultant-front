@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Select, InputNumber, Alert } from 'antd';
+import React, {useEffect, useState} from 'react';
+import {Alert, Button, Form, Input, InputNumber, Select} from 'antd';
 import {useGetItem, useSaveItem, useUpdateItem} from '@hook/useConsultant'; // 업데이트 함수 추가
-import dayjs from 'dayjs';
 
 const { Option } = Select;
 
-const AddItem = ({ itemList, onItemAdded }) => {
+const AddItem = ({ itemList, onItemAdded, pendingItemList }) => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [items, setItems] = useState({});
     const [itemId, setItemId] = useState(null);
@@ -192,7 +191,6 @@ const AddItem = ({ itemList, onItemAdded }) => {
                         placeholder="물품 추가 비용을 입력하세요"
                         value={additionalFee}
                         onChange={(value) => setAdditionalFee(value)}
-                        step={0.1}
                         disabled={!selectedCategory}
                     />
                 </Form.Item>
@@ -204,7 +202,6 @@ const AddItem = ({ itemList, onItemAdded }) => {
                         value={weight}
                         onChange={(value) => setWeight(value)}
                         min={0}
-                        step={0.1}
                         disabled={!selectedCategory}
                     />
                 </Form.Item>

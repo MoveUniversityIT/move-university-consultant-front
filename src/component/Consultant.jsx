@@ -1,6 +1,12 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Alert, Button, Divider, Form, Input, InputNumber, Select, Tag, TimePicker, Typography} from 'antd';
-import {useAddressSearch, useCalcConsultant, useConsultantMetadata, useRoadDistance} from "@hook/useConsultant";
+import {
+    useAddressSearch,
+    useCalcConsultant,
+    useConsultantMetadata,
+    usePendingItem,
+    useRoadDistance
+} from "@hook/useConsultant";
 import _ from 'lodash';
 import AddressInput from "@/component/AddressInput";
 import MethodAndFloorInput from "@/component/MethodAndFloorInput";
@@ -15,6 +21,9 @@ import CustomDatePicker from "@/component/CustomDatePicker";
 import SpecialDateCheckBox from "@/component/SpecialDateCheckBox";
 import AddItem from "@/component/AddItem";
 import {useQueryClient} from "@tanstack/react-query";
+import RightSideBar from "@/component/RightSidebar";
+import UploadExcel from "@/component/UploadExcel";
+import DownloadExcel from "@/component/DownloadExcel";
 
 const {Title} = Typography;
 
@@ -54,6 +63,7 @@ const Consultant = () => {
 
     const {data: locationList} = useAddressSearch(locationSearch);
     const {isLoading, data: consultant, error: consultantMetaError} = useConsultantMetadata();
+    // const {data: pendingItemList} = usePendingItem();
     const {data: roadDistanceData} = useRoadDistance(locationInfo);
     const [distance, setDistance] = useState(0);
     const queryClient = useQueryClient();
@@ -181,7 +191,6 @@ const Consultant = () => {
         if (locationList && locationSearch?.address) {
             if (locationSearch?.address === loadLocation) {
                 setLoadAddressList(locationList.address || []);
-                setShowLoadAddressList(true);
 
                 if (loadLocation === locationList.address[0]?.address_name) {
                     handleLoadCoordinates({x: locationList.address[0]?.x, y: locationList.address[0]?.y});
@@ -190,7 +199,6 @@ const Consultant = () => {
                 }
             } else if (locationSearch?.address === unloadLocation) {
                 setUnloadAddressList(locationList.address || []);
-                setShowUnloadAddressList(true);
 
                 if (unloadLocation === locationList.address[0]?.address_name) {
                     handleUnloadCoordinates({x: locationList.address[0]?.x, y: locationList.address[0]?.y});
@@ -224,8 +232,9 @@ const Consultant = () => {
         }
     };
 
-    const handleAddressSelect = (setLocation, setShowList) => (address) => {
+    const handleAddressSelect = (setLocation, setShowList, locationType) => (address) => {
         setLocation(address);
+        setLocationSearch({address, locationType});
         setShowList(false);
     };
 
@@ -399,8 +408,6 @@ const Consultant = () => {
         //     .flat() // 중첩 배열 평탄화
         //     .filter(Boolean);
 
-        console.log(matchingItems);
-
         setSearchTerm(value);
         setItems(matchingItems);
     };
@@ -440,7 +447,6 @@ const Consultant = () => {
     };
 
     const handleTimeChange = (time) => {
-        console.log(time);
         setRequestTime(time);
     };
 
@@ -457,9 +463,10 @@ const Consultant = () => {
         setSavedEntries(savedEntries.filter(entry => entry.id !== id));
     };
 
-    const handleItemAdded = () => {
-        queryClient.invalidateQueries('consultantMetadata');
-    };
+    // const handleItemAdded = () => {
+    //     queryClient.invalidateQueries('consultantMetadata');
+    //     queryClient.invalidateQueries('pendingItem');
+    // };
 
 
     return (
@@ -502,7 +509,7 @@ const Consultant = () => {
                                                 addressList={loadAddressList}
                                                 showAddressList={showLoadAddressList}
                                                 setShowAddressList={setShowLoadAddressList}
-                                                onSelectAddress={handleAddressSelect(setLoadLocation, setShowLoadAddressList)}
+                                                onSelectAddress={handleAddressSelect(setLoadLocation, setShowLoadAddressList, 'start')}
                                             />
                                             <MethodAndFloorInput
                                                 label="상차 방법"
@@ -535,7 +542,7 @@ const Consultant = () => {
                                                 addressList={unloadAddressList}
                                                 showAddressList={showUnloadAddressList}
                                                 setShowAddressList={setShowUnloadAddressList}
-                                                onSelectAddress={handleAddressSelect(setUnloadLocation, setShowUnloadAddressList)}
+                                                onSelectAddress={handleAddressSelect(setUnloadLocation, setShowUnloadAddressList, 'end')}
                                             />
                                             <MethodAndFloorInput
                                                 label="하차 방법"
@@ -738,25 +745,9 @@ const Consultant = () => {
                                 </div>
                             </main>
                         </div>
-                        <div style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            width: '40%',
-                            padding: '50px 10%',
-                            gap: '10px'
-                        }}>
-                            <Form.Item label="거리">
-                                <Input
-                                    value={`${distance} Km`}
-                                    disabled
-                                />
-                            </Form.Item>
-                            <Form.Item label="특수일">
-                                <SpecialDateCheckBox dateCheckList={dateCheckList}/>
-                            </Form.Item>
-
-                            <Divider>아이템 추가 임시 공간</Divider>
-                            <AddItem itemList={consultant?.items} onItemAdded={handleItemAdded}/>
+                        <div style={{ width: '40%', padding: '50px 10%' }}>
+                            <RightSideBar distance={distance} dateCheckList={dateCheckList} />
+                            {/*<AddItem itemList={consultant?.items} onItemAdded={handleItemAdded} pendingItemList={pendingItemList}/>*/}
                         </div>
                     </>
                 )

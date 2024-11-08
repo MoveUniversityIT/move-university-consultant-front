@@ -15,13 +15,37 @@ export const getConsultantMetadata = async () => {
 // 주소 검색 함수 (Kakao API를 사용하는 부분)
 export const getKakaoAddress = (searchInfo) => {
     return new Promise((resolve, reject) => {
-        geocoder.addressSearch(searchInfo?.address, (result, status) => {
-            if (status === window.kakao.maps.services.Status.OK && result.length > 0) {
-                resolve({address: result, locationType: searchInfo?.locationType}); // 검색 결과를 resolve로 반환
-            } else {
-                reject(new Error('주소 검색 실패'));
-            }
-        });
+        const searchAddress = (address, originalAddress = address) => {
+            geocoder.addressSearch(address, (result, status) => {
+                if (status === window.kakao.maps.services.Status.OK && result.length > 0) {
+                    const addressData = result[0];
+                    const bCode = addressData?.address?.b_code;
+
+                    if (bCode) {
+                        result[0].address_name = originalAddress;
+                        result[0].address.address_name = originalAddress;
+                        result[0].address["b_code"] = bCode;
+
+                        resolve({
+                            address: result,
+                            locationType: searchInfo?.locationType
+                        });
+                    } else {
+                        const upperAddress = address.substring(0, address.lastIndexOf(' '));
+
+                        if (upperAddress !== address) {
+                            searchAddress(upperAddress, originalAddress);
+                        } else {
+                            reject(new Error('주소 검색 실패 및 상위 주소 없음'));
+                        }
+                    }
+                } else {
+                    reject(new Error('주소 검색 실패'));
+                }
+            });
+        };
+
+        searchAddress(searchInfo?.address);
     });
 };
 
@@ -60,6 +84,13 @@ export const getSpecialDay = async (year) => {
 // 물품 조회
 export const getItem = async (id) => {
     const response = await API.get(`/consultant/item/${id}`);
+
+    return response?.data?.data;
+}
+
+// 물품 목록 조회(cbm 또는 weight 값이 0)
+export const getPendingItem = async () => {
+    const response = await API.get("/consultant/pending-item");
 
     return response?.data?.data;
 }

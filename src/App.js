@@ -1,10 +1,10 @@
 import React from 'react';
-const Consultant = React.lazy(() => import('@/component/Consultant'));
+import Router from "@/appcore/routes/Router";
 
 function App() {
     return (
         <div className="App">
-            <Consultant />
+            <Router />
         </div>
     );
 }

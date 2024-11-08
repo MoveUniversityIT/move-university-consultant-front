@@ -31,11 +31,11 @@ const AddressInput = forwardRef(({ label, location, handleLocationChange, setCit
                     <li
                         key={index}
                         onMouseDown={(e) => {
-                            e.preventDefault(); // 기본 동작 방지
                             setCityCode(address.address?.b_code || undefined);
                             handleCoordinates({x: address.x, y: address.y})
-                            onSelectAddress(address.address_name); // 주소 선택 처리
-                            setShowAddressList(false); // 리스트 닫기
+                            onSelectAddress(address.address_name);
+                            setShowAddressList(false);
+                            e.preventDefault(); // 기본 동작 방지
                         }}
                         style={{ cursor: 'pointer', padding: '5px 0' }}
                     >
