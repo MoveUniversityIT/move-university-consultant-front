@@ -3,7 +3,7 @@ import API from "@api/API";
 import {Button, message, Upload} from "antd";
 import {UploadOutlined} from "@ant-design/icons";
 
-const UploadExcel = () => {
+const UploadExcel = ({handleExcepUpload}) => {
     const handleUpload = ({file}) => {
         const formData = new FormData();
         formData.append('file', file);
@@ -15,6 +15,7 @@ const UploadExcel = () => {
         })
             .then((data) => {
                 const successMessage = data?.data?.message ? data?.data?.message : "정상적으로 처리되었습니다";
+                handleExcepUpload();
                 message.success(successMessage);
             })
             .catch((error) => {

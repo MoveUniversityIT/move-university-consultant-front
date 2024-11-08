@@ -463,10 +463,10 @@ const Consultant = () => {
         setSavedEntries(savedEntries.filter(entry => entry.id !== id));
     };
 
-    // const handleItemAdded = () => {
-    //     queryClient.invalidateQueries('consultantMetadata');
+    const handleExcepUpload = () => {
+        queryClient.invalidateQueries('consultantMetadata');
     //     queryClient.invalidateQueries('pendingItem');
-    // };
+    };
 
 
     return (
@@ -746,7 +746,7 @@ const Consultant = () => {
                             </main>
                         </div>
                         <div style={{ width: '40%', padding: '50px 10%' }}>
-                            <RightSideBar distance={distance} dateCheckList={dateCheckList} />
+                            <RightSideBar distance={distance} dateCheckList={dateCheckList} handleExcepUpload={handleExcepUpload} />
                             {/*<AddItem itemList={consultant?.items} onItemAdded={handleItemAdded} pendingItemList={pendingItemList}/>*/}
                         </div>
                     </>
