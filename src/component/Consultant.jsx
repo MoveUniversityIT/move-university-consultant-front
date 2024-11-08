@@ -383,7 +383,7 @@ const Consultant = () => {
         }
 
         const matchingItems = terms
-            .map(term => collapseItems.find(item => item.itemName.toLowerCase() === term.toLowerCase()))
+            .map(term => collapseItems.find(item => item && term && item.itemName.toLowerCase() === term.toLowerCase()))
             .filter(Boolean);
 
         // const matchingItems = terms
