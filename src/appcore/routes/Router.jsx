@@ -2,10 +2,12 @@ import React from 'react';
 import {Navigate, useRoutes} from "react-router-dom";
 import LoginForm from "@/component/LoginForm";
 import Consultant from "@/component/Consultant";
+import {useSelector} from "react-redux";
 
 const Router = () => {
-    const isLogin = true;
-    // <LoginForm onSubmit={(values) => console.log(values)} />
+    const isLogin = useSelector((state) => state.login.loginState);
+    console.log(isLogin)
+
     const routes = [
         {
             path: '/',

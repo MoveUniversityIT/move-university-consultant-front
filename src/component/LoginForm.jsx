@@ -1,12 +1,12 @@
 import React from 'react';
 import { Form, Input, Button } from 'antd';
+import {useLogin} from "@hook/useUser";
 
 const LoginForm = ({ onSubmit }) => {
+    const {mutate: loginMutate} = useLogin();
+
     const onFinish = (values) => {
-        console.log('Submitted:', values);
-        if (onSubmit) {
-            onSubmit(values);
-        }
+       loginMutate(values);
     };
 
     return (
@@ -32,7 +32,7 @@ const LoginForm = ({ onSubmit }) => {
                 >
                     <Form.Item
                         label="아이디"
-                        name="username"
+                        name="email"
                         rules={[{ required: true, message: '아이디를 입력해주세요.' }]}
                     >
                         <Input placeholder="아이디" />

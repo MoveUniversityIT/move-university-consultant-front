@@ -1,12 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Alert, Button, Divider, Form, Input, InputNumber, Select, Tag, TimePicker, Typography} from 'antd';
-import {
-    useAddressSearch,
-    useCalcConsultant,
-    useConsultantMetadata,
-    usePendingItem,
-    useRoadDistance
-} from "@hook/useConsultant";
+import {Alert, Button, Form, InputNumber, Modal, Select, Tag, TimePicker, Typography} from 'antd';
+import {useAddressSearch, useCalcConsultant, useConsultantMetadata, useRoadDistance} from "@hook/useConsultant";
 import _ from 'lodash';
 import AddressInput from "@/component/AddressInput";
 import MethodAndFloorInput from "@/component/MethodAndFloorInput";
@@ -18,12 +12,11 @@ import {LeftOutlined, RightOutlined} from "@ant-design/icons";
 import {v4 as uuidv4} from 'uuid';
 import CustomProgress from "@/component/CustomProgress";
 import CustomDatePicker from "@/component/CustomDatePicker";
-import SpecialDateCheckBox from "@/component/SpecialDateCheckBox";
-import AddItem from "@/component/AddItem";
 import {useQueryClient} from "@tanstack/react-query";
 import RightSideBar from "@/component/RightSidebar";
-import UploadExcel from "@/component/UploadExcel";
-import DownloadExcel from "@/component/DownloadExcel";
+import koKR from 'antd/es/date-picker/locale/ko_KR';
+import ItemForm from "@/component/ItemForm";
+import HelperSelector from "@/component/HelperSelector";
 
 const {Title} = Typography;
 
@@ -36,15 +29,14 @@ const Consultant = () => {
     const [unloadCityCode, setUnloadCityCode] = useState(null);
     const [loadAddressList, setLoadAddressList] = useState([]);
     const [unloadAddressList, setUnloadAddressList] = useState([]);
-    const [loadHelperList, setLoadHelperList] = useState([]);
-    const [unloadHelperList, setUnloadHelperList] = useState([]);
+    const [loadCustomer, setLoadCustomer] = useState([]);
+    const [unloadCustomer, setUnloadCustomer] = useState([]);
     const [showLoadAddressList, setShowLoadAddressList] = useState(false);
     const [showUnloadAddressList, setShowUnloadAddressList] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const searchTermRef = useRef(null);
     const [suggestions, setSuggestions] = useState([]);
-    const [errorMessage, setErrorMessage] = useState('');
-    const [items, setItems] = useState([]);
+    const [items, setItems] = useState({});
     const [loadMethod, setLoadMethod] = useState({key: 1, value: '엘레베이터'});
     const [unloadMethod, setUnloadMethod] = useState({key: 1, value: '엘레베이터'});
     const [loadFloor, setLoadFloor] = useState(1);
@@ -63,13 +55,21 @@ const Consultant = () => {
 
     const {data: locationList} = useAddressSearch(locationSearch);
     const {isLoading, data: consultant, error: consultantMetaError} = useConsultantMetadata();
-    // const {data: pendingItemList} = usePendingItem();
     const {data: roadDistanceData} = useRoadDistance(locationInfo);
     const [distance, setDistance] = useState(0);
     const queryClient = useQueryClient();
     const {isLoading: isLoadingConsultantMutate, mutate: consultantMutate, data: calcData} = useCalcConsultant();
     const [calcConsultantData, setCalcConsultantData] = useState(null);
     const [dateCheckList, setDateCheckList] = useState([]);     // 특수일 리스트
+
+    // 물품
+    const [isItemFormVisible, setIsItemFormVisible] = useState(false);
+
+    const showItemFormModal = () => setIsItemFormVisible(true);
+    const hideItemFormModal = () => setIsItemFormVisible(false);
+
+    // 인부
+    const [helpers, setHelpers] = useState([]);
 
     const resetForm = () => {
         // 폼 필드를 모두 초기화하는 함수
@@ -81,13 +81,12 @@ const Consultant = () => {
         setUnloadCityCode(null);
         setLoadAddressList([]);
         setUnloadAddressList([]);
-        setLoadHelperList([]);
-        setUnloadHelperList([]);
+        setLoadCustomer([]);
+        setUnloadCustomer([]);
         setShowLoadAddressList(false);
         setShowUnloadAddressList(false);
         setSearchTerm('');
         setSuggestions([]);
-        setErrorMessage('');
         setItems([]);
         setLoadMethod({key: 1, value: '엘레베이터'});
         setUnloadMethod({key: 1, value: '엘레베이터'});
@@ -103,6 +102,8 @@ const Consultant = () => {
         setBoxesToBePacked(0);
         setTotalItemCbm(0);
         setCalcConsultantData(null);
+        setDateCheckList([]);
+        setHelpers([]);
     };
 
     const saveEntry = () => {
@@ -115,8 +116,8 @@ const Consultant = () => {
             loadCityCode,
             unloadLocation,
             unloadCityCode,
-            loadHelperList,
-            unloadHelperList,
+            loadHelperList: loadCustomer,
+            unloadHelperList: unloadCustomer,
             searchTerm,
             locationInfo,
             loadMethod,
@@ -130,6 +131,8 @@ const Consultant = () => {
             totalItemCbm,
             distance,
             items,
+            dateCheckList,
+            helpers
         };
         setSavedEntries([...savedEntries, entry]);
         resetForm();
@@ -143,10 +146,10 @@ const Consultant = () => {
         setLoadCityCode(entry.loadCityCode);
         setUnloadLocation(entry.unloadLocation);
         setUnloadCityCode(entry.unloadCityCode);
-        setLoadHelperList(entry.loadHelperList);
+        setLoadCustomer(entry.loadHelperList);
         setSearchTerm(entry.searchTerm);
         setLocationInfo(entry.locationInfo);
-        setUnloadHelperList(entry.unloadHelperList);
+        setUnloadCustomer(entry.unloadHelperList);
         setLoadMethod(entry.loadMethod);
         setUnloadMethod(entry.unloadMethod);
         setLoadFloor(entry.loadFloor);
@@ -158,6 +161,8 @@ const Consultant = () => {
         setTotalItemCbm(entry.totalItemCbm);
         setDistance(entry.distance);
         setItems(entry.items);
+        setDateCheckList(entry.dateCheckList);
+        setHelpers(entry.helpers);
     };
 
 
@@ -217,6 +222,7 @@ const Consultant = () => {
                 setUnloadAddressList([]);
             }
         }
+
     }, [locationList, locationSearch]);
 
     const handleLocationChange = (setLocation, setShowList, locationType) => (e) => {
@@ -286,14 +292,14 @@ const Consultant = () => {
             loadMethodId: loadMethod?.key,
             loadMethodName: loadMethod?.value,
             loadFloorNumber: loadFloor,
-            loadHelperPeople: loadHelperList,
+            loadHelperPeople: loadCustomer,
             unloadLocationName: unloadLocation,
             unloadCityCode: unloadCityCode.substring(0, 6),
             unloadSubCityCode: unloadCityCode.substring(6),
             unloadMethodId: unloadMethod?.key,
             unloadMethodName: unloadMethod?.value,
             unloadFloorNumber: unloadFloor,
-            unloadHelperPeople: unloadHelperList,
+            unloadHelperPeople: unloadCustomer,
             moveTypeId: moveType.key,
             moveTypeName: moveType.value,
             vehicleId: vehicleType.key,
@@ -303,7 +309,8 @@ const Consultant = () => {
             requestTime: requestTime.format('HH:mm') || null,
             items,
             totalItemCbm,
-            toPackBoxCount: boxesToBePacked
+            toPackBoxCount: boxesToBePacked,
+            employHelperPeople: helpers
         }
 
         consultantMutate(consultantDataForm);
@@ -320,19 +327,35 @@ const Consultant = () => {
         const terms = searchTerm.split(',').map(term => term.trim());
 
         terms[terms.length - 1] = firstSuggestion.itemName;
-
         const newSearchTerm = `${terms.join(', ')}`;
 
-        const matchingItems = terms
-            .map(term =>
-                term ? collapseItems.find(item =>
-                    item?.itemName && item.itemName.toLowerCase() === term.toLowerCase()
-                ) : null
-            )
-            .filter(Boolean);
+        const updatedItems = {};
+        terms.forEach(term => {
+            const itemMatch = collapseItems.flatMap(category =>
+                category.subcategories.flatMap(subcategory =>
+                    subcategory.items.find(item =>
+                        item?.itemName && item.itemName.toLowerCase() === term.toLowerCase()
+                    )
+                )
+            ).find(Boolean);
+
+            if (itemMatch) {
+                if (updatedItems[itemMatch.itemId]) {
+                    updatedItems[itemMatch.itemId].itemCount += 1;
+                } else {
+                    updatedItems[itemMatch.itemId] = {
+                        itemId: itemMatch.itemId,
+                        itemName: itemMatch.itemName,
+                        itemCount: 1,
+                        isDisassembly: itemMatch.isDisassembly,
+                        isInstallation: itemMatch.isInstallation
+                    };
+                }
+            }
+        });
 
         searchTermRef.current.focus();
-        setItems(matchingItems);
+        setItems(updatedItems);
         setSuggestions([]);
         setSearchTerm(`${newSearchTerm}, `);
 
@@ -343,31 +366,51 @@ const Consultant = () => {
         if (e.key === ' ') {
             if (suggestions.length > 0) {
                 const firstSuggestion = suggestions[0];
-                const terms = searchTerm.split(',').map(term => term.trim());
+                const cursorPosition = e.target.selectionStart;
 
-                terms[terms.length - 1] = firstSuggestion.itemName;
+                const beforeCursor = searchTerm.slice(0, cursorPosition);
+                const afterCursor = searchTerm.slice(cursorPosition);
 
-                const newSearchTerm = `${terms.join(', ')}`;
+                const start = beforeCursor.lastIndexOf(',') + 1;
+                const end = cursorPosition + (afterCursor.indexOf(',') === -1 ? afterCursor.length : afterCursor.indexOf(','));
 
-                const matchingItems = terms
-                    .map(term =>
-                        term ? collapseItems.find(item =>
-                            item?.itemName && item.itemName.toLowerCase() === term.toLowerCase()
-                        ) : null
-                    )
-                    .filter(Boolean);
+                const newSearchTerm = `${searchTerm.slice(0, start)}${firstSuggestion.itemName}${searchTerm.slice(end)}`;
 
-                setItems(matchingItems);
+                const terms = newSearchTerm.split(',').map(term => term.trim());
+                const updatedItems = {};
+                terms.forEach(term => {
+                    const itemMatch = collapseItems.flatMap(category =>
+                        category.subcategories.flatMap(subcategory =>
+                            subcategory.items.find(item =>
+                                item?.itemName && item.itemName.toLowerCase() === term.toLowerCase()
+                            )
+                        )
+                    ).find(Boolean);
+
+                    if (itemMatch) {
+                        if (updatedItems[itemMatch.itemId]) {
+                            updatedItems[itemMatch.itemId].itemCount += 1;
+                        } else {
+                            updatedItems[itemMatch.itemId] = {
+                                itemId: itemMatch.itemId,
+                                itemName: itemMatch.itemName,
+                                itemCount: 1,
+                                isDisassembly: itemMatch.isDisassembly,
+                                isInstallation: itemMatch.isInstallation
+                            };
+                        }
+                    }
+                });
+
+                setItems(updatedItems); // `items` 상태에 누적
                 setSuggestions([]);
                 setSearchTerm(`${newSearchTerm}, `);
-
                 e.preventDefault();
                 setSkipChangeEvent(true);
             }
         }
     }
 
-    // 입력 시 연관 검색어 및 유효성 검사
     const handleInputChange = (e) => {
         if (skipChangeEvent) {
             setSkipChangeEvent(false);
@@ -375,56 +418,68 @@ const Consultant = () => {
         }
 
         const value = e.target.value;
-        const terms = value.split(',').map(term => term.trim());
-        const lastItem = terms[terms.length - 1];
+        const cursorPosition = e.target.selectionStart;
 
-        // 연관 검색어 필터링
-        if (lastItem) {
-            const filteredSuggestions = collapseItems.filter((item) =>
-                item.itemName.toLowerCase().includes(lastItem.toLowerCase())
-            );
+        const beforeCursor = value.slice(0, cursorPosition);
+        const afterCursor = value.slice(cursorPosition);
+
+        const start = beforeCursor.lastIndexOf(',') + 1;
+        const end = cursorPosition + afterCursor.indexOf(',');
+
+        const currentItem = value.slice(start, end).trim();
+
+        if (start <= end) {
+            const filteredSuggestions = collapseItems.flatMap(category =>
+                category.subcategories.flatMap(subcategory =>
+                    subcategory.items.filter(item =>
+                        item.itemName.toLowerCase().includes(currentItem.toLowerCase())
+                    )
+                )
+            ).slice(0, 10);
+
             setSuggestions(filteredSuggestions);
         } else {
             setSuggestions([]);
         }
 
-        const matchingItems = terms
-            .map(term =>
-                term ? collapseItems.find(item =>
-                    item?.itemName && item.itemName.toLowerCase() === term.toLowerCase()
-                ) : null
-            )
-            .filter(Boolean);
+        const terms = value.split(',').map(term => term.trim());
+        const updatedItems = {};
+        const itemPattern = /([^\d]+)(\d*)$/;
 
+        terms.forEach(term => {
+            const match = term.match(itemPattern);
+
+            if (match) {
+                const itemName = match[1].trim();
+                const quantity = parseInt(match[2]) || 1;
+
+                collapseItems.forEach(category => {
+                    category.subcategories.forEach(subcategory => {
+                        subcategory.items.forEach(item => {
+                            if (item.itemName.toLowerCase() === itemName.toLowerCase()) {
+                                if (updatedItems[item.itemId]) {
+                                    updatedItems[item.itemId].itemCount += quantity;
+                                } else {
+                                    updatedItems[item.itemId] = {
+                                        itemId: item.itemId,
+                                        itemName: item.itemName,
+                                        itemCount: quantity,
+                                        isDisassembly: item.isDisassembly,
+                                        isInstallation: item.isInstallation
+                                    };
+                                }
+                            }
+                        });
+                    });
+                });
+            }
+        });
+
+        setItems(updatedItems);
         setSearchTerm(value);
-        setItems(matchingItems);
     };
-
-    const addGenderCount = (selectedGender, listSetter, listGetter) => {
-        if (!listGetter().some(item => item.gender === selectedGender)) {
-            listSetter((prevList) => [
-                ...prevList,
-                {gender: selectedGender, peopleCount: 1}
-            ]);
-        }
-    };
-
-    const updateGenderCount = (index, value, listSetter, listGetter) => {
-        listSetter((prevList) =>
-            prevList.map((item, idx) =>
-                idx === index ? {...item, peopleCount: value || 0} : item
-            )
-        );
-    };
-
-    const removeGender = (gender, listSetter) => {
-        listSetter((prevList) => prevList.filter(item => item.gender !== gender));
-    };
-
-    const isGenderAdded = (gender, listGetter) => listGetter().some(item => item.gender === gender);
 
     const handleDateChange = (isNoHandsSon) => (date) => {
-
         if (isNoHandsSon) {
             setDateCheckList(["NO_HANDS_SON"]);
         } else {
@@ -453,9 +508,7 @@ const Consultant = () => {
 
     const handleExcepUpload = () => {
         queryClient.invalidateQueries('consultantMetadata');
-    //     queryClient.invalidateQueries('pendingItem');
     };
-
 
     return (
         <div style={{position: 'relative', display: 'flex'}}>
@@ -474,13 +527,13 @@ const Consultant = () => {
                     />
                 ) : (
                     <>
-                        <div style={{width: '15%', padding: '20px', borderRight: '1px solid #ddd'}}>
+                        <div style={{width: '15%', padding: '20px'}}>
                             <Title level={3}>상담 예약</Title>
                             <LeftSidebar resetForm={resetForm} saveEntry={saveEntry} savedEntries={savedEntries}
                                          loadSavedEntry={loadSavedEntry} deleteEntry={deleteEntry}/>
                         </div>
 
-                        <div style={{width: '45%', padding: '20px'}}>
+                        <div style={{width: '45%', padding: '20px', border: '1px solid #ddd'}}>
                             <main style={{display: 'flex', flexDirection: 'column', maxHeight: '100vh'}}>
                                 <Title level={3}>이사 정보</Title>
 
@@ -511,11 +564,8 @@ const Consultant = () => {
                                             />
                                             <GenderSelector
                                                 label="상차 도움 인원"
-                                                addGenderCount={(gender) => addGenderCount(gender, setLoadHelperList, () => loadHelperList)}
-                                                helperList={loadHelperList}
-                                                updateGenderCount={(index, value) => updateGenderCount(index, value, setLoadHelperList, () => loadHelperList)}
-                                                isGenderAdded={(gender) => isGenderAdded(gender, () => loadHelperList)}
-                                                removeGender={(gender) => removeGender(gender, setLoadHelperList)}
+                                                customer={loadCustomer}
+                                                setCustomer={setLoadCustomer}
                                             />
                                         </div>
 
@@ -544,11 +594,8 @@ const Consultant = () => {
                                             />
                                             <GenderSelector
                                                 label="하차 도움 인원"
-                                                addGenderCount={(gender) => addGenderCount(gender, setUnloadHelperList, () => unloadHelperList)}
-                                                helperList={unloadHelperList}
-                                                updateGenderCount={(index, value) => updateGenderCount(index, value, setUnloadHelperList, () => unloadHelperList)}
-                                                isGenderAdded={(gender) => isGenderAdded(gender, () => unloadHelperList)}
-                                                removeGender={(gender) => removeGender(gender, setUnloadHelperList)}
+                                                customer={unloadCustomer}
+                                                setCustomer={setUnloadCustomer}
                                             />
                                         </div>
                                     </div>
@@ -565,47 +612,88 @@ const Consultant = () => {
                                                 <TimePicker
                                                     value={requestTime}
                                                     onChange={handleTimeChange}
-                                                    format="HH:mm"
+                                                    format="A h:mm"
+                                                    use12Hours
                                                     minuteStep={60}
+                                                    locale={koKR}
                                                 />
                                             </Form.Item>
                                         </div>
                                     </div>
 
+                                    {/*<Form.Item label="물품">*/}
+                                        {/*<Input*/}
+                                        {/*    ref={searchTermRef}*/}
+                                        {/*    placeholder="아이템 이름을 입력하고 콤마(,)로 구분하세요"*/}
+                                        {/*    value={searchTerm}*/}
+                                        {/*    onChange={handleInputChange}*/}
+                                        {/*    onKeyDown={handleInputKeyDown}*/}
+                                        {/*    style={{marginBottom: '8px', width: '100%'}}*/}
+                                        {/*/>*/}
+                                        {/*{errorMessage &&*/}
+                                        {/*    <div style={{color: 'red', marginTop: '4px'}}>{errorMessage}</div>}*/}
+                                        {/*{suggestions.length > 0 && (*/}
+                                        {/*    <div style={{*/}
+                                        {/*        display: 'flex',*/}
+                                        {/*        gap: '8px',*/}
+                                        {/*        flexWrap: 'wrap',*/}
+                                        {/*        marginTop: '8px'*/}
+                                        {/*    }}>*/}
+                                        {/*        {suggestions.map((item) => (*/}
+                                        {/*            <Tag*/}
+                                        {/*                key={item.itemId}*/}
+                                        {/*                onClick={handleSelectItem(item)}*/}
+                                        {/*                style={{cursor: 'pointer'}}*/}
+                                        {/*            >*/}
+                                        {/*                {item.itemName}*/}
+                                        {/*            </Tag>*/}
+                                        {/*        ))}*/}
+                                        {/*    </div>*/}
+                                        {/*)}*/}
+                                        {/*<div style={{marginTop: '8px'}}>*/}
+                                        {/*    <h3>선택된 아이템 목록:</h3>*/}
+                                        {/*    {items.map((item, index) => <Tag key={index}>{item.itemName}</Tag>)}*/}
+                                        {/*</div>*/}
+                                    {/*</Form.Item>*/}
+
                                     <Form.Item label="물품">
-                                        <Input
-                                            ref={searchTermRef}
-                                            placeholder="아이템 이름을 입력하고 콤마(,)로 구분하세요"
-                                            value={searchTerm}
-                                            onChange={handleInputChange}
-                                            onKeyDown={handleInputKeyDown}
-                                            style={{marginBottom: '8px', width: '100%'}}
-                                        />
-                                        {errorMessage &&
-                                            <div style={{color: 'red', marginTop: '4px'}}>{errorMessage}</div>}
-                                        {suggestions.length > 0 && (
-                                            <div style={{
-                                                display: 'flex',
-                                                gap: '8px',
-                                                flexWrap: 'wrap',
-                                                marginTop: '8px'
-                                            }}>
-                                                {suggestions.map((item) => (
-                                                    <Tag
-                                                        key={item.itemId}
-                                                        onClick={handleSelectItem(item)}
-                                                        style={{cursor: 'pointer'}}
-                                                    >
-                                                        {item.itemName}
-                                                    </Tag>
-                                                ))}
-                                            </div>
-                                        )}
-                                        <div style={{marginTop: '8px'}}>
+                                        <Button type="primary" onClick={showItemFormModal}>
+                                            물품 등록
+                                        </Button>
+
+                                        <div style={{ marginTop: '8px' }}>
                                             <h3>선택된 아이템 목록:</h3>
-                                            {items.map((item, index) => <Tag key={index}>{item.itemName}</Tag>)}
+                                            {Object.values(items).map((item, index) => (
+                                                <Tag key={index}>
+                                                    {item.itemName} {item.itemCount}개 {/* 아이템 이름과 개수 표시 */}
+                                                </Tag>
+                                            ))}
                                         </div>
                                     </Form.Item>
+
+                                    <Modal
+                                        title="물품 등록"
+                                        open={isItemFormVisible}
+                                        onCancel={hideItemFormModal}
+                                        footer={
+                                            <Button onClick={hideItemFormModal} type="primary">
+                                                닫기
+                                            </Button>
+                                        }
+                                        destroyOnClose
+                                        width="80%"
+                                    >
+                                        <ItemForm
+                                            searchTermRef={searchTermRef}
+                                            onInputChange={handleInputChange}
+                                            suggestions={suggestions}
+                                            handleSelectItem={handleSelectItem}
+                                            searchTerm={searchTerm}
+                                            handleInputKeyDown={handleInputKeyDown}
+                                            items={items}
+                                            setItems={setItems}
+                                        />
+                                    </Modal>
 
                                     <div style={{display: "flex", gap: '10px'}}>
                                         {consultant?.vehicles && (
@@ -682,6 +770,8 @@ const Consultant = () => {
                                                 parser={(value) => value.replace(' CBM', '')}
                                             />
                                         </Form.Item>
+
+                                        <HelperSelector label={"인부 설정"} helpers={helpers} setHelpers={setHelpers} />
                                     </div>
 
                                     <div className='btn-wra' style={{display: 'flex', gap: '10px'}}>
@@ -697,7 +787,7 @@ const Consultant = () => {
                                     style={{
                                         position: 'fixed',
                                         top: 0,
-                                        right: isCollapsed ? '-38%' : '0', // 패널 슬라이드 위치 조정
+                                        right: isCollapsed ? '-38%' : '0',
                                         width: '38%',
                                         height: '100%',
                                         backgroundColor: '#f8f6f6',
@@ -719,7 +809,7 @@ const Consultant = () => {
                                             border: '1px solid #ccc',
                                             padding: '5px 10px',
                                             borderRadius: '5px',
-                                            boxShadow: '0px 0px 5px rgba(0,0,0,0.3)', // 그림자 추가
+                                            boxShadow: '0px 0px 5px rgba(0,0,0,0.3)',
                                         }}
                                         onClick={() => setIsCollapsed(!isCollapsed)}
                                     >
@@ -733,9 +823,9 @@ const Consultant = () => {
                                 </div>
                             </main>
                         </div>
-                        <div style={{ width: '40%', padding: '50px 10%' }}>
-                            <RightSideBar distance={distance} dateCheckList={dateCheckList} handleExcepUpload={handleExcepUpload} />
-                            {/*<AddItem itemList={consultant?.items} onItemAdded={handleItemAdded} pendingItemList={pendingItemList}/>*/}
+                        <div style={{width: '40%', padding: '50px 10%'}}>
+                            <RightSideBar distance={distance} dateCheckList={dateCheckList}
+                                          handleExcepUpload={handleExcepUpload}/>
                         </div>
                     </>
                 )

@@ -17,7 +17,10 @@
     "react-router-dom": "^6.28.0",
     "react-scripts": "5.0.1",
     "uuid": "^11.0.2",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "react-redux": "^9.1.2",
+    "redux-persist": "^6.0.0",
+    "@reduxjs/toolkit": "^2.2.7"
   },
   "scripts": {
     "start": "cross-env NODE_ENV=development REACT_APP_BASE_URL=http://localhost:8080/v1 webpack serve --mode development",

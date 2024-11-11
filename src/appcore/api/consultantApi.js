@@ -9,7 +9,7 @@ const geocoder = new window.kakao.maps.services.Geocoder();
 export const getConsultantMetadata = async () => {
     const response = await API.get('/consultant')
 
-    return response?.data.data
+    return response?.data
 }
 
 // 주소 검색 함수 (Kakao API를 사용하는 부분)
@@ -22,7 +22,6 @@ export const getKakaoAddress = (searchInfo) => {
                     const bCode = addressData?.address?.b_code;
 
                     if (bCode) {
-                        result[0].address_name = originalAddress;
                         result[0].address.address_name = originalAddress;
                         result[0].address["b_code"] = bCode;
 
@@ -51,60 +50,65 @@ export const getKakaoAddress = (searchInfo) => {
 
 // 도로 거리 계산 함수
 export const getRoadDistance = async (location) => {
-    const {startX, startY, endX, endY} = location;
+    const { startX, startY, endX, endY } = location;
 
-    const response = await API.get('https://apis-navi.kakaomobility.com/v1/directions', {
-        headers: {
-            Authorization: `KakaoAK ${KAKAO_API_KEY}`,
-        },
-        params: {
-            origin: `${startX},${startY}`,
-            destination: `${endX},${endY}`,
-        },
-    });
+    try {
+        const response = await API.get('https://apis-navi.kakaomobility.com/v1/directions', {
+            headers: {
+                Authorization: `KakaoAK ${KAKAO_API_KEY}`,
+            },
+            params: {
+                origin: `${startX},${startY}`,
+                destination: `${endX},${endY}`,
+            },
+        });
 
-    const distance = response.data?.routes[0]?.summary?.distance;
-    return distance ? distance / 1000 : undefined;
+        const distance = response?.routes[0]?.summary?.distance;
+        return distance ? distance / 1000 : 0; // distance가 없으면 0 반환
+    } catch (error) {
+        console.error("도로 거리를 가져오는데 실패했습니다:", error);
+        return 0; // API 호출 실패 시 0 반환
+    }
 };
 
 // 배차 금액 조회
 export const getCalcConsultant = async (consultantDataForm) => {
     const response = await API.post('/consultant/price/calculate', consultantDataForm);
 
-    return response?.data?.data;
+    return response?.data;
 }
 
 // 특수일(손 없는날) 조회
 export const getSpecialDay = async (year) => {
     const response = await API.get(`/consultant/special-day?year=${year}`);
 
-    return response?.data?.data;
+    return response?.data;
 }
 
 // 물품 조회
 export const getItem = async (id) => {
     const response = await API.get(`/consultant/item/${id}`);
 
-    return response?.data?.data;
+    return response?.data;
 }
 
 // 물품 목록 조회(cbm 또는 weight 값이 0)
 export const getPendingItem = async () => {
     const response = await API.get("/consultant/pending-item");
 
-    return response?.data?.data;
+    return response?.data;
 }
 
 // 물품 등록
 export const postSaveItem = async (item) => {
     const response = await API.post('/consultant/item', item);
 
-    return response?.data?.data;
+    return response?.data;
 }
 
 // 물품 수정
 export const putUpdateItem = async (id, item) => {
     const response = await API.put(`/consultant/item/${id}`, item);
 
-    return response?.data?.data;
+    return response?.data;
 }

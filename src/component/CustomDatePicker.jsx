@@ -2,20 +2,34 @@ import React, {useEffect, useState} from 'react';
 import {DatePicker} from "antd";
 import {useSpecialDay} from "@hook/useConsultant";
 import dayjs from "dayjs";
+import koKR from 'antd/es/date-picker/locale/ko_KR';
 
 const CustomDatePicker = ({requestDate, handleDateChange}) => {
     const {mutate: dateMutate} = useSpecialDay();
-    const [noHandsDaysByYear, setNoHandsDaysByYear] = useState({}); // 연도별 손 없는 날 데이터 캐싱
+    const [noHandsDaysByYear, setNoHandsDaysByYear] = useState({});
+
+    const isNoHandsDay = (date) => {
+        const year = dayjs(date, 'YYYY').year();
+        const formattedDate = date.format('YYYY-MM-DD');
+
+        return noHandsDaysByYear[year]?.some((d) => d.format('YYYY-MM-DD') === formattedDate);
+    };
 
     const fetchNoHandsDaysForYear = (year) => {
         if (noHandsDaysByYear[year]) return;
 
         dateMutate(year, {
             onSuccess: (data) => {
+                const noHandsDays = data.NO_HANDS_DAY.map(date => dayjs(date, "YYYY-MM-DD"))
                 setNoHandsDaysByYear(prev => ({
                     ...prev,
-                    [year]: data.NO_HANDS_DAY.map(date => dayjs(date, "YYYY-MM-DD"))
+                    [year]: noHandsDays
                 }));
+
+                const today = dayjs();
+                if (noHandsDays.some(d => d.isSame(today, 'day'))) {
+                    handleDateChange(true)(today);
+                }
             }
         });
     };
@@ -30,12 +44,7 @@ const CustomDatePicker = ({requestDate, handleDateChange}) => {
         fetchNoHandsDaysForYear(selectedYear);
     };
 
-    const isNoHandsDay = (date) => {
-        const year = dayjs(date, 'YYYY').year();
-        const formattedDate = date.format('YYYY-MM-DD');
 
-        return noHandsDaysByYear[year]?.some((d) => d.format('YYYY-MM-DD') === formattedDate);
-    };
 
     const dateCellRender = (current) => {
         const year = current.format("YYYY");
@@ -82,6 +91,7 @@ const CustomDatePicker = ({requestDate, handleDateChange}) => {
                         handleDateChange(isNoHandsDay(date))(date);
                     }
                 }}
+                locale={koKR}
                 onPanelChange={handlePanelChange}
                 cellRender={dateCellRender}
             />

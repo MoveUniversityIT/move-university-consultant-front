@@ -22,6 +22,7 @@ const labels = {
     dokcha: "독차가",
     disCountDokchaPrice: "추가할인된 독차가",
     dokchaCbmPerFee: "독차 + 기본가 + 추가 CBM당 요금",
+    itemAdditionalFee: "비싼 품목 추가 요금(합산)",
     datePriceFactor: "요청 날짜 추가 요금",
     timePriceFactor: "요청 시간 추가 요금",
     vehicleTypeFee: "차량 추가 요금",
@@ -39,7 +40,8 @@ const helperLabels = {
     totalHelperPrice: "인부 총금액",
     TRANSPORT: "운반",
     LOAD: "상차",
-    UNLOAD: "하차"
+    UNLOAD: "하차",
+    LOAD_UNLOAD: "상차/하차(양쪽인부)"
 };
 
 const DispatchPrice = ({data, isLoadingConsultantMutate}) => {

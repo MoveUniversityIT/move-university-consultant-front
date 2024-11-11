@@ -1,42 +1,62 @@
 import React from "react";
-import {Button, Form, InputNumber, Space, Tag} from "antd";
+import { Button, Form, InputNumber, Space, Checkbox } from "antd";
 
+const GenderSelector = ({ label, customer, setCustomer }) => {
+    const addGender = (selectedGender) => {
+        if (!customer.some(item => item.gender === selectedGender)) {
+            setCustomer(prevList => [
+                ...prevList,
+                { gender: selectedGender, peopleCount: 1 }
+            ]);
+        }
+    };
 
-const GenderSelector = ({label, addGenderCount, helperList, updateGenderCount, isGenderAdded, removeGender}) => {
+    const removeGender = (gender) => {
+        setCustomer(prevList => prevList.filter(item => item.gender !== gender));
+    };
+
+    const updateGenderCount = (index, value) => {
+        setCustomer(prevList =>
+            prevList.map((item, idx) =>
+                idx === index ? { ...item, peopleCount: value || 0 } : item
+            )
+        );
+    };
+
+    const handleCheckboxChange = (checked, gender) => {
+        if (checked) {
+            addGender(gender);
+        } else {
+            removeGender(gender);
+        }
+    };
+
     return (
         <Form.Item label={label} style={{ position: 'relative' }}>
             <Space direction="vertical" style={{ width: '100%' }}>
+                {/* 남자와 여자 추가를 위한 체크박스 */}
                 <Space>
-                    <Tag
-                        color="blue"
-                        onClick={() => addGenderCount('male')}
-                        disabled={isGenderAdded('male')}
-                        style={{
-                            cursor: isGenderAdded('male') ? 'not-allowed' : 'pointer',
-                            opacity: isGenderAdded('male') ? 0.5 : 1
-                        }}
+                    <Checkbox
+                        onChange={(e) => handleCheckboxChange(e.target.checked, 'male')}
+                        checked={customer.some(item => item.gender === 'male')}
                     >
                         남자 추가
-                    </Tag>
-                    <Tag
-                        color="pink"
-                        onClick={() => addGenderCount('female')}
-                        disabled={isGenderAdded('female')}
-                        style={{
-                            cursor: isGenderAdded('female') ? 'not-allowed' : 'pointer',
-                            opacity: isGenderAdded('female') ? 0.5 : 1
-                        }}
+                    </Checkbox>
+                    <Checkbox
+                        onChange={(e) => handleCheckboxChange(e.target.checked, 'female')}
+                        checked={customer.some(item => item.gender === 'female')}
                     >
                         여자 추가
-                    </Tag>
+                    </Checkbox>
                 </Space>
 
-                {helperList.map((item, index) => (
+                {/* 선택된 남자/여자 리스트 */}
+                {customer.map((item, index) => (
                     <Space key={index} style={{ display: 'flex', alignItems: 'center' }}>
                         <span>{item.gender === 'male' ? '남자' : '여자'}</span>
                         <InputNumber
                             min={1}
-                            value={item.peopleNumber}
+                            value={item.peopleCount}
                             onChange={(value) => updateGenderCount(index, value)}
                             formatter={(value) => `${value} 명`}
                         />
@@ -46,17 +66,18 @@ const GenderSelector = ({label, addGenderCount, helperList, updateGenderCount, i
                     </Space>
                 ))}
 
+                {/* 선택된 항목 목록 */}
                 <div>
                     <h3>선택된 목록:</h3>
-                    {helperList.map((item, index) => (
+                    {customer.map((item, index) => (
                         <div key={index}>
-                            {item.gender === 'male' ? '남자' : '여자'} {item.peopleNumber}명
+                            {item.gender === 'male' ? '남자' : '여자'} {item.peopleCount}명
                         </div>
                     ))}
                 </div>
             </Space>
         </Form.Item>
-    )
+    );
 }
 
 export default GenderSelector;

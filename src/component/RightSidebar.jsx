@@ -21,7 +21,6 @@ const RightSideBar = ({ distance, dateCheckList, handleExcepUpload }) => {
             <div style={{display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center'}}>
                 <UploadExcel handleExcepUpload={handleExcepUpload}/>
                 <DownloadExcel url={'/download'} text={'모든 물품 엑셀 다운로드'}/>
-                <DownloadExcel url={'/download/empty-info'} text={'빈값 물품 엑셀 다운로드'}/>
             </div>
         </div>
     );

@@ -1,0 +1,76 @@
+import React from 'react';
+import {Checkbox, Form, Input, List, Tag} from 'antd';
+
+const ItemForm = ({ searchTermRef, onInputChange, suggestions, handleSelectItem, searchTerm, handleInputKeyDown, items, setItems}) => {
+
+    const handleCheckboxChange = (itemId, key, checked) => {
+        setItems(prevItems => ({
+            ...prevItems,
+            [itemId]: {
+                ...prevItems[itemId],
+                [key]: checked ? "Y" : "N", // 체크 상태에 따라 "Y" 또는 "N"으로 저장
+            }
+        }));
+    };
+
+    return (
+        <Form layout="vertical" style={{ display: 'flex', gap: '20px', height: '70vh', overflowY: 'auto' }}>
+            <div style={{ flex: '1' }}>
+                <Form.Item label="물품명">
+                    <Input
+                        placeholder="아이템 이름을 입력하고 콤마(,)로 구분하세요"
+                        ref={searchTermRef}
+                        value={searchTerm}
+                        onChange={onInputChange}
+                        onKeyDown={handleInputKeyDown}
+                    />
+                </Form.Item>
+
+                {suggestions.length > 0 && (
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
+                        {suggestions.map((item) => (
+                            <Tag
+                                key={item.itemId}
+                                onClick={handleSelectItem(item)} // 함수가 직접 호출되도록 수정
+                                style={{ cursor: 'pointer' }}
+                            >
+                                {item.itemName}
+                            </Tag>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            <div style={{flex: '1', borderLeft: '1px solid #ddd', paddingLeft: '20px'}}>
+                <h3>아이템 목록 및 옵션 설정</h3>
+                <List
+                    dataSource={Object.values(items)} // items 객체의 값을 배열로 변환하여 전달
+                    renderItem={(item) => (
+                        <List.Item style={{display: 'flex', justifyContent: 'space-between'}}>
+                            <span>{item.itemName} {item.itemCount} 개</span> {/* 아이템 이름과 개수 표시 */}
+                            <div>
+                                {item.isDisassembly === "Y" && (
+                                    <Checkbox
+                                        style={{marginRight: '10px'}}
+                                        onChange={(e) => handleCheckboxChange(item.itemId, 'disassemblyAdditionalFee', e.target.checked)}
+                                    >
+                                        분해
+                                    </Checkbox>
+                                )}
+                                {item.isInstallation === "Y" && (
+                                    <Checkbox
+                                        onChange={(e) => handleCheckboxChange(item.itemId, 'installationAdditionalFee', e.target.checked)}
+                                    >
+                                        설치
+                                    </Checkbox>
+                                )}
+                            </div>
+                        </List.Item>
+                    )}
+                />
+            </div>
+        </Form>
+    );
+};
+
+export default ItemForm;
