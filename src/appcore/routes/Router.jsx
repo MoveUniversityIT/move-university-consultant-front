@@ -6,7 +6,6 @@ import {useSelector} from "react-redux";
 
 const Router = () => {
     const isLogin = useSelector((state) => state.login.loginState);
-    console.log(isLogin)
 
     const routes = [
         {
