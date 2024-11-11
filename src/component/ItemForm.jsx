@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Checkbox, Form, Input, List, Tag} from 'antd';
 
 const ItemForm = ({ searchTermRef, onInputChange, suggestions, handleSelectItem, searchTerm, handleInputKeyDown, items, setItems}) => {
@@ -28,9 +28,9 @@ const ItemForm = ({ searchTermRef, onInputChange, suggestions, handleSelectItem,
 
                 {suggestions.length > 0 && (
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
-                        {suggestions.map((item) => (
+                        {suggestions.map((item, index) => (
                             <Tag
-                                key={item.itemId}
+                                key={index}
                                 onClick={handleSelectItem(item)} // 함수가 직접 호출되도록 수정
                                 style={{ cursor: 'pointer' }}
                             >
@@ -52,14 +52,16 @@ const ItemForm = ({ searchTermRef, onInputChange, suggestions, handleSelectItem,
                                 {item.isDisassembly === "Y" && (
                                     <Checkbox
                                         style={{marginRight: '10px'}}
-                                        onChange={(e) => handleCheckboxChange(item.itemId, 'disassemblyAdditionalFee', e.target.checked)}
+                                        checked={item?.requiredIsDisassembly === "Y"}
+                                        onChange={(e) => handleCheckboxChange(item.itemId, 'requiredIsDisassembly', e.target.checked)}
                                     >
                                         분해
                                     </Checkbox>
                                 )}
                                 {item.isInstallation === "Y" && (
                                     <Checkbox
-                                        onChange={(e) => handleCheckboxChange(item.itemId, 'installationAdditionalFee', e.target.checked)}
+                                        checked={item?.requiredIsInstallation === "Y"}
+                                        onChange={(e) => handleCheckboxChange(item.itemId, 'requiredIsInstallation', e.target.checked)}
                                     >
                                         설치
                                     </Checkbox>
