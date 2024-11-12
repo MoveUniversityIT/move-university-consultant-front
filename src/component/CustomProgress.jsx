@@ -2,8 +2,8 @@ import React, {useEffect, useRef, useState} from 'react';
 import {Progress} from "antd";
 
 const CustomProgress = ({isLoading}) => {
-    const [progress, setProgress] = useState(0);
-    const progressRef = useRef(0); // progress 값을 저장하는 ref
+    const [progress, setProgress] = useState(90);
+    const progressRef = useRef(90); // progress 값을 저장하는 ref
 
     useEffect(() => {
         const interval = setInterval(() => {
