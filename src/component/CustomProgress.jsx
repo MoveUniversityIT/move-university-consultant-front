@@ -1,27 +1,26 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Progress} from "antd";
 
 const CustomProgress = ({isLoading}) => {
-    const [progress, setProgress] = useState(40);
+    const [progress, setProgress] = useState(0);
+    const progressRef = useRef(0); // progress 값을 저장하는 ref
 
     useEffect(() => {
-        let currentProgress = 0;
-
         const interval = setInterval(() => {
-            if (isLoading && currentProgress < 80) {
-                currentProgress += 2;
-            } else if (isLoading && currentProgress < 90) {
-                currentProgress += 1;
-            } else if (!isLoading && currentProgress < 100) {
-                currentProgress += 5;
+            if (isLoading && progressRef.current < 80) {
+                progressRef.current += 2;
+            } else if (isLoading && progressRef.current < 90) {
+                progressRef.current += 1;
+            } else if (!isLoading && progressRef.current < 100) {
+                progressRef.current += 5;
             } else {
                 clearInterval(interval);
             }
-            setProgress(currentProgress);
+            setProgress(progressRef.current);
         }, 50);
 
         return () => clearInterval(interval);
-    }, [isLoading, progress]);
+    }, [isLoading]);
 
     return (
         <div style={{
