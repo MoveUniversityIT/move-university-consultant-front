@@ -59,7 +59,6 @@ API.interceptors.response.use(
 
                     return API(originalRequest)
                 }catch(refreshError) {
-                    console.log('유효하지 않은 리프래시 토큰:', refreshError);
                     RootStore.dispatch(toggleAccessToken(''));
                     RootStore.dispatch(toggleRefreshToken(''));
                     RootStore.dispatch(toggleLoginState(false));

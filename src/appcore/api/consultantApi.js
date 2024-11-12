@@ -27,10 +27,13 @@ export const getKakaoAddress = (searchInfo) => {
 
                     const addressData = result[0];
                     const bCode = addressData?.address?.b_code;
-
                     if (bCode) {
-                        result[0].address.address_name = originalAddress;
-                        result[0].address["b_code"] = bCode;
+                        if (initialResult[0].address === null) {
+                            initialResult[0].address = {};
+                        }
+
+                        initialResult[0].address["address_name"] = originalAddress;
+                        initialResult[0].address["b_code"] = bCode;
 
                         resolve({
                             address: initialResult,

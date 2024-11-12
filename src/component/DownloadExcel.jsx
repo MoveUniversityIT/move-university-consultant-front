@@ -3,12 +3,18 @@ import API from "@api/API";
 import {Button} from "antd";
 import {DownloadOutlined, UploadOutlined} from "@ant-design/icons";
 
-const DownloadExcel = ({url, text}) => {
+const DownloadExcel = ({url, text, setProgress}) => {
     const handleDownload = () => {
+        setProgress(0);
+
         API({
             url: `/excel${url}`,
             method: 'GET',
-            responseType: 'blob', // Blob을 사용해 파일 다운로드
+            responseType: 'blob',
+            onDownloadProgress: (progressEvent) => {
+                const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                setProgress(percentCompleted);
+            }
         }).then((response) => {
             const url = window.URL.createObjectURL(new Blob([response]));
             const link = document.createElement('a');
@@ -16,6 +22,8 @@ const DownloadExcel = ({url, text}) => {
             link.setAttribute('download', 'items.xlsx');
             document.body.appendChild(link);
             link.click();
+        }).finally(() => {
+            setProgress(0);
         });
     };
 
