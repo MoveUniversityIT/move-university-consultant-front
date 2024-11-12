@@ -15,9 +15,16 @@ export const getConsultantMetadata = async () => {
 // 주소 검색 함수 (Kakao API를 사용하는 부분)
 export const getKakaoAddress = (searchInfo) => {
     return new Promise((resolve, reject) => {
-        const searchAddress = (address, originalAddress = address) => {
+        const initialAddress = searchInfo?.address;
+        let initialResult = null;
+
+        const searchAddress = (address, originalAddress = initialAddress) => {
             geocoder.addressSearch(address, (result, status) => {
                 if (status === window.kakao.maps.services.Status.OK && result.length > 0) {
+                    if (!initialResult) {
+                        initialResult = result;
+                    }
+
                     const addressData = result[0];
                     const bCode = addressData?.address?.b_code;
 
@@ -26,12 +33,11 @@ export const getKakaoAddress = (searchInfo) => {
                         result[0].address["b_code"] = bCode;
 
                         resolve({
-                            address: result,
-                            locationType: searchInfo?.locationType
+                            address: initialResult,
+                            locationType: searchInfo?.locationType,
                         });
                     } else {
-                        const upperAddress = address.substring(0, address.lastIndexOf(' '));
-
+                        const upperAddress = addressData?.address_name?.substring(0, addressData?.address_name.lastIndexOf(' '));
                         if (upperAddress !== address) {
                             searchAddress(upperAddress, originalAddress);
                         } else {
@@ -44,13 +50,13 @@ export const getKakaoAddress = (searchInfo) => {
             });
         };
 
-        searchAddress(searchInfo?.address);
+        searchAddress(initialAddress);
     });
 };
 
 // 도로 거리 계산 함수
 export const getRoadDistance = async (location) => {
-    const { startX, startY, endX, endY } = location;
+    const {startX, startY, endX, endY} = location;
 
     try {
         const response = await API.get('https://apis-navi.kakaomobility.com/v1/directions', {

@@ -198,7 +198,7 @@ const Consultant = () => {
             if (locationSearch?.address === loadLocation) {
                 setLoadAddressList(locationList.address || []);
 
-                if (loadLocation === locationList.address[0]?.address_name) {
+                if (loadLocation === locationList.address[0]?.address?.address_name) {
                     handleLoadCoordinates({x: locationList.address[0]?.x, y: locationList.address[0]?.y});
                     handleAddressSelect(setLoadLocation, setShowLoadAddressList);
                     setLoadCityCode(locationList.address[0]?.address?.b_code || null);
@@ -206,7 +206,7 @@ const Consultant = () => {
             } else if (locationSearch?.address === unloadLocation) {
                 setUnloadAddressList(locationList.address || []);
 
-                if (unloadLocation === locationList.address[0]?.address_name) {
+                if (unloadLocation === locationList.address[0]?.address?.address_name) {
                     handleUnloadCoordinates({x: locationList.address[0]?.x, y: locationList.address[0]?.y});
                     handleAddressSelect(setUnloadLocation, setShowUnloadAddressList);
                     setUnloadCityCode(locationList.address[0]?.address?.b_code || null);
@@ -725,7 +725,7 @@ const Consultant = () => {
                                         <HelperSelector label={"인부 설정"} helpers={helpers} setHelpers={setHelpers}/>
 
                                         <Form.Item>
-                                            <Button type='default' onClick={fetchConsultant} className="query-btn">
+                                            <Button type='primary' onClick={fetchConsultant} className="query-btn">
                                                 배차 금액 조회
                                             </Button>
                                             <Button type="primary" onClick={saveEntry} className="save-btn">
