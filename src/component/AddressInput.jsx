@@ -36,7 +36,7 @@ const AddressInput = forwardRef(({ label, location, handleLocationChange, setCit
     }, [addressList, showAddressList, selectedIndex]);
 
     return (
-        <Form.Item label={label} style={{ position: 'relative', width: '240px' }} ref={ref}>
+        <Form.Item label={label} ref={ref}>
             <Input
                 placeholder="주소를 입력하세요"
                 value={location}

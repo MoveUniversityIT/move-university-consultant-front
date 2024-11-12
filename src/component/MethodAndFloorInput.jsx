@@ -18,9 +18,9 @@ const MethodAndFloorInput = ({
 
     return (
         <Form.Item label={label}>
-            <Space.Compact>
+            <Space.Compact style={{minWidth: "100%"}}>
                 <Select
-                    style={{width: '150px'}}
+                    style={{ minWidth: "50%" }}
                     placeholder="예: 엘리베이터"
                     value={method}
                     onChange={handleMethodChange(setMethod, setFloor)}
@@ -33,6 +33,7 @@ const MethodAndFloorInput = ({
                 </Select>
                 {!(method?.key === '3' || method?.key === '5') && (
                     <InputNumber
+                        style={{ minWidth: "50%" }}
                         placeholder="층수"
                         min={method?.key === '4' ? 2 : undefined}
                         value={floor}

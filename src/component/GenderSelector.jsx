@@ -33,7 +33,7 @@ const GenderSelector = ({ label, customer, setCustomer }) => {
 
     return (
         <Form.Item label={label} style={{ position: 'relative' }}>
-            <Space direction="vertical" style={{ width: '100%' }}>
+            <Space direction="horizontal" style={{ width: '100%' }}>
                 {/* 남자와 여자 추가를 위한 체크박스 */}
                 <Space>
                     <Checkbox
@@ -60,21 +60,11 @@ const GenderSelector = ({ label, customer, setCustomer }) => {
                             onChange={(value) => updateGenderCount(index, value)}
                             formatter={(value) => `${value} 명`}
                         />
-                        <Button type="link" onClick={() => removeGender(item.gender)}>
+                        <Button type="link" onClick={() => removeGender(item.gender)} style={{ padding: "2px"}}>
                             삭제
                         </Button>
                     </Space>
                 ))}
-
-                {/* 선택된 항목 목록 */}
-                <div>
-                    <h3>선택된 목록:</h3>
-                    {customer.map((item, index) => (
-                        <div key={index}>
-                            {item.gender === 'male' ? '남자' : '여자'} {item.peopleCount}명
-                        </div>
-                    ))}
-                </div>
             </Space>
         </Form.Item>
     );

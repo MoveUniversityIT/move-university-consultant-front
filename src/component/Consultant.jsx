@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Alert, Button, Form, InputNumber, Modal, Select, Tag, TimePicker, Typography} from 'antd';
+import {Alert, Button, Form, InputNumber, Layout, Modal, Select, TimePicker, Typography} from 'antd';
 import {useAddressSearch, useCalcConsultant, useConsultantMetadata, useRoadDistance} from "@hook/useConsultant";
 import _ from 'lodash';
 import AddressInput from "@/component/AddressInput";
@@ -8,15 +8,16 @@ import GenderSelector from "@/component/GenderSelector";
 import dayjs from 'dayjs';
 import DispatchPrice from "@/component/DispatchPrice";
 import LeftSidebar from "@/component/LeftSidebar";
-import {LeftOutlined, RightOutlined} from "@ant-design/icons";
+import {LeftOutlined, PlusOutlined, RightOutlined} from "@ant-design/icons";
 import {v4 as uuidv4} from 'uuid';
 import CustomProgress from "@/component/CustomProgress";
 import CustomDatePicker from "@/component/CustomDatePicker";
 import {useQueryClient} from "@tanstack/react-query";
-import RightSideBar from "@/component/RightSidebar";
 import koKR from 'antd/es/date-picker/locale/ko_KR';
 import ItemForm from "@/component/ItemForm";
 import HelperSelector from "@/component/HelperSelector";
+import {Content, Header} from "antd/es/layout/layout";
+import RightSideBar from "@/component/RightSidebar";
 
 const {Title} = Typography;
 
@@ -511,7 +512,7 @@ const Consultant = () => {
     };
 
     return (
-        <div style={{position: 'relative', display: 'flex'}}>
+        <Layout style={{minHeight: "100vh"}}>
             {isLoading && (
                 <CustomProgress isLoading={isLoading}/>
             )}
@@ -527,177 +528,131 @@ const Consultant = () => {
                     />
                 ) : (
                     <>
-                        <div style={{width: '15%', padding: '20px'}}>
-                            <Title level={3}>상담 예약</Title>
-                            <LeftSidebar resetForm={resetForm} saveEntry={saveEntry} savedEntries={savedEntries}
-                                         loadSavedEntry={loadSavedEntry} deleteEntry={deleteEntry}/>
-                        </div>
+                        <LeftSidebar style={{width: "15%"}} resetForm={resetForm} saveEntry={saveEntry} savedEntries={savedEntries}
+                                     loadSavedEntry={loadSavedEntry} deleteEntry={deleteEntry}/>
 
-                        <div style={{width: '45%', padding: '20px', border: '1px solid #ddd'}}>
-                            <main style={{display: 'flex', flexDirection: 'column', maxHeight: '100vh'}}>
-                                <Title level={3}>이사 정보</Title>
+                        <Layout style={{width: "60%"}}>
+                            <Header className="header">
+                                <Title level={3} className="header-title">
+                                    이사 정보
+                                </Title>
+                            </Header>
 
-                                <Form layout="vertical">
-                                    <div style={{display: 'flex', gap: '10px'}}>
-                                        <div style={{width: '50%'}}>
-                                            <AddressInput
-                                                label="상차지"
-                                                location={loadLocation}
-                                                setLocation={setLoadLocation}
-                                                setCityCode={setLoadCityCode}
-                                                handleCoordinates={handleLoadCoordinates}
-                                                handleLocationChange={handleLocationChange(setLoadLocation, setShowLoadAddressList, 'start')}
-                                                addressList={loadAddressList}
-                                                showAddressList={showLoadAddressList}
-                                                setShowAddressList={setShowLoadAddressList}
-                                                onSelectAddress={handleAddressSelect(setLoadLocation, setShowLoadAddressList, 'start')}
-                                            />
-                                            <MethodAndFloorInput
-                                                label="상차 방법"
-                                                method={loadMethod}
-                                                floor={loadFloor}
-                                                setMethod={setLoadMethod}
-                                                setFloor={setLoadFloor}
-                                                consultant={consultant}
-                                                handleMethodChange={handleMethodChange}
-                                                handleFloorChange={handleFloorChange}
-                                            />
-                                            <GenderSelector
-                                                label="상차 도움 인원"
-                                                customer={loadCustomer}
-                                                setCustomer={setLoadCustomer}
-                                            />
-                                        </div>
-
-                                        <div style={{width: '50%'}}>
-                                            <AddressInput
-                                                label="하차지"
-                                                location={unloadLocation}
-                                                setLocation={setUnloadLocation}
-                                                setCityCode={setUnloadCityCode}
-                                                handleCoordinates={handleUnloadCoordinates}
-                                                handleLocationChange={handleLocationChange(setUnloadLocation, setShowUnloadAddressList, 'end')}
-                                                addressList={unloadAddressList}
-                                                showAddressList={showUnloadAddressList}
-                                                setShowAddressList={setShowUnloadAddressList}
-                                                onSelectAddress={handleAddressSelect(setUnloadLocation, setShowUnloadAddressList, 'end')}
-                                            />
-                                            <MethodAndFloorInput
-                                                label="하차 방법"
-                                                method={unloadMethod}
-                                                floor={unloadFloor}
-                                                setMethod={setUnloadMethod}
-                                                setFloor={setUnloadFloor}
-                                                consultant={consultant}
-                                                handleMethodChange={handleMethodChange}
-                                                handleFloorChange={handleFloorChange}
-                                            />
-                                            <GenderSelector
-                                                label="하차 도움 인원"
-                                                customer={unloadCustomer}
-                                                setCustomer={setUnloadCustomer}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div style={{display: "flex"}}>
-                                        <div style={{flex: '1'}}>
-                                            <Form.Item label="요청일">
-                                                <CustomDatePicker requestDate={requestDate}
-                                                                  handleDateChange={handleDateChange}/>
-                                            </Form.Item>
-                                        </div>
-                                        <div style={{flex: '1'}}>
-                                            <Form.Item label="요청시간">
-                                                <TimePicker
-                                                    value={requestTime}
-                                                    onChange={handleTimeChange}
-                                                    format="A h:mm"
-                                                    use12Hours
-                                                    minuteStep={60}
-                                                    locale={koKR}
-                                                />
-                                            </Form.Item>
-                                        </div>
-                                    </div>
-
-                                    {/*<Form.Item label="물품">*/}
-                                        {/*<Input*/}
-                                        {/*    ref={searchTermRef}*/}
-                                        {/*    placeholder="아이템 이름을 입력하고 콤마(,)로 구분하세요"*/}
-                                        {/*    value={searchTerm}*/}
-                                        {/*    onChange={handleInputChange}*/}
-                                        {/*    onKeyDown={handleInputKeyDown}*/}
-                                        {/*    style={{marginBottom: '8px', width: '100%'}}*/}
-                                        {/*/>*/}
-                                        {/*{errorMessage &&*/}
-                                        {/*    <div style={{color: 'red', marginTop: '4px'}}>{errorMessage}</div>}*/}
-                                        {/*{suggestions.length > 0 && (*/}
-                                        {/*    <div style={{*/}
-                                        {/*        display: 'flex',*/}
-                                        {/*        gap: '8px',*/}
-                                        {/*        flexWrap: 'wrap',*/}
-                                        {/*        marginTop: '8px'*/}
-                                        {/*    }}>*/}
-                                        {/*        {suggestions.map((item) => (*/}
-                                        {/*            <Tag*/}
-                                        {/*                key={item.itemId}*/}
-                                        {/*                onClick={handleSelectItem(item)}*/}
-                                        {/*                style={{cursor: 'pointer'}}*/}
-                                        {/*            >*/}
-                                        {/*                {item.itemName}*/}
-                                        {/*            </Tag>*/}
-                                        {/*        ))}*/}
-                                        {/*    </div>*/}
-                                        {/*)}*/}
-                                        {/*<div style={{marginTop: '8px'}}>*/}
-                                        {/*    <h3>선택된 아이템 목록:</h3>*/}
-                                        {/*    {items.map((item, index) => <Tag key={index}>{item.itemName}</Tag>)}*/}
-                                        {/*</div>*/}
-                                    {/*</Form.Item>*/}
-
-                                    <Form.Item label="물품">
-                                        <Button type="primary" onClick={showItemFormModal}>
-                                            물품 등록
-                                        </Button>
-
-                                        <div style={{ marginTop: '8px' }}>
-                                            <h3>선택된 아이템 목록:</h3>
-                                            {Object.values(items).map((item, index) => (
-                                                <Tag key={index}>
-                                                    {item.itemName} {item.itemCount}개 {/* 아이템 이름과 개수 표시 */}
-                                                </Tag>
-                                            ))}
-                                        </div>
-                                    </Form.Item>
-
-                                    <Modal
-                                        title="물품 등록"
-                                        open={isItemFormVisible}
-                                        onCancel={hideItemFormModal}
-                                        footer={
-                                            <Button onClick={hideItemFormModal} type="primary">
-                                                닫기
-                                            </Button>
-                                        }
-                                        destroyOnClose
-                                        width="80%"
-                                    >
-                                        <ItemForm
-                                            searchTermRef={searchTermRef}
-                                            onInputChange={handleInputChange}
-                                            suggestions={suggestions}
-                                            handleSelectItem={handleSelectItem}
-                                            searchTerm={searchTerm}
-                                            handleInputKeyDown={handleInputKeyDown}
-                                            items={items}
-                                            setItems={setItems}
+                            <Content className="content" style={{height: "100vh"}}>
+                                <div className="form-container" style={{height: "100vh"}}>
+                                    <Form layout="horizontal">
+                                        <AddressInput
+                                            label="상차지"
+                                            location={loadLocation}
+                                            setLocation={setLoadLocation}
+                                            setCityCode={setLoadCityCode}
+                                            handleCoordinates={handleLoadCoordinates}
+                                            handleLocationChange={handleLocationChange(setLoadLocation, setShowLoadAddressList, 'start')}
+                                            addressList={loadAddressList}
+                                            showAddressList={showLoadAddressList}
+                                            setShowAddressList={setShowLoadAddressList}
+                                            onSelectAddress={handleAddressSelect(setLoadLocation, setShowLoadAddressList, 'start')}
                                         />
-                                    </Modal>
 
-                                    <div style={{display: "flex", gap: '10px'}}>
+                                        <MethodAndFloorInput
+                                            label="상차 방법"
+                                            method={loadMethod}
+                                            floor={loadFloor}
+                                            setMethod={setLoadMethod}
+                                            setFloor={setLoadFloor}
+                                            consultant={consultant}
+                                            handleMethodChange={handleMethodChange}
+                                            handleFloorChange={handleFloorChange}
+                                        />
+
+                                        <GenderSelector
+                                            label="상차 도움"
+                                            customer={loadCustomer}
+                                            setCustomer={setLoadCustomer}
+                                        />
+
+                                        <AddressInput
+                                            label="하차지"
+                                            location={unloadLocation}
+                                            setLocation={setUnloadLocation}
+                                            setCityCode={setUnloadCityCode}
+                                            handleCoordinates={handleUnloadCoordinates}
+                                            handleLocationChange={handleLocationChange(setUnloadLocation, setShowUnloadAddressList, 'end')}
+                                            addressList={unloadAddressList}
+                                            showAddressList={showUnloadAddressList}
+                                            setShowAddressList={setShowUnloadAddressList}
+                                            onSelectAddress={handleAddressSelect(setUnloadLocation, setShowUnloadAddressList, 'end')}
+                                        />
+
+                                        <MethodAndFloorInput
+                                            label="하차 방법"
+                                            method={unloadMethod}
+                                            floor={unloadFloor}
+                                            setMethod={setUnloadMethod}
+                                            setFloor={setUnloadFloor}
+                                            consultant={consultant}
+                                            handleMethodChange={handleMethodChange}
+                                            handleFloorChange={handleFloorChange}
+                                        />
+
+                                        <GenderSelector
+                                            label="하차 도움"
+                                            customer={unloadCustomer}
+                                            setCustomer={setUnloadCustomer}
+                                        />
+
+                                        <Form.Item label="요청일">
+                                            <CustomDatePicker requestDate={requestDate}
+                                                              handleDateChange={handleDateChange}/>
+                                        </Form.Item>
+
+                                        <Form.Item label="요청시간">
+                                            <TimePicker
+                                                style={{width: "100%"}}
+                                                value={requestTime}
+                                                onChange={handleTimeChange}
+                                                format="A h:mm"
+                                                use12Hours
+                                                minuteStep={60}
+                                                locale={koKR}
+                                            />
+                                        </Form.Item>
+
+                                        {/*<div>*/}
+                                        {/*    <h3>선택된 아이템 목록:</h3>*/}
+                                        {/*    {Object.values(items).map((item, index) => (*/}
+                                        {/*        <Tag key={index}>*/}
+                                        {/*            {item.itemName} {item.itemCount}개 /!* 아이템 이름과 개수 표시 *!/*/}
+                                        {/*        </Tag>*/}
+                                        {/*    ))}*/}
+                                        {/*</div>*/}
+
+                                        <Modal
+                                            title="물품 등록"
+                                            open={isItemFormVisible}
+                                            onCancel={hideItemFormModal}
+                                            footer={
+                                                <Button onClick={hideItemFormModal} type="primary">
+                                                    닫기
+                                                </Button>
+                                            }
+                                            destroyOnClose
+                                            width="80%"
+                                        >
+                                            <ItemForm
+                                                searchTermRef={searchTermRef}
+                                                onInputChange={handleInputChange}
+                                                suggestions={suggestions}
+                                                handleSelectItem={handleSelectItem}
+                                                searchTerm={searchTerm}
+                                                handleInputKeyDown={handleInputKeyDown}
+                                                items={items}
+                                                setItems={setItems}
+                                            />
+                                        </Modal>
+
                                         {consultant?.vehicles && (
-                                            <Form.Item label="차량 종류" style={{width: '100px'}}>
+                                            <Form.Item label="차량 종류">
                                                 <Select
                                                     placeholder="예: 카고"
                                                     value={vehicleType}
@@ -740,7 +695,6 @@ const Consultant = () => {
                                                         min={0}
                                                         value={packedBoxes}
                                                         onChange={setPackedBoxes}
-                                                        style={{width: '100%'}}
                                                         placeholder="포장된 박스 수 입력"
                                                     />
                                                 </Form.Item>
@@ -749,15 +703,12 @@ const Consultant = () => {
                                                         min={0}
                                                         value={boxesToBePacked}
                                                         onChange={setBoxesToBePacked}
-                                                        style={{width: '100%'}}
                                                         placeholder="포장해야 할 박스 수 입력"
                                                     />
                                                 </Form.Item>
                                             </>
                                         )}
-                                    </div>
 
-                                    <div style={{display: "flex", gap: "10px"}}>
                                         <Form.Item label="총 CBM 설정">
                                             <InputNumber
                                                 min={0}
@@ -771,66 +722,99 @@ const Consultant = () => {
                                             />
                                         </Form.Item>
 
-                                        <HelperSelector label={"인부 설정"} helpers={helpers} setHelpers={setHelpers} />
-                                    </div>
+                                        <HelperSelector label={"인부 설정"} helpers={helpers} setHelpers={setHelpers}/>
 
-                                    <div className='btn-wra' style={{display: 'flex', gap: '10px'}}>
-                                        <Button type='primary' onClick={fetchConsultant}>배차 금액 조회</Button>
-                                        <Button type="primary" onClick={saveEntry}
-                                                style={{marginBottom: '20px', backgroundColor: '#52c41a'}}>
-                                            저장하기
-                                        </Button>
-                                    </div>
-                                </Form>
-
-                                <div
-                                    style={{
-                                        position: 'fixed',
-                                        top: 0,
-                                        right: isCollapsed ? '-38%' : '0',
-                                        width: '38%',
-                                        height: '100%',
-                                        backgroundColor: '#f8f6f6',
-                                        transition: 'right 0.3s ease',
-                                        padding: '10px',
-                                        overflow: 'auto',
-                                        boxShadow: '-2px 0 5px rgba(0,0,0,0.1)',
-                                        zIndex: 1000
-                                    }}
-                                >
-                                    <div
-                                        style={{
-                                            position: 'absolute',
-                                            top: '50%',
-                                            left: '-20px',
-                                            transform: 'translateY(-50%)',
-                                            cursor: 'pointer',
-                                            backgroundColor: '#fff',
-                                            border: '1px solid #ccc',
-                                            padding: '5px 10px',
-                                            borderRadius: '5px',
-                                            boxShadow: '0px 0px 5px rgba(0,0,0,0.3)',
-                                        }}
-                                        onClick={() => setIsCollapsed(!isCollapsed)}
-                                    >
-                                        {isCollapsed ? <LeftOutlined/> : <RightOutlined/>}
-                                    </div>
-
-                                    <div style={{display: isCollapsed ? 'none' : 'block'}}>
-                                        <DispatchPrice data={calcConsultantData}
-                                                       isLoadingConsultantMutate={isLoadingConsultantMutate}/>
-                                    </div>
+                                        <Form.Item>
+                                            <Button type='default' onClick={fetchConsultant} className="query-btn">
+                                                배차 금액 조회
+                                            </Button>
+                                            <Button type="primary" onClick={saveEntry} className="save-btn">
+                                                저장하기
+                                            </Button>
+                                            <Button type="primary" icon={<PlusOutlined/>} onClick={showItemFormModal}
+                                                    className="item-btn">
+                                                물품 등록
+                                            </Button>
+                                        </Form.Item>
+                                    </Form>
                                 </div>
-                            </main>
+                            </Content>
+
+                            {/*<Form.Item label="물품">*/}
+                            {/*<Input*/}
+                            {/*    ref={searchTermRef}*/}
+                            {/*    placeholder="아이템 이름을 입력하고 콤마(,)로 구분하세요"*/}
+                            {/*    value={searchTerm}*/}
+                            {/*    onChange={handleInputChange}*/}
+                            {/*    onKeyDown={handleInputKeyDown}*/}
+                            {/*    style={{marginBottom: '8px', width: '100%'}}*/}
+                            {/*/>*/}
+                            {/*{errorMessage &&*/}
+                            {/*    <div style={{color: 'red', marginTop: '4px'}}>{errorMessage}</div>}*/}
+                            {/*{suggestions.length > 0 && (*/}
+                            {/*    <div style={{*/}
+                            {/*        display: 'flex',*/}
+                            {/*        gap: '8px',*/}
+                            {/*        flexWrap: 'wrap',*/}
+                            {/*        marginTop: '8px'*/}
+                            {/*    }}>*/}
+                            {/*        {suggestions.map((item) => (*/}
+                            {/*            <Tag*/}
+                            {/*                key={item.itemId}*/}
+                            {/*                onClick={handleSelectItem(item)}*/}
+                            {/*                style={{cursor: 'pointer'}}*/}
+                            {/*            >*/}
+                            {/*                {item.itemName}*/}
+                            {/*            </Tag>*/}
+                            {/*        ))}*/}
+                            {/*    </div>*/}
+                            {/*)}*/}
+                            {/*<div style={{marginTop: '8px'}}>*/}
+                            {/*    <h3>선택된 아이템 목록:</h3>*/}
+                            {/*    {items.map((item, index) => <Tag key={index}>{item.itemName}</Tag>)}*/}
+                            {/*</div>*/}
+                            {/*</Form.Item>*/}
+                        </Layout>
+
+                        <div className={`collapse-panel ${isCollapsed ? 'collapsed' : ''}`}>
+                            <div
+                                className="collapse-toggle"
+                                onClick={() => setIsCollapsed(!isCollapsed)}
+                                style={{
+                                    right: isCollapsed ? '-20px' : '37%',
+                                    transform: `translateY(-50%)`,
+                                    overflow: "hidden"
+                                }}
+                            >
+                                {isCollapsed ? <LeftOutlined/> : <RightOutlined/>}
+                            </div>
+
+                            {!isCollapsed && (
+                                <div className="panel-content">
+                                    <DispatchPrice data={calcConsultantData}
+                                                   isLoadingConsultantMutate={isLoadingConsultantMutate}/>
+                                </div>
+                            )}
                         </div>
-                        <div style={{width: '40%', padding: '50px 10%'}}>
-                            <RightSideBar distance={distance} dateCheckList={dateCheckList}
-                                          handleExcepUpload={handleExcepUpload}/>
-                        </div>
+
+                        <Layout style={{width: "35%"}}>
+                            <Header className="header">
+                            <Title level={3} className="header-title">
+                                    배차 정보
+                                </Title>
+                            </Header>
+
+                            <Content className="content" style={{height: "100vh"}}>
+                                <div className="form-container" style={{height: "100vh"}}>
+                                    <RightSideBar distance={distance} dateCheckList={dateCheckList}
+                                                  handleExcepUpload={handleExcepUpload}/>
+                                </div>
+                            </Content>
+                        </Layout>
                     </>
                 )
             )}
-        </div>
+        </Layout>
     );
 };
 

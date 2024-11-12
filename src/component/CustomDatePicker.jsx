@@ -83,6 +83,7 @@ const CustomDatePicker = ({requestDate, handleDateChange}) => {
     return (
         <>
             <DatePicker
+                style={{ width: "100%" }}
                 value={requestDate}
                 onChange={(date) => {
                     if(date === null) {

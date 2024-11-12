@@ -34,7 +34,7 @@ const HelperSelector = ({ label, helpers, setHelpers }) => {
 
     return (
         <Form.Item label={label} style={{ position: 'relative' }}>
-            <Space direction="vertical" style={{ width: '100%' }}>
+            <Space direction="horizontal" style={{ width: '100%' }}>
                 <Space>
                     <Checkbox
                         onChange={(e) => handleCheckboxChange(e.target.checked, 'TRANSPORT')}
@@ -65,16 +65,6 @@ const HelperSelector = ({ label, helpers, setHelpers }) => {
                         </Button>
                     </Space>
                 ))}
-
-                {/* 선택된 항목 목록 */}
-                <div>
-                    <h3>선택된 목록:</h3>
-                    {helpers.map((item, index) => (
-                        <div key={index}>
-                            {item.helperType === 'TRANSPORT' ? '인부' : '이모'} {item.peopleCount}명
-                        </div>
-                    ))}
-                </div>
             </Space>
         </Form.Item>
     );
