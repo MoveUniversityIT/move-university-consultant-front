@@ -72,8 +72,6 @@ const Consultant = () => {
     // 인부
     const [helpers, setHelpers] = useState([]);
 
-    const [progress, setProgress] = useState(0);
-
     const resetForm = () => {
         // 폼 필드를 모두 초기화하는 함수
         setMoveType(null);
@@ -515,23 +513,6 @@ const Consultant = () => {
 
     return (
         <Layout style={{minHeight: "100vh"}}>
-            {progress > 0 && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: 1000,
-                }}>
-                    <CustomProgress progress={progress} />
-                </div>
-            )}
-
             {isLoading && (
                 <CustomProgress isLoading={isLoading}/>
             )}
@@ -826,7 +807,7 @@ const Consultant = () => {
                             <Content className="content" style={{height: "100vh"}}>
                                 <div className="form-container" style={{height: "100vh"}}>
                                     <RightSideBar distance={distance} dateCheckList={dateCheckList}
-                                                  handleExcepUpload={handleExcepUpload} setProgress={setProgress}/>
+                                                  handleExcepUpload={handleExcepUpload}/>
                                 </div>
                             </Content>
                         </Layout>

@@ -1,20 +1,18 @@
-import React from 'react';
+import React, {useState} from 'react';
 import API from "@api/API";
 import {Button} from "antd";
 import {DownloadOutlined, UploadOutlined} from "@ant-design/icons";
 
-const DownloadExcel = ({url, text, setProgress}) => {
+const DownloadExcel = ({url, text}) => {
+    const [loading, setLoading] = useState(false);
+
     const handleDownload = () => {
-        setProgress(0);
+        setLoading(true);
 
         API({
             url: `/excel${url}`,
             method: 'GET',
             responseType: 'blob',
-            onDownloadProgress: (progressEvent) => {
-                const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                setProgress(percentCompleted);
-            }
         }).then((response) => {
             const url = window.URL.createObjectURL(new Blob([response]));
             const link = document.createElement('a');
@@ -23,12 +21,14 @@ const DownloadExcel = ({url, text, setProgress}) => {
             document.body.appendChild(link);
             link.click();
         }).finally(() => {
-            setProgress(0);
+            setLoading(false);
         });
     };
 
     return (
-        <Button icon={<DownloadOutlined />} onClick={handleDownload}>{text}</Button>
+        <Button icon={<DownloadOutlined />} onClick={handleDownload} loading={loading} disabled={loading}>
+            {text}
+        </Button>
     );
 };
 
