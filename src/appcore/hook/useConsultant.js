@@ -43,11 +43,9 @@ export const useCalcConsultant = () => {
         mutationFn: (consultantDataForm) => getCalcConsultant(consultantDataForm),
         retry: false,
         onError: (error) => {
-            const errorMessage = error.response?.data?.errorMessage || "알 수 없는 오류가 발생했습니다.";
+            const errorMessage = error.errorMessage || "알 수 없는 오류가 발생했습니다.";
             alert(`API 요청 오류: ${errorMessage}`);
         },
-        onSuccess: (data) => {
-        }
     });
 }
 
@@ -57,7 +55,8 @@ export const useSpecialDay = () => {
         mutationFn: (year) => getSpecialDay(year),
         retry: false,
         onError: (error) => {
-            alert('특수일(손없는 날) 데이터를 가져오는데 실패했습니다.');
+            const errorMessage = error.errorMessage || "특수일(손없는 날) 데이터를 가져오는데 실패했습니다.";
+            alert(`API 요청 오류: ${errorMessage}`)
         },
     })
 }
