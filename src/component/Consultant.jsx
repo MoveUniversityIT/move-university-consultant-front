@@ -201,7 +201,8 @@ const Consultant = () => {
                 if (loadLocation === locationList.address[0]?.address?.address_name) {
                     handleLoadCoordinates({x: locationList.address[0]?.x, y: locationList.address[0]?.y});
                     handleAddressSelect(setLoadLocation, setShowLoadAddressList);
-                    setLoadCityCode(locationList.address[0]?.address?.b_code || null);
+                    console.log(locationList.address[0]?.address?.b_code);
+                    setLoadCityCode(locationList.address[0]?.address?.b_code?.trim() || null);
                 }
             } else if (locationSearch?.address === unloadLocation) {
                 setUnloadAddressList(locationList.address || []);
@@ -209,7 +210,7 @@ const Consultant = () => {
                 if (unloadLocation === locationList.address[0]?.address?.address_name) {
                     handleUnloadCoordinates({x: locationList.address[0]?.x, y: locationList.address[0]?.y});
                     handleAddressSelect(setUnloadLocation, setShowUnloadAddressList);
-                    setUnloadCityCode(locationList.address[0]?.address?.b_code || null);
+                    setUnloadCityCode(locationList.address[0]?.address?.b_code?.trim() || null);
                 }
             }
         } else {
@@ -254,11 +255,6 @@ const Consultant = () => {
 
     const checkRequiredFields = () => {
         const emptyFields = [];
-
-        if (loadLocation && loadLocation === unloadLocation) {
-            alert(`상차지와 하차지가 같습니다. 다시 확인해주세요.`);
-            return false;
-        }
 
         if (_.isEmpty(loadLocation)) emptyFields.push("상차지");
         if (_.isEmpty(loadMethod)) emptyFields.push("상차 방법");
@@ -403,7 +399,7 @@ const Consultant = () => {
                     }
                 });
 
-                setItems(updatedItems); // `items` 상태에 누적
+                setItems(updatedItems);
                 setSuggestions([]);
                 setSearchTerm(`${newSearchTerm}, `);
                 e.preventDefault();
@@ -528,7 +524,8 @@ const Consultant = () => {
                     />
                 ) : (
                     <>
-                        <LeftSidebar style={{width: "15%"}} resetForm={resetForm} saveEntry={saveEntry} savedEntries={savedEntries}
+                        <LeftSidebar style={{width: "15%"}} resetForm={resetForm} saveEntry={saveEntry}
+                                     savedEntries={savedEntries}
                                      loadSavedEntry={loadSavedEntry} deleteEntry={deleteEntry}/>
 
                         <Layout style={{width: "60%"}}>
@@ -688,25 +685,24 @@ const Consultant = () => {
                                             </Form.Item>
                                         )}
 
+
+                                        <Form.Item label="포장된 박스">
+                                            <InputNumber
+                                                min={0}
+                                                value={packedBoxes}
+                                                onChange={setPackedBoxes}
+                                                placeholder="포장된 박스 수 입력"
+                                            />
+                                        </Form.Item>
                                         {(moveType?.value === '반포장이사' || moveType?.value === '포장이사') && (
-                                            <>
-                                                <Form.Item label="포장된 박스">
-                                                    <InputNumber
-                                                        min={0}
-                                                        value={packedBoxes}
-                                                        onChange={setPackedBoxes}
-                                                        placeholder="포장된 박스 수 입력"
-                                                    />
-                                                </Form.Item>
-                                                <Form.Item label="포장할 박스">
-                                                    <InputNumber
-                                                        min={0}
-                                                        value={boxesToBePacked}
-                                                        onChange={setBoxesToBePacked}
-                                                        placeholder="포장해야 할 박스 수 입력"
-                                                    />
-                                                </Form.Item>
-                                            </>
+                                            <Form.Item label="포장할 박스">
+                                                <InputNumber
+                                                    min={0}
+                                                    value={boxesToBePacked}
+                                                    onChange={setBoxesToBePacked}
+                                                    placeholder="포장해야 할 박스 수 입력"
+                                                />
+                                            </Form.Item>
                                         )}
 
                                         <Form.Item label="총 CBM 설정">
@@ -799,7 +795,7 @@ const Consultant = () => {
 
                         <Layout style={{width: "35%"}}>
                             <Header className="header">
-                            <Title level={3} className="header-title">
+                                <Title level={3} className="header-title">
                                     배차 정보
                                 </Title>
                             </Header>
