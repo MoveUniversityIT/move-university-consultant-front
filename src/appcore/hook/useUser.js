@@ -1,6 +1,6 @@
 import {useMutation} from "@tanstack/react-query";
 import {postLogin} from "@api/userApi";
-import {toggleAccessToken, toggleLoginState} from "@/features/user/loginSlice";
+import {toggleAccessToken, toggleLoginState, toggleRefreshToken} from "@/features/user/loginSlice";
 import RootStore from "@/appcore/rootStore";
 
 export const useLogin = () => {
@@ -9,6 +9,7 @@ export const useLogin = () => {
         retry: false,
         onSuccess: (data) => {
             RootStore.dispatch(toggleAccessToken(data.accessToken));
+            RootStore.dispatch(toggleRefreshToken(data.refreshToken));
             RootStore.dispatch(toggleLoginState(true));
         },
         onError: (error) => {
