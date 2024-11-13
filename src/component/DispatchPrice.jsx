@@ -39,9 +39,10 @@ const helperLabels = {
     helperPrice: "인부당 가격",
     totalHelperPrice: "인부 총금액",
     TRANSPORT: "운반",
+    PACKING_CLEANING: "이모",
     LOAD: "상차",
     UNLOAD: "하차",
-    LOAD_UNLOAD: "상차/하차(양쪽인부)"
+    LOAD_UNLOAD: "상차/하차(양쪽)"
 };
 
 const DispatchPrice = ({data, isLoadingConsultantMutate}) => {
