@@ -46,7 +46,7 @@ const HelperSelector = ({ label, helpers, setHelpers }) => {
                         onChange={(e) => handleCheckboxChange(e.target.checked, 'PACKING_CLEANING')}
                         checked={helpers.some(item => item.helperType === 'PACKING_CLEANING')}
                     >
-                        정리 이모 추가
+                        이모 추가
                     </Checkbox>
                 </Space>
 

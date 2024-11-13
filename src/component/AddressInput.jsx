@@ -8,7 +8,6 @@ const AddressInput = forwardRef(({ label, location, handleLocationChange, setCit
         if (showAddressList && addressList.length > 0) {
             if (e.key === 'ArrowDown') {
                 setSelectedIndex((prevIndex) => {
-                    // 리스트가 열렸을 때 첫 번째 ArrowDown 입력 시 첫 항목이 선택되도록 설정
                     return prevIndex === -1 ? 0 : Math.min(prevIndex + 1, addressList.length - 1);
                 });
                 e.preventDefault();
@@ -16,11 +15,14 @@ const AddressInput = forwardRef(({ label, location, handleLocationChange, setCit
                 setSelectedIndex((prevIndex) => Math.max(prevIndex - 1, 0));
                 e.preventDefault();
             } else if (e.key === 'Enter' && selectedIndex >= 0) {
-                // Enter 키로 선택
                 const selectedAddress = addressList[selectedIndex];
+                const addressName = selectedAddress.address_name.trim();
+
+                const processedAddressName = addressName.replace(/[^가-힣\s]/g, "");
+
                 setCityCode(selectedAddress.address?.b_code || undefined);
                 handleCoordinates({ x: selectedAddress.x, y: selectedAddress.y });
-                onSelectAddress(selectedAddress.address_name);
+                onSelectAddress(processedAddressName);
                 setShowAddressList(false);
                 setSelectedIndex(-1); // 선택 후 초기화
                 e.preventDefault();
