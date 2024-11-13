@@ -13,7 +13,7 @@ export const useLogin = () => {
             RootStore.dispatch(toggleLoginState(true));
         },
         onError: (error) => {
-            const errorMessage = error.response?.data?.errorMessage || "로그인 실패했습니다.";
+            const errorMessage = error?.errorMessage || "로그인 실패했습니다.";
             alert(`API 요청 오류: ${errorMessage}`);
         }
     })
