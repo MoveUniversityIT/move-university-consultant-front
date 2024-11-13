@@ -432,7 +432,7 @@ const Consultant = () => {
                         item.itemName.toLowerCase().includes(currentItem.toLowerCase())
                     )
                 )
-            ).slice(0, 10);
+            ).slice(0, 20);
 
             setSuggestions(filteredSuggestions);
         } else {
@@ -496,6 +496,10 @@ const Consultant = () => {
         if (value !== '반포장이사' && value !== '포장이사') {
             setPackedBoxes(0);
             setBoxesToBePacked(0);
+        }
+
+        if(value === '포장이사') {
+            setBoxesToBePacked(1);
         }
     };
 
@@ -697,7 +701,7 @@ const Consultant = () => {
                                             {(moveType?.value === '반포장이사' || moveType?.value === '포장이사') && (
                                                 <Form.Item label="포장할 박스">
                                                     <InputNumber
-                                                        min={0}
+                                                        min={moveType?.value === '포장이사' ? 1 : 0}
                                                         value={boxesToBePacked}
                                                         onChange={setBoxesToBePacked}
                                                         placeholder="포장해야 할 박스 수 입력"
