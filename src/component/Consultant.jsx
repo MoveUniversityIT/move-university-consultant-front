@@ -685,25 +685,26 @@ const Consultant = () => {
                                             </Form.Item>
                                         )}
 
-
-                                        <Form.Item label="포장된 박스">
-                                            <InputNumber
-                                                min={0}
-                                                value={packedBoxes}
-                                                onChange={setPackedBoxes}
-                                                placeholder="포장된 박스 수 입력"
-                                            />
-                                        </Form.Item>
-                                        {(moveType?.value === '반포장이사' || moveType?.value === '포장이사') && (
-                                            <Form.Item label="포장할 박스">
+                                        <div style={{display: "flex", flexDirection: "row", gap: "10px"}}>
+                                            <Form.Item label="포장된 박스">
                                                 <InputNumber
                                                     min={0}
-                                                    value={boxesToBePacked}
-                                                    onChange={setBoxesToBePacked}
-                                                    placeholder="포장해야 할 박스 수 입력"
+                                                    value={packedBoxes}
+                                                    onChange={setPackedBoxes}
+                                                    placeholder="포장된 박스 수 입력"
                                                 />
                                             </Form.Item>
-                                        )}
+                                            {(moveType?.value === '반포장이사' || moveType?.value === '포장이사') && (
+                                                <Form.Item label="포장할 박스">
+                                                    <InputNumber
+                                                        min={0}
+                                                        value={boxesToBePacked}
+                                                        onChange={setBoxesToBePacked}
+                                                        placeholder="포장해야 할 박스 수 입력"
+                                                    />
+                                                </Form.Item>
+                                            )}
+                                        </div>
 
                                         <Form.Item label="총 CBM 설정">
                                             <InputNumber
