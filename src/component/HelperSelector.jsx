@@ -26,7 +26,7 @@ const HelperSelector = ({ label, helpers, setHelpers, moveType }) => {
 
     const handleCheckboxChange = (checked, type) => {
         if (type === 'PACKING_CLEANING' && moveType?.value !== '포장이사') {
-            message.warning('포장이사일 때만 이 옵션을 선택할 수 있습니다.');
+            message.warning('이사종류가 포장이사인 경우에만 옵션을 선택할 수 있습니다.');
             return;
         }
 
