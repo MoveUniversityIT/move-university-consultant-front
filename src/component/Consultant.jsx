@@ -323,41 +323,53 @@ const Consultant = () => {
         const firstSuggestion = item;
         const terms = searchTerm.split(',').map(term => term.trim());
 
+        // 마지막 항목을 첫 번째 추천 항목의 이름으로 대체
         terms[terms.length - 1] = firstSuggestion.itemName;
         const newSearchTerm = `${terms.join(', ')}`;
 
-        const updatedItems = {};
-        terms.forEach(term => {
-            const itemMatch = collapseItems.flatMap(category =>
-                category.subcategories.flatMap(subcategory =>
-                    subcategory.items.find(item =>
-                        item?.itemName && item.itemName.toLowerCase() === term.toLowerCase()
-                    )
-                )
-            ).find(Boolean);
+        const updatedItems = {}; // 새로운 아이템을 누적할 객체 초기화
 
-            if (itemMatch) {
-                if (updatedItems[itemMatch.itemId]) {
-                    updatedItems[itemMatch.itemId].itemCount += 1;
-                } else {
-                    updatedItems[itemMatch.itemId] = {
-                        itemId: itemMatch.itemId,
-                        itemName: itemMatch.itemName,
-                        itemCount: 1,
-                        isDisassembly: itemMatch.isDisassembly,
-                        isInstallation: itemMatch.isInstallation
-                    };
-                }
+        // 정규식: 괄호가 있을 수도 없을 수도 있으며, 마지막에 숫자는 개수를 의미
+        const itemPattern = /^(.+?)(?:\(([^)]*)\))?(\d*)$/;
+
+        terms.forEach(term => {
+            const match = term.match(itemPattern);
+
+            if (match) {
+                const itemName = `${match[1].trim()}${match[2] ? `(${match[2]})` : ''}`;  // 괄호가 포함된 아이템 이름
+                const quantity = parseInt(match[3]) || 1; // 마지막 숫자를 개수로 인식하고, 없으면 1로 기본 설정
+
+                collapseItems.forEach(category => {
+                    category.subcategories.forEach(subcategory => {
+                        subcategory.items.forEach(item => {
+                            if (item.itemName.toLowerCase() === itemName.toLowerCase()) {
+                                if (updatedItems[item.itemId]) {
+                                    updatedItems[item.itemId].itemCount += quantity;
+                                } else {
+                                    updatedItems[item.itemId] = {
+                                        itemId: item.itemId,
+                                        itemName: item.itemName,
+                                        itemCount: quantity,
+                                        isDisassembly: item.isDisassembly,
+                                        isInstallation: item.isInstallation,
+                                        requiredIsDisassembly: items[item.itemId]?.requiredIsDisassembly || "N", // 기존 옵션 값 유지
+                                        requiredIsInstallation: items[item.itemId]?.requiredIsInstallation || "N"  // 기존 옵션 값 유지
+                                    };
+                                }
+                            }
+                        });
+                    });
+                });
             }
         });
 
         searchTermRef.current.focus();
-        setItems(updatedItems);
+        setItems(updatedItems); // 새로운 아이템 리스트를 설정
         setSuggestions([]);
         setSearchTerm(`${newSearchTerm}, `);
 
         e.preventDefault();
-    }
+    };
 
     const handleInputKeyDown = (e) => {
         if (e.key === ' ') {
@@ -373,40 +385,51 @@ const Consultant = () => {
 
                 const newSearchTerm = `${searchTerm.slice(0, start)}${firstSuggestion.itemName}${searchTerm.slice(end)}`;
 
-                const terms = newSearchTerm.split(',').map(term => term.trim());
+                const terms = newSearchTerm.split(',').map(term => term.trim()).filter(term => term);
                 const updatedItems = {};
-                terms.forEach(term => {
-                    const itemMatch = collapseItems.flatMap(category =>
-                        category.subcategories.flatMap(subcategory =>
-                            subcategory.items.find(item =>
-                                item?.itemName && item.itemName.toLowerCase() === term.toLowerCase()
-                            )
-                        )
-                    ).find(Boolean);
 
-                    if (itemMatch) {
-                        if (updatedItems[itemMatch.itemId]) {
-                            updatedItems[itemMatch.itemId].itemCount += 1;
-                        } else {
-                            updatedItems[itemMatch.itemId] = {
-                                itemId: itemMatch.itemId,
-                                itemName: itemMatch.itemName,
-                                itemCount: 1,
-                                isDisassembly: itemMatch.isDisassembly,
-                                isInstallation: itemMatch.isInstallation
-                            };
-                        }
+                // 정규식: 괄호가 있을 수도 없을 수도 있으며, 마지막에 숫자는 개수를 의미
+                const itemPattern = /^(.+?)(?:\(([^)]*)\))?(\d*)$/;
+
+                terms.forEach(term => {
+                    const match = term.match(itemPattern);
+
+                    if (match) {
+                        const itemName = `${match[1].trim()}${match[2] ? `(${match[2]})` : ''}`;  // 괄호가 포함된 아이템 이름
+                        const quantity = parseInt(match[3]) || 1; // 마지막 숫자를 개수로 인식하고, 없으면 1로 기본 설정
+
+                        collapseItems.forEach(category => {
+                            category.subcategories.forEach(subcategory => {
+                                subcategory.items.forEach(item => {
+                                    if (item.itemName.toLowerCase() === itemName.toLowerCase()) {
+                                        if (updatedItems[item.itemId]) {
+                                            updatedItems[item.itemId].itemCount += quantity;
+                                        } else {
+                                            updatedItems[item.itemId] = {
+                                                itemId: item.itemId,
+                                                itemName: item.itemName,
+                                                itemCount: quantity,
+                                                isDisassembly: item.isDisassembly,
+                                                isInstallation: item.isInstallation,
+                                                requiredIsDisassembly: items[item.itemId]?.requiredIsDisassembly || "N",
+                                                requiredIsInstallation: items[item.itemId]?.requiredIsInstallation || "N"
+                                            };
+                                        }
+                                    }
+                                });
+                            });
+                        });
                     }
                 });
 
-                setItems(updatedItems);
+                setItems(updatedItems); // 새로 계산된 updatedItems를 사용
                 setSuggestions([]);
                 setSearchTerm(`${newSearchTerm}, `);
                 e.preventDefault();
                 setSkipChangeEvent(true);
             }
         }
-    }
+    };
 
     const handleInputChange = (e) => {
         if (skipChangeEvent) {
@@ -421,7 +444,8 @@ const Consultant = () => {
         const afterCursor = value.slice(cursorPosition);
 
         const start = beforeCursor.lastIndexOf(',') + 1;
-        const end = cursorPosition + afterCursor.indexOf(',');
+        const afterCommaIndex = afterCursor.indexOf(',');
+        const end = afterCommaIndex === -1 ? value.length : cursorPosition + afterCommaIndex;
 
         const currentItem = value.slice(start, end).trim();
 
@@ -439,16 +463,17 @@ const Consultant = () => {
             setSuggestions([]);
         }
 
-        const terms = value.split(',').map(term => term.trim());
+        const terms = value.split(',').map(term => term.trim()).filter(term => term);
         const updatedItems = {};
-        const itemPattern = /([^\d]+)(\d*)$/;
+
+        const itemPattern = /^(.+?)(?:\(([^)]*)\))?(\d*)$/;
 
         terms.forEach(term => {
             const match = term.match(itemPattern);
 
             if (match) {
-                const itemName = match[1].trim();
-                const quantity = parseInt(match[2]) || 1;
+                const itemName = `${match[1].trim()}${match[2] ? `(${match[2]})` : ''}`;
+                const quantity = parseInt(match[3]) || 1;
 
                 collapseItems.forEach(category => {
                     category.subcategories.forEach(subcategory => {
@@ -462,7 +487,9 @@ const Consultant = () => {
                                         itemName: item.itemName,
                                         itemCount: quantity,
                                         isDisassembly: item.isDisassembly,
-                                        isInstallation: item.isInstallation
+                                        isInstallation: item.isInstallation,
+                                        requiredIsDisassembly: items[item.itemId]?.requiredIsDisassembly || "N",
+                                        requiredIsInstallation: items[item.itemId]?.requiredIsInstallation || "N"
                                     };
                                 }
                             }
@@ -472,7 +499,7 @@ const Consultant = () => {
             }
         });
 
-        setItems(updatedItems);
+        setItems(updatedItems); // items를 updatedItems로 완전히 새로 설정
         setSearchTerm(value);
     };
 
