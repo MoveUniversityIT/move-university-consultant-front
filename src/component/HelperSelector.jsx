@@ -60,7 +60,7 @@ const HelperSelector = ({ label, helpers, setHelpers }) => {
                             onChange={(value) => updateWorkerCount(index, value)}
                             formatter={(value) => `${value} 명`}
                         />
-                        <Button type="link" onClick={() => removeWorkerType(item.type)}>
+                        <Button type="link" onClick={() => removeWorkerType(item.helperType)}>
                             삭제
                         </Button>
                     </Space>
