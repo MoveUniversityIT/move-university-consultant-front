@@ -1,7 +1,7 @@
 import React from 'react';
-import { Button, Form, InputNumber, Space, Checkbox } from "antd";
+import { Button, Form, InputNumber, Space, Checkbox, message } from "antd";
 
-const HelperSelector = ({ label, helpers, setHelpers }) => {
+const HelperSelector = ({ label, helpers, setHelpers, moveType }) => {
 
     const addWorkerType = (selectedType) => {
         if (!helpers.some(item => item.helperType === selectedType)) {
@@ -25,6 +25,11 @@ const HelperSelector = ({ label, helpers, setHelpers }) => {
     };
 
     const handleCheckboxChange = (checked, type) => {
+        if (type === 'PACKING_CLEANING' && moveType?.value !== '포장이사') {
+            message.warning('포장이사일 때만 이 옵션을 선택할 수 있습니다.');
+            return;
+        }
+
         if (checked) {
             addWorkerType(type);
         } else {

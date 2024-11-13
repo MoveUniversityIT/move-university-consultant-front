@@ -723,7 +723,7 @@ const Consultant = () => {
                                             />
                                         </Form.Item>
 
-                                        <HelperSelector label={"인부 설정"} helpers={helpers} setHelpers={setHelpers}/>
+                                        <HelperSelector label={"인부 설정"} helpers={helpers} setHelpers={setHelpers} moveType={moveType}/>
 
                                         <Form.Item>
                                             <Button type='primary' onClick={fetchConsultant} className="query-btn">
