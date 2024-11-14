@@ -356,7 +356,7 @@ const Consultant = () => {
                                         itemCount: quantity,
                                         isDisassembly: item.isDisassembly,
                                         isInstallation: item.isInstallation,
-                                        requiredIsDisassembly: items[item.itemId]?.requiredIsDisassembly || "N",
+                                        requiredIsDisassembly: item.isDisassembly,
                                         requiredIsInstallation: items[item.itemId]?.requiredIsInstallation || "N"
                                     };
                                 }
@@ -418,7 +418,7 @@ const Consultant = () => {
                                                 itemCount: quantity,
                                                 isDisassembly: item.isDisassembly,
                                                 isInstallation: item.isInstallation,
-                                                requiredIsDisassembly: items[item.itemId]?.requiredIsDisassembly || "N",
+                                                requiredIsDisassembly: item.isDisassembly,
                                                 requiredIsInstallation: items[item.itemId]?.requiredIsInstallation || "N"
                                             };
                                         }
@@ -495,7 +495,7 @@ const Consultant = () => {
                                         itemCount: quantity,
                                         isDisassembly: item.isDisassembly,
                                         isInstallation: item.isInstallation,
-                                        requiredIsDisassembly: items[item.itemId]?.requiredIsDisassembly || "N",
+                                        requiredIsDisassembly: item.isDisassembly,
                                         requiredIsInstallation: items[item.itemId]?.requiredIsInstallation || "N"
                                     };
                                 }
