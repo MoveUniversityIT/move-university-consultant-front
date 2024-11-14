@@ -30,6 +30,7 @@ const Consultant = () => {
     const [unloadCityCode, setUnloadCityCode] = useState(null);
     const [loadAddressList, setLoadAddressList] = useState([]);
     const [unloadAddressList, setUnloadAddressList] = useState([]);
+    const [skipAddressChangeEvent, setSkipAddressChangeEvent] = useState(false);
     const [loadCustomer, setLoadCustomer] = useState([]);
     const [unloadCustomer, setUnloadCustomer] = useState([]);
     const [showLoadAddressList, setShowLoadAddressList] = useState(false);
@@ -201,7 +202,6 @@ const Consultant = () => {
                 if (loadLocation === locationList.address[0]?.address?.address_name) {
                     handleLoadCoordinates({x: locationList.address[0]?.x, y: locationList.address[0]?.y});
                     handleAddressSelect(setLoadLocation, setShowLoadAddressList);
-                    console.log(locationList.address[0]?.address?.b_code);
                     setLoadCityCode(locationList.address[0]?.address?.b_code?.trim() || null);
                 }
             } else if (locationSearch?.address === unloadLocation) {
@@ -228,6 +228,11 @@ const Consultant = () => {
     }, [locationList, locationSearch]);
 
     const handleLocationChange = (setLocation, setShowList, locationType) => (e) => {
+        if (skipAddressChangeEvent) {
+            setSkipAddressChangeEvent(false);
+            return;
+        }
+
         const address = e.target.value;
         setLocation(address);
         setLocationSearch({address, locationType});
@@ -382,10 +387,8 @@ const Consultant = () => {
                 const start = beforeCursor.lastIndexOf(',') + 1;
                 const end = cursorPosition + (afterCursor.indexOf(',') === -1 ? afterCursor.length : afterCursor.indexOf(','));
 
-                // 자동완성된 항목을 삽입
                 let newSearchTerm = `${searchTerm.slice(0, start)}${firstSuggestion.itemName}${searchTerm.slice(end)}`;
 
-                // 마지막에 쉼표와 공백이 없는 경우에만 추가
                 if (!newSearchTerm.endsWith(', ')) {
                     newSearchTerm += ', ';
                 }
@@ -393,7 +396,6 @@ const Consultant = () => {
                 const terms = newSearchTerm.split(',').map(term => term.trim()).filter(term => term);
                 const updatedItems = {};
 
-                // 정규식: 괄호가 있을 수도 없을 수도 있으며, 마지막에 숫자는 개수를 의미
                 const itemPattern = /^(.+?)(?:\(([^)]*)\))?(\d*)$/;
 
                 terms.forEach(term => {
@@ -576,7 +578,6 @@ const Consultant = () => {
                                         <AddressInput
                                             label="상차지"
                                             location={loadLocation}
-                                            setLocation={setLoadLocation}
                                             setCityCode={setLoadCityCode}
                                             handleCoordinates={handleLoadCoordinates}
                                             handleLocationChange={handleLocationChange(setLoadLocation, setShowLoadAddressList, 'start')}
@@ -584,6 +585,7 @@ const Consultant = () => {
                                             showAddressList={showLoadAddressList}
                                             setShowAddressList={setShowLoadAddressList}
                                             onSelectAddress={handleAddressSelect(setLoadLocation, setShowLoadAddressList, 'start')}
+                                            setSkipAddressChangeEvent={setSkipAddressChangeEvent}
                                         />
 
                                         <MethodAndFloorInput
@@ -614,6 +616,7 @@ const Consultant = () => {
                                             showAddressList={showUnloadAddressList}
                                             setShowAddressList={setShowUnloadAddressList}
                                             onSelectAddress={handleAddressSelect(setUnloadLocation, setShowUnloadAddressList, 'end')}
+                                            setSkipAddressChangeEvent={setSkipAddressChangeEvent}
                                         />
 
                                         <MethodAndFloorInput

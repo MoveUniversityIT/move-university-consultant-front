@@ -1,51 +1,63 @@
-import React, { useState, useEffect, forwardRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Input } from 'antd';
 
-const AddressInput = forwardRef(({ label, location, handleLocationChange, setCityCode, handleCoordinates, addressList, showAddressList, onSelectAddress, setShowAddressList }, ref) => {
+const AddressInput = ({
+                          label,
+                          location,
+                          handleLocationChange,
+                          setCityCode,
+                          handleCoordinates,
+                          addressList,
+                          showAddressList,
+                          onSelectAddress,
+                          setShowAddressList,
+                          setSkipAddressChangeEvent
+                      }) => {
     const [selectedIndex, setSelectedIndex] = useState(-1);
 
     const handleKeyDown = (e) => {
+        console.log(selectedIndex);
         if (showAddressList && addressList.length > 0) {
             if (e.key === 'ArrowDown') {
                 setSelectedIndex((prevIndex) => {
-                    return prevIndex === -1 ? 0 : Math.min(prevIndex + 1, addressList.length - 1);
+                    if (prevIndex <= -1) {
+                        return 0;
+                    }
+                    return Math.min(prevIndex + 1, addressList.length - 1);
                 });
-                e.preventDefault();
             } else if (e.key === 'ArrowUp') {
                 setSelectedIndex((prevIndex) => Math.max(prevIndex - 1, 0));
-                e.preventDefault();
             } else if (e.key === 'Enter' && selectedIndex >= 0) {
                 const selectedAddress = addressList[selectedIndex];
                 const addressName = selectedAddress.address_name.trim();
-
                 const processedAddressName = addressName.replace(/[^가-힣\s]/g, "");
 
                 setCityCode(selectedAddress.address?.b_code || undefined);
                 handleCoordinates({ x: selectedAddress.x, y: selectedAddress.y });
                 onSelectAddress(processedAddressName);
                 setShowAddressList(false);
-                setSelectedIndex(-1); // 선택 후 초기화
-                e.preventDefault();
+                setSkipAddressChangeEvent(true);
+                setSelectedIndex(-1);
             }
+        }else {
+            setSkipAddressChangeEvent(false);
         }
     };
 
     useEffect(() => {
-        window.addEventListener('keydown', handleKeyDown);
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [addressList, showAddressList, selectedIndex]);
+        setSelectedIndex(0);
+    }, [addressList, showAddressList]);
 
     return (
-        <Form.Item label={label} ref={ref}>
+        <Form.Item label={label}>
             <Input
                 placeholder="주소를 입력하세요"
                 value={location}
                 onChange={handleLocationChange}
+                onKeyDown={handleKeyDown}
                 onFocus={() => {
                     setShowAddressList(true);
-                    setSelectedIndex(0); // 리스트 열릴 때 첫 번째 항목 선택
+                    setSelectedIndex(0);
                 }}
                 onBlur={() => setShowAddressList(false)}
             />
@@ -89,6 +101,6 @@ const AddressInput = forwardRef(({ label, location, handleLocationChange, setCit
             )}
         </Form.Item>
     );
-});
+};
 
 export default AddressInput;

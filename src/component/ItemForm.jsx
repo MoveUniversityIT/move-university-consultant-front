@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {Checkbox, Form, Input, List, Tag} from 'antd';
 
 const ItemForm = ({ searchTermRef, onInputChange, suggestions, handleSelectItem, searchTerm, handleInputKeyDown, items, setItems}) => {
@@ -8,7 +8,7 @@ const ItemForm = ({ searchTermRef, onInputChange, suggestions, handleSelectItem,
             ...prevItems,
             [itemId]: {
                 ...prevItems[itemId],
-                [key]: checked ? "Y" : "N", // 체크 상태에 따라 "Y" 또는 "N"으로 저장
+                [key]: checked ? "Y" : "N",
             }
         }));
     };
@@ -31,7 +31,7 @@ const ItemForm = ({ searchTermRef, onInputChange, suggestions, handleSelectItem,
                         {suggestions.map((item, index) => (
                             <Tag
                                 key={index}
-                                onClick={handleSelectItem(item)} // 함수가 직접 호출되도록 수정
+                                onClick={handleSelectItem(item)}
                                 style={{ cursor: 'pointer' }}
                             >
                                 {item.itemName}
@@ -44,10 +44,10 @@ const ItemForm = ({ searchTermRef, onInputChange, suggestions, handleSelectItem,
             <div style={{flex: '1', borderLeft: '1px solid #ddd', paddingLeft: '20px'}}>
                 <h3>아이템 목록 및 옵션 설정</h3>
                 <List
-                    dataSource={Object.values(items)} // items 객체의 값을 배열로 변환하여 전달
+                    dataSource={Object.values(items)}
                     renderItem={(item) => (
                         <List.Item style={{display: 'flex', justifyContent: 'space-between'}}>
-                            <span>{item.itemName} {item.itemCount} 개</span> {/* 아이템 이름과 개수 표시 */}
+                            <span>{item.itemName} {item.itemCount} 개</span>
                             <div>
                                 {item.isDisassembly === "Y" && (
                                     <Checkbox
