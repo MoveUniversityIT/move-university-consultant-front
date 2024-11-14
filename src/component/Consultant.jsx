@@ -327,17 +327,16 @@ const Consultant = () => {
         terms[terms.length - 1] = firstSuggestion.itemName;
         const newSearchTerm = `${terms.join(', ')}`;
 
-        const updatedItems = {}; // 새로운 아이템을 누적할 객체 초기화
+        const updatedItems = {};
 
-        // 정규식: 괄호가 있을 수도 없을 수도 있으며, 마지막에 숫자는 개수를 의미
         const itemPattern = /^(.+?)(?:\(([^)]*)\))?(\d*)$/;
 
         terms.forEach(term => {
             const match = term.match(itemPattern);
 
             if (match) {
-                const itemName = `${match[1].trim()}${match[2] ? `(${match[2]})` : ''}`;  // 괄호가 포함된 아이템 이름
-                const quantity = parseInt(match[3]) || 1; // 마지막 숫자를 개수로 인식하고, 없으면 1로 기본 설정
+                const itemName = `${match[1].trim()}${match[2] ? `(${match[2]})` : ''}`;
+                const quantity = parseInt(match[3]) || 1;
 
                 collapseItems.forEach(category => {
                     category.subcategories.forEach(subcategory => {
@@ -352,8 +351,8 @@ const Consultant = () => {
                                         itemCount: quantity,
                                         isDisassembly: item.isDisassembly,
                                         isInstallation: item.isInstallation,
-                                        requiredIsDisassembly: items[item.itemId]?.requiredIsDisassembly || "N", // 기존 옵션 값 유지
-                                        requiredIsInstallation: items[item.itemId]?.requiredIsInstallation || "N"  // 기존 옵션 값 유지
+                                        requiredIsDisassembly: items[item.itemId]?.requiredIsDisassembly || "N",
+                                        requiredIsInstallation: items[item.itemId]?.requiredIsInstallation || "N"
                                     };
                                 }
                             }
@@ -364,7 +363,7 @@ const Consultant = () => {
         });
 
         searchTermRef.current.focus();
-        setItems(updatedItems); // 새로운 아이템 리스트를 설정
+        setItems(updatedItems);
         setSuggestions([]);
         setSearchTerm(`${newSearchTerm}, `);
 
@@ -372,7 +371,7 @@ const Consultant = () => {
     };
 
     const handleInputKeyDown = (e) => {
-        if (e.key === ' ') {
+        if (e.key === 'Enter') {
             if (suggestions.length > 0) {
                 const firstSuggestion = suggestions[0];
                 const cursorPosition = e.target.selectionStart;
@@ -383,7 +382,13 @@ const Consultant = () => {
                 const start = beforeCursor.lastIndexOf(',') + 1;
                 const end = cursorPosition + (afterCursor.indexOf(',') === -1 ? afterCursor.length : afterCursor.indexOf(','));
 
-                const newSearchTerm = `${searchTerm.slice(0, start)}${firstSuggestion.itemName}${searchTerm.slice(end)}`;
+                // 자동완성된 항목을 삽입
+                let newSearchTerm = `${searchTerm.slice(0, start)}${firstSuggestion.itemName}${searchTerm.slice(end)}`;
+
+                // 마지막에 쉼표와 공백이 없는 경우에만 추가
+                if (!newSearchTerm.endsWith(', ')) {
+                    newSearchTerm += ', ';
+                }
 
                 const terms = newSearchTerm.split(',').map(term => term.trim()).filter(term => term);
                 const updatedItems = {};
@@ -395,8 +400,8 @@ const Consultant = () => {
                     const match = term.match(itemPattern);
 
                     if (match) {
-                        const itemName = `${match[1].trim()}${match[2] ? `(${match[2]})` : ''}`;  // 괄호가 포함된 아이템 이름
-                        const quantity = parseInt(match[3]) || 1; // 마지막 숫자를 개수로 인식하고, 없으면 1로 기본 설정
+                        const itemName = `${match[1].trim()}${match[2] ? `(${match[2]})` : ''}`;
+                        const quantity = parseInt(match[3]) || 1;
 
                         collapseItems.forEach(category => {
                             category.subcategories.forEach(subcategory => {
@@ -422,12 +427,14 @@ const Consultant = () => {
                     }
                 });
 
-                setItems(updatedItems); // 새로 계산된 updatedItems를 사용
+                setItems(updatedItems);
                 setSuggestions([]);
-                setSearchTerm(`${newSearchTerm}, `);
+                setSearchTerm(newSearchTerm);
                 e.preventDefault();
                 setSkipChangeEvent(true);
             }
+        } else {
+            setSkipChangeEvent(false);
         }
     };
 
@@ -454,9 +461,7 @@ const Consultant = () => {
                 category.subcategories.flatMap(subcategory =>
                     subcategory.items.filter(item =>
                         item.itemName.toLowerCase().includes(currentItem.toLowerCase())
-                    )
-                )
-            ).slice(0, 20);
+                    ))).slice(0, 20);
 
             setSuggestions(filteredSuggestions);
         } else {
@@ -499,7 +504,7 @@ const Consultant = () => {
             }
         });
 
-        setItems(updatedItems); // items를 updatedItems로 완전히 새로 설정
+        setItems(updatedItems);
         setSearchTerm(value);
     };
 
@@ -519,13 +524,12 @@ const Consultant = () => {
 
     const handleMoveTypeChange = (value, option) => {
         setMoveType({key: option.key, value});
-        // 이사 종류가 변경될 때 박스 수 초기화
         if (value !== '반포장이사' && value !== '포장이사') {
             setPackedBoxes(0);
             setBoxesToBePacked(0);
         }
 
-        if(value === '포장이사') {
+        if (value === '포장이사') {
             setBoxesToBePacked(1);
         }
     };
@@ -750,7 +754,8 @@ const Consultant = () => {
                                             />
                                         </Form.Item>
 
-                                        <HelperSelector label={"인부 설정"} helpers={helpers} setHelpers={setHelpers} moveType={moveType}/>
+                                        <HelperSelector label={"인부 설정"} helpers={helpers} setHelpers={setHelpers}
+                                                        moveType={moveType}/>
 
                                         <Form.Item>
                                             <Button type='primary' onClick={fetchConsultant} className="query-btn">
