@@ -115,9 +115,15 @@ export const postSaveItem = async (item) => {
     return response?.data;
 }
 
-// 물품 수정
-export const putUpdateItem = async (id, item) => {
-    const response = await API.put(`/consultant/item/${id}`, item);
+// 이사 종류 + 상하차 방법 - 요금 비율 수정
+export const patchUpdateDateFeeRate = async (updateRateForm) => {
+    const response = await API.patch(`/consultant/date-fee`, updateRateForm);
 
+    return response?.data;
+}
+
+// 특수일 등록
+export const postSpecialDate = async (specialDate) => {
+    const response = await API.post('/consultant/special-day', specialDate);
     return response?.data;
 }

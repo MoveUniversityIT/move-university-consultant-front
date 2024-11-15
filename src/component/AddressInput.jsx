@@ -16,7 +16,6 @@ const AddressInput = ({
     const [selectedIndex, setSelectedIndex] = useState(-1);
 
     const handleKeyDown = (e) => {
-        console.log(selectedIndex);
         if (showAddressList && addressList.length > 0) {
             if (e.key === 'ArrowDown') {
                 setSelectedIndex((prevIndex) => {

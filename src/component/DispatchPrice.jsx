@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Typography, Table, Progress} from 'antd';
+import {Table, Typography} from 'antd';
 import CustomProgress from "@/component/CustomProgress";
 
 const {Title} = Typography;
@@ -8,7 +8,7 @@ const totalLabels = {
     totalCalcPrice: "총 배차 금액",
     totalVehiclePrice: "합계 차량 가격",
     totalRequiredHelperPrice: "상/하차 총 인부 가격",
-    totalItemCbm: "아이템 총 CBM",
+    totalItemCbm: "물품 총 CBM",
 };
 
 const labels = {

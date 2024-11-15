@@ -50,8 +50,6 @@ const Consultant = () => {
     });
     const [savedEntries, setSavedEntries] = useState([]);
     const [locationSearch, setLocationSearch] = useState({});
-    const [packedBoxes, setPackedBoxes] = useState(0);
-    const [boxesToBePacked, setBoxesToBePacked] = useState(0);
     const [totalItemCbm, setTotalItemCbm] = useState(0);
     const [isCollapsed, setIsCollapsed] = useState(true);
 
@@ -100,8 +98,6 @@ const Consultant = () => {
             startX: null, startY: null, endX: null, endY: null
         });
         setDistance(0);
-        setPackedBoxes(0);
-        setBoxesToBePacked(0);
         setTotalItemCbm(0);
         setCalcConsultantData(null);
         setDateCheckList([]);
@@ -128,8 +124,6 @@ const Consultant = () => {
             unloadFloor,
             requestDate,
             requestTime,
-            packedBoxes,
-            boxesToBePacked,
             totalItemCbm,
             distance,
             items,
@@ -141,7 +135,6 @@ const Consultant = () => {
     };
 
     const loadSavedEntry = (entry) => {
-        // 저장된 정보 불러오기
         setMoveType(entry.moveType);
         setVehicleType(entry.vehicleType);
         setLoadLocation(entry.loadLocation);
@@ -158,8 +151,6 @@ const Consultant = () => {
         setUnloadFloor(entry.unloadFloor);
         setRequestDate(entry.requestDate);
         setRequestTime(entry.requestTime);
-        setPackedBoxes(entry.packedBoxes);
-        setBoxesToBePacked(entry.boxesToBePacked);
         setTotalItemCbm(entry.totalItemCbm);
         setDistance(entry.distance);
         setItems(entry.items);
@@ -285,6 +276,7 @@ const Consultant = () => {
 
     const fetchConsultant = () => {
         if (!checkRequiredFields()) {
+            setIsCollapsed(true);
             return;
         }
         const consultantDataForm = {
@@ -311,12 +303,17 @@ const Consultant = () => {
             requestTime: requestTime.format('HH:mm') || null,
             items,
             totalItemCbm,
-            toPackBoxCount: boxesToBePacked,
             employHelperPeople: helpers
         }
 
-        consultantMutate(consultantDataForm);
-        setIsCollapsed(false);
+        consultantMutate(consultantDataForm, {
+            onSuccess: (data) => {
+                setIsCollapsed(false);
+            },
+            onError: () => {
+                setIsCollapsed(true);
+            }
+        });
     };
 
     // 아이템 목록
@@ -526,14 +523,6 @@ const Consultant = () => {
 
     const handleMoveTypeChange = (value, option) => {
         setMoveType({key: option.key, value});
-        if (value !== '반포장이사' && value !== '포장이사') {
-            setPackedBoxes(0);
-            setBoxesToBePacked(0);
-        }
-
-        if (value === '포장이사') {
-            setBoxesToBePacked(1);
-        }
     };
 
     const deleteEntry = (id) => {
@@ -723,27 +712,6 @@ const Consultant = () => {
                                             </Form.Item>
                                         )}
 
-                                        <div style={{display: "flex", flexDirection: "row", gap: "10px"}}>
-                                            <Form.Item label="포장된 박스">
-                                                <InputNumber
-                                                    min={0}
-                                                    value={packedBoxes}
-                                                    onChange={setPackedBoxes}
-                                                    placeholder="포장된 박스 수 입력"
-                                                />
-                                            </Form.Item>
-                                            {(moveType?.value === '반포장이사' || moveType?.value === '포장이사') && (
-                                                <Form.Item label="포장할 박스">
-                                                    <InputNumber
-                                                        min={moveType?.value === '포장이사' ? 1 : 0}
-                                                        value={boxesToBePacked}
-                                                        onChange={setBoxesToBePacked}
-                                                        placeholder="포장해야 할 박스 수 입력"
-                                                    />
-                                                </Form.Item>
-                                            )}
-                                        </div>
-
                                         <Form.Item label="총 CBM 설정">
                                             <InputNumber
                                                 min={0}
@@ -843,7 +811,7 @@ const Consultant = () => {
                             <Content className="content" style={{height: "100vh"}}>
                                 <div className="form-container" style={{height: "100vh"}}>
                                     <RightSideBar distance={distance} dateCheckList={dateCheckList}
-                                                  handleExcepUpload={handleExcepUpload}/>
+                                                  handleExcepUpload={handleExcepUpload} consultant={consultant}/>
                                 </div>
                             </Content>
                         </Layout>

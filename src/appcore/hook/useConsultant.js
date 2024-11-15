@@ -1,10 +1,15 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
 import {
     getCalcConsultant,
-    getConsultantMetadata, getItem,
-    getKakaoAddress, getPendingItem,
+    getConsultantMetadata,
+    getItem,
+    getKakaoAddress,
+    getPendingItem,
     getRoadDistance,
-    getSpecialDay, postSaveItem, putUpdateItem
+    getSpecialDay,
+    patchUpdateDateFeeRate,
+    postSaveItem,
+    postSpecialDate
 } from "@api/consultantApi";
 
 // 상담 봇 메타 데이터 조회
@@ -100,18 +105,42 @@ export const useSaveItem = () => {
 }
 
 // 물품 수정
-export const useUpdateItem = () => {
+// export const useUpdateItem = () => {
+//     return useMutation({
+//         mutationFn:({itemId, item}) => putUpdateItem(itemId, item),
+//         retry: false,
+//         onSuccess: (response) => {
+//             // 서버에서 받은 성공 메시지
+//             const successMessage = response?.data?.message || "아이템이 성공적으로 추가되었습니다.";
+//             alert(successMessage);
+//         },
+//         onError:(error) => {
+//             const errorMessage = error?.response?.data?.errorMessage || "아이템 수정 중 오류가 발생했습니다.";
+//             alert(errorMessage);
+//         },
+//     })
+// }
+
+// 이사 종류 + 상하차 방법 - 요금 비율 수정
+export const useUpdateDateRate = () => {
     return useMutation({
-        mutationFn:({itemId, item}) => putUpdateItem(itemId, item),
+        mutationFn:(updateRateForm) => patchUpdateDateFeeRate(updateRateForm),
         retry: false,
-        onSuccess: (response) => {
-            // 서버에서 받은 성공 메시지
-            const successMessage = response?.data?.message || "아이템이 성공적으로 추가되었습니다.";
-            alert(successMessage);
+        onError: (error) => {
+            const errorMessage = error.errorMessage || "날짜 추가 요금 수정하는데 오류가 발생했습니다.";
+            alert(`API 요청 오류: ${errorMessage}`)
         },
-        onError:(error) => {
-            const errorMessage = error?.response?.data?.errorMessage || "아이템 수정 중 오류가 발생했습니다.";
-            alert(errorMessage);
+    })
+}
+
+// 특수일 등록
+export const useRegSpecialDate = () => {
+    return useMutation({
+        mutationFn: (date) => postSpecialDate(date),
+        retry: false,
+        onError: (error) => {
+            const errorMessage = error.errorMessage || "특수일 등록하는데 오류가 발생했습니다.";
+            alert(`API 요청 오류: ${errorMessage}`)
         },
     })
 }
