@@ -122,7 +122,7 @@ const ItemSearch = ({
             }
         });
 
-        // 상태 업데이트
+        setSelectedIndex(0);
         setItems(updatedItems);
         setSearchTerm(value);
     };
