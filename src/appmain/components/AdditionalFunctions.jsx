@@ -1,11 +1,11 @@
 import React from "react";
-import {Card, Button, Form} from "antd";
+import {Card, Button, Form, Divider} from "antd";
 import UploadExcel from "@/component/UploadExcel";
 import DownloadExcel from "@/component/DownloadExcel";
 import SpecialDateCheckBox from "@/component/SpecialDateCheckBox";
 import DateFeeUpdate from "@/component/DateFeeUpdate";
 
-const AdditionalFunctions = ({handleExcepUpload}) => {
+const AdditionalFunctions = ({handleExcepUpload, consultantData}) => {
     const handleCopy = (type) => {
         alert(`${type} 복사 기능 실행`);
     };
@@ -31,8 +31,10 @@ const AdditionalFunctions = ({handleExcepUpload}) => {
                 <UploadExcel handleExcepUpload={handleExcepUpload}/>
                 <DownloadExcel url={'/download/item'} text={'모든 물품 엑셀 다운로드'}/>
                 <DownloadExcel url={'/download/special-date'} text={'특수일 다운로드'}/>
-                {/*<DateFeeUpdate consultant={consultantData}/>*/}
             </div>
+
+            <Divider>이사 종류, 상하차 방법, 날짜 추가요금 업데이트</Divider>
+            <DateFeeUpdate consultant={consultantData}/>
         </Card>
     );
 };

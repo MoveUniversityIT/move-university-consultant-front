@@ -24,8 +24,9 @@ const loginSlice = createSlice({
         toggleRoles: (state, action) => {
             state.roles = action.payload;
         },
+        resetState: () => initialState
     }
 });
 
-export const { toggleLoginState, toggleAccessToken, toggleRefreshToken, toggleRoles } = loginSlice.actions;
+export const { toggleLoginState, toggleAccessToken, toggleRefreshToken, toggleRoles, resetState } = loginSlice.actions;
 export default loginSlice.reducer;

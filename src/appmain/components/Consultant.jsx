@@ -6,6 +6,8 @@ import DispatchCost from "@component/DispatchCost";
 import AdditionalFunctions from "@component/AdditionalFunctions";
 import { useConsultantMetadata } from "@hook/useConsultant";
 import {useQueryClient} from "@tanstack/react-query";
+import {useDispatch} from "react-redux";
+import {resetState} from "@/features/user/loginSlice";
 
 const STORAGE_KEY = "reservations";
 
@@ -16,6 +18,8 @@ const Consultant = () => {
     const [reservations, setReservations] = useState([]);
     const [selectedReservation, setSelectedReservation] = useState(null);
     const [dispatchAmount, setDispatchAmount] = useState(null);
+
+    const dispatch = useDispatch();
 
     // 물품
     const [items, setItems] = useState({});
@@ -69,6 +73,8 @@ const Consultant = () => {
 
     if (consultantMetaError) {
         //TODO - 모든인원 한번 초기화 로직 넣어서 초기화 시켜야함
+        dispatch(resetState())
+
         return (
             <div className="flex items-center justify-center min-h-screen bg-gray-100">
                 <p className="text-xl text-red-500">오류가 발생했습니다. 다시 시도해주세요.</p>
@@ -108,7 +114,7 @@ const Consultant = () => {
                     onReady={() => setIsMoveInfoLoading(false)}
                 />
                 <DispatchCost items={items} setItems={setItems} dispatchAmount={dispatchAmount} />
-                <AdditionalFunctions handleExcepUpload={handleExcepUpload} />
+                <AdditionalFunctions handleExcepUpload={handleExcepUpload} consultantData={consultant} />
             </div>
         </Layout>
     );
