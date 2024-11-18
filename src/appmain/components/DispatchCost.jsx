@@ -101,9 +101,9 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
                     <Descriptions.Item label={totalLabels["totalRequiredHelperPrice"]}>
                         {dispatchAmount?.totalRequiredHelperPrice ? dispatchAmount?.totalRequiredHelperPrice + " 원" : ""}
                     </Descriptions.Item>
-                    <Descriptions.Item label="추가 인부 금액">
-                        {/*{dispatchAmount?.helpers} | 추가 이모 금액: X명*/}
-                    </Descriptions.Item>
+                    {/*<Descriptions.Item label="추가 인부 금액">*/}
+                    {/*    /!*{dispatchAmount?.helpers} | 추가 이모 금액: X명*!/*/}
+                    {/*</Descriptions.Item>*/}
                     <Descriptions.Item label={totalLabels["totalCalcPrice"]}>
                         {dispatchAmount?.totalCalcPrice} 원
                     </Descriptions.Item>

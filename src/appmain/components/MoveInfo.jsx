@@ -222,7 +222,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
         if (_.isEmpty(unloadCityCode)) emptyFields.push("하차지 법정동 코드");
 
         // 포장이사의 경우, 포장할 박스 여부 확인
-        if (moveType.value === "포장이사" && items) {
+        if (moveType?.value === "포장이사" && items) {
             debugger;
             const hasPackingBox = Object.values(items).some((item) => item.itemName === "박스(필요)");
 
