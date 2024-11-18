@@ -1,7 +1,8 @@
 import React from "react";
 import {Navigate} from "react-router-dom";
-import {useSelector} from "react-redux";
-import {message} from "antd"; // Ant Design의 메시지 컴포넌트 사용
+import {useDispatch, useSelector} from "react-redux";
+import {message} from "antd";
+import {resetState} from "@/features/user/loginSlice"; // Ant Design의 메시지 컴포넌트 사용
 
 const roleHierarchy = {
     ROLE_ADMIN: ["ROLE_ADMIN", "ROLE_DISPATCH_MANAGE", "ROLE_USER"],
@@ -9,6 +10,7 @@ const roleHierarchy = {
 };
 
 const ProtectedRoute = ({ requiredRoles, children }) => {
+    const dispatch = useDispatch();
     const isLogin = useSelector((state) => state.login.loginState);
     const roles = useSelector((state) => state.login.roles);
 
@@ -21,10 +23,11 @@ const ProtectedRoute = ({ requiredRoles, children }) => {
         const hasAccess = requiredRoles.some((requiredRole) => expandedRoles.includes(requiredRole));
 
         if (!hasAccess) {
-            // 권한 부족 경고 메시지
             message.warning("해당 페이지에 접근할 권한이 없습니다.");
             return <Navigate to={"/consultant"} />;
         }
+    }else {
+        dispatch(resetState())
     }
 
     return children;
