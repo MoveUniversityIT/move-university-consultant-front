@@ -17,7 +17,7 @@ const DownloadExcel = ({url, text}) => {
             const url = window.URL.createObjectURL(new Blob([response]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', 'special_date.xlsx');
+            link.setAttribute('download', url === '/download/item' ? 'item.xlsx' : 'special-date.xlsx');
             document.body.appendChild(link);
             link.click();
         }).catch(() => {
