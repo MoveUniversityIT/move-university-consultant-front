@@ -1,4 +1,4 @@
-import React, {useState, useRef} from "react";
+import React, {useState, useRef, useEffect} from "react";
 import {Form, Input} from "antd";
 
 const ItemSearch = ({
@@ -196,6 +196,7 @@ const ItemSearch = ({
         setSuggestions([]);
         setSearchTerm(updatedSearchTerm);
         setSkipChangeEvent(true);
+        setSelectedIndex(0);
 
         // 텍스트 영역 포커스 유지
         textAreaElement.focus();
@@ -282,6 +283,7 @@ const ItemSearch = ({
                     setItems(updatedItems);
                     setSuggestions([]);
                     setSearchTerm(updatedSearchTerm);
+                    setSelectedIndex(0);
                     setSkipChangeEvent(true);
                 }
             } else {
