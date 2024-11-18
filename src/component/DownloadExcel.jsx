@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import API from "@api/API";
 import {Button} from "antd";
-import {DownloadOutlined, UploadOutlined} from "@ant-design/icons";
+import {DownloadOutlined} from "@ant-design/icons";
 
 const DownloadExcel = ({url, text}) => {
     const [loading, setLoading] = useState(false);
@@ -17,9 +17,10 @@ const DownloadExcel = ({url, text}) => {
             const url = window.URL.createObjectURL(new Blob([response]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', 'items.xlsx');
+            link.setAttribute('download', 'special_date.xlsx');
             document.body.appendChild(link);
             link.click();
+        }).catch(() => {
         }).finally(() => {
             setLoading(false);
         });

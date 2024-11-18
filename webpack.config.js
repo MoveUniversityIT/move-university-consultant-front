@@ -30,7 +30,11 @@ module.exports = {
             {
                 test: /\.css$/i,
                 exclude: /\.module\.css$/i,
-                use: [MiniCssExtractPlugin.loader, 'css-loader'], // MiniCssExtractPlugin.loader 사용
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    "css-loader",
+                    "postcss-loader",
+                ],
             },
             {
                 test: /\.module\.css$/,
@@ -42,6 +46,7 @@ module.exports = {
                             modules: true,
                         },
                     },
+                    "postcss-loader",
                 ],
             },
             {
@@ -65,6 +70,7 @@ module.exports = {
             '@style': path.resolve(__dirname, 'src/common/style/'),
             '@layout': path.resolve(__dirname, 'src/appmain/layout'),
             '@image': path.resolve(__dirname, 'src/common/images/'),
+            '@component': path.resolve(__dirname, 'src/appmain/components'),
             '@common/component': path.resolve(__dirname, 'src/common/components/')
         },
         extensions: ['.js', '.jsx', '.scss'],

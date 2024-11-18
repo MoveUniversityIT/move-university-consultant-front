@@ -48,7 +48,6 @@ const DateFeeUpdate = ({consultant}) => {
             dateFeeRate: rate
         }, {
             onSuccess: (date) => {
-                console.log(date);
                 const successMessage = date?.message || "날짜 추가 요금이 추가되었습니다.";
                 alert(successMessage);
             }

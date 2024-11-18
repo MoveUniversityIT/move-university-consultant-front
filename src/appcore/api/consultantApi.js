@@ -8,7 +8,6 @@ const geocoder = new window.kakao.maps.services.Geocoder();
 // 상담 봇 메타데이터 조회
 export const getConsultantMetadata = async () => {
     const response = await API.get('/consultant')
-
     return response?.data
 }
 
@@ -90,7 +89,6 @@ export const getCalcConsultant = async (consultantDataForm) => {
 // 특수일(손 없는날) 조회
 export const getSpecialDay = async (year) => {
     const response = await API.get(`/consultant/special-day?year=${year}`);
-
     return response?.data;
 }
 

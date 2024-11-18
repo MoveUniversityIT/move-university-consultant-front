@@ -15,7 +15,6 @@ import CustomDatePicker from "@/component/CustomDatePicker";
 import {useQueryClient} from "@tanstack/react-query";
 import koKR from 'antd/es/date-picker/locale/ko_KR';
 import ItemForm from "@/component/ItemForm";
-import HelperSelector from "@/component/HelperSelector";
 import {Content, Header} from "antd/es/layout/layout";
 import RightSideBar from "@/component/RightSidebar";
 
@@ -456,35 +455,38 @@ const Consultant = () => {
         const currentItem = value.slice(start, end).trim();
 
         if (start <= end) {
-            const filteredSuggestions = collapseItems.flatMap(category =>
-                category.subcategories.flatMap(subcategory =>
-                    subcategory.items.filter(item =>
+            const filteredSuggestions = collapseItems.flatMap((category) =>
+                category.subcategories.flatMap((subcategory) =>
+                    subcategory.items.filter((item) =>
                         item.itemName.toLowerCase().includes(currentItem.toLowerCase())
-                    ))).slice(0, 20);
+                    )
+                )
+            ).slice(0, 20);
 
             setSuggestions(filteredSuggestions);
         } else {
             setSuggestions([]);
         }
 
-        const terms = value.split(',').map(term => term.trim()).filter(term => term);
-        const updatedItems = {};
+        const terms = value.split(',').map((term) => term.trim()).filter((term) => term);
+
+        const updatedItems = { ...items };
 
         const itemPattern = /^(.+?)(?:\(([^)]*)\))?(\d*)$/;
 
-        terms.forEach(term => {
+        terms.forEach((term) => {
             const match = term.match(itemPattern);
 
             if (match) {
                 const itemName = `${match[1].trim()}${match[2] ? `(${match[2]})` : ''}`;
                 const quantity = parseInt(match[3]) || 1;
 
-                collapseItems.forEach(category => {
-                    category.subcategories.forEach(subcategory => {
-                        subcategory.items.forEach(item => {
+                collapseItems.forEach((category) => {
+                    category.subcategories.forEach((subcategory) => {
+                        subcategory.items.forEach((item) => {
                             if (item.itemName.toLowerCase() === itemName.toLowerCase()) {
                                 if (updatedItems[item.itemId]) {
-                                    updatedItems[item.itemId].itemCount += quantity;
+                                    updatedItems[item.itemId].itemCount = quantity; // 기존 아이템 개수 업데이트
                                 } else {
                                     updatedItems[item.itemId] = {
                                         itemId: item.itemId,
@@ -493,7 +495,8 @@ const Consultant = () => {
                                         isDisassembly: item.isDisassembly,
                                         isInstallation: item.isInstallation,
                                         requiredIsDisassembly: item.isDisassembly,
-                                        requiredIsInstallation: items[item.itemId]?.requiredIsInstallation || "N"
+                                        requiredIsInstallation:
+                                            items[item.itemId]?.requiredIsInstallation || "N",
                                     };
                                 }
                             }
@@ -725,8 +728,8 @@ const Consultant = () => {
                                             />
                                         </Form.Item>
 
-                                        <HelperSelector label={"인부 설정"} helpers={helpers} setHelpers={setHelpers}
-                                                        moveType={moveType}/>
+                                        {/*<HelperSelector label={"인부 설정"} helpers={helpers} setHelpers={setHelpers}*/}
+                                        {/*                moveType={moveType}/>*/}
 
                                         <Form.Item>
                                             <Button type='primary' onClick={fetchConsultant} className="query-btn">

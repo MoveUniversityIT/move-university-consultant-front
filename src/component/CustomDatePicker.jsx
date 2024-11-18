@@ -45,26 +45,16 @@ const CustomDatePicker = ({requestDate, handleDateChange}) => {
     };
 
 
-
     const dateCellRender = (current) => {
         const year = current.format("YYYY");
         const isNoHandsDay = noHandsDaysByYear[year]?.some(noHandsDay => noHandsDay.isSame(current, "day"));
 
         return (
-            <div className="ant-picker-cell-inner" style={{ position: 'relative' }}>
+            <div className="ant-picker-cell-inner relative">
                 {current.date()}
                 {isNoHandsDay && (
                     <div
-                        style={{
-                            width: '6px',
-                            height: '6px',
-                            backgroundColor: '#4cd320',
-                            borderRadius: '50%',
-                            position: 'absolute',
-                            bottom: '-4px', // 날짜 아래에 위치하도록 설정
-                            left: '50%',
-                            transform: 'translateX(-50%)'
-                        }}
+                        className="w-1.5 h-1.5 bg-no-hands-day rounded-full absolute bottom-[-4px] left-1/2 transform -translate-x-1/2"
                     />
                 )}
             </div>
@@ -72,23 +62,25 @@ const CustomDatePicker = ({requestDate, handleDateChange}) => {
     };
 
     const Legend = () => (
-        <div style={{marginTop: '10px', display: 'flex', alignItems: 'center'}}>
-            <div style={{
-                width: '8px', height: '8px', backgroundColor: '#4CD320FF', marginRight: '8px', borderRadius: '50%'
-            }}/>
-            <span>손 없는 날</span>
+        <div className="flex items-center">
+            <div className="w-2 h-2 bg-no-hands-day mr-2 rounded-full"/>
+            <span className="text-gray-700">손 없는 날</span>
         </div>
     );
 
     return (
         <>
+            <div className="flex items-center justify-between mb-0.5">
+                <label className="text-sm font-medium text-gray-700 block mr-2">요청일:</label>
+                <Legend className="text-sm font-medium text-gray-700"/>
+            </div>
             <DatePicker
-                style={{ width: "100%" }}
+                style={{width: "100%"}}
                 value={requestDate}
                 onChange={(date) => {
-                    if(date === null) {
+                    if (date === null) {
                         handleDateChange(false)(null);
-                    }else {
+                    } else {
                         handleDateChange(isNoHandsDay(date))(date);
                     }
                 }}
@@ -96,7 +88,6 @@ const CustomDatePicker = ({requestDate, handleDateChange}) => {
                 onPanelChange={handlePanelChange}
                 cellRender={dateCellRender}
             />
-            <Legend />
         </>
     );
 }

@@ -12,7 +12,7 @@ const UploadExcel = ({handleExcepUpload}) => {
         const formData = new FormData();
         formData.append('file', file);
 
-        API.post('/excel/upload', formData, {
+        API.post('/excel/upload/item', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             },

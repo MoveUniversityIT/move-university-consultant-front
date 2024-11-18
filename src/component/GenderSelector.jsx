@@ -1,73 +1,70 @@
 import React from "react";
-import { Button, Form, InputNumber, Space, Checkbox } from "antd";
+import { Form, Select, Space } from "antd";
+
+const { Option } = Select;
 
 const GenderSelector = ({ label, customer, setCustomer }) => {
-    const addGender = (selectedGender) => {
-        if (!customer.some(item => item.gender === selectedGender)) {
-            setCustomer(prevList => [
-                ...prevList,
-                { gender: selectedGender, peopleCount: 1 }
-            ]);
-        }
-    };
-
-    const removeGender = (gender) => {
-        setCustomer(prevList => prevList.filter(item => item.gender !== gender));
-    };
-
-    const updateGenderCount = (index, value) => {
-        setCustomer(prevList =>
-            prevList.map((item, idx) =>
-                idx === index ? { ...item, peopleCount: value || 0 } : item
-            )
-        );
-    };
-
-    const handleCheckboxChange = (checked, gender) => {
-        if (checked) {
-            addGender(gender);
+    const handleGenderChange = (gender, count) => {
+        if (count > 0) {
+            if (customer.some((item) => item.gender === gender)) {
+                // 이미 존재하는 경우 업데이트
+                setCustomer((prevList) =>
+                    prevList.map((item) =>
+                        item.gender === gender ? { ...item, peopleCount: count } : item
+                    )
+                );
+            } else {
+                // 새로 추가
+                setCustomer((prevList) => [
+                    ...prevList,
+                    { gender, peopleCount: count },
+                ]);
+            }
         } else {
-            removeGender(gender);
+            // 0명인 경우 삭제
+            setCustomer((prevList) =>
+                prevList.filter((item) => item.gender !== gender)
+            );
         }
     };
 
     return (
-        <Form.Item label={label} style={{ position: 'relative' }}>
-            <Space direction="horizontal" style={{ width: '100%' }}>
-                {/* 남자와 여자 추가를 위한 체크박스 */}
-                <Space>
-                    <Checkbox
-                        onChange={(e) => handleCheckboxChange(e.target.checked, 'male')}
-                        checked={customer.some(item => item.gender === 'male')}
+        <Form.Item label={label} className="relative">
+            <div className="flex gap-4 items-center">
+                {/* 남자 선택 */}
+                <div className="flex flex-col gap-1">
+                    <label className="text-gray-700 font-medium">남자</label>
+                    <Select
+                        className="w-32"
+                        placeholder="명수 선택"
+                        value={customer.find((item) => item.gender === "male")?.peopleCount || undefined}
+                        onChange={(value) => handleGenderChange("male", value)}
                     >
-                        남자 추가
-                    </Checkbox>
-                    <Checkbox
-                        onChange={(e) => handleCheckboxChange(e.target.checked, 'female')}
-                        checked={customer.some(item => item.gender === 'female')}
-                    >
-                        여자 추가
-                    </Checkbox>
-                </Space>
+                        <Option value={0}>0 명</Option>
+                        <Option value={1}>1 명</Option>
+                        <Option value={2}>2 명</Option>
+                        <Option value={3}>3 명</Option>
+                    </Select>
+                </div>
 
-                {/* 선택된 남자/여자 리스트 */}
-                {customer.map((item, index) => (
-                    <Space key={index} style={{ display: 'flex', alignItems: 'center' }}>
-                        <span>{item.gender === 'male' ? '남자' : '여자'}</span>
-                        <InputNumber
-                            min={1}
-                            value={item.peopleCount}
-                            onChange={(value) => updateGenderCount(index, value)}
-                            formatter={(value) => `${value} 명`}
-                        />
-                        <Button type="link" onClick={() => removeGender(item.gender)} style={{ padding: "2px"}}>
-                            삭제
-                        </Button>
-                    </Space>
-                ))}
-            </Space>
+                {/* 여자 선택 */}
+                <div className="flex flex-col gap-1">
+                    <label className="text-gray-700 font-medium">여자</label>
+                    <Select
+                        className="w-32"
+                        placeholder="명수 선택"
+                        value={customer.find((item) => item.gender === "female")?.peopleCount || undefined}
+                        onChange={(value) => handleGenderChange("female", value)}
+                    >
+                        <Option value={0}>0 명</Option>
+                        <Option value={1}>1 명</Option>
+                        <Option value={2}>2 명</Option>
+                        <Option value={3}>3 명</Option>
+                    </Select>
+                </div>
+            </div>
         </Form.Item>
     );
-}
+};
 
 export default GenderSelector;

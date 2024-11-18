@@ -69,9 +69,9 @@ export const useSpecialDay = () => {
 // 물품 조회
 export const useGetItem = () => {
     return useMutation({
-        mutationFn:(itemId) => getItem(itemId),
+        mutationFn: (itemId) => getItem(itemId),
         retry: false,
-        onError:(error) => {
+        onError: (error) => {
             const errorMessage = error?.response?.data?.errorMessage || "아이템 조회 중 오류가 발생했습니다.";
             alert(errorMessage);
         },
@@ -97,7 +97,7 @@ export const useSaveItem = () => {
             const successMessage = response?.data?.message || "아이템이 성공적으로 추가되었습니다.";
             alert(successMessage);
         },
-        onError:(error) => {
+        onError: (error) => {
             const errorMessage = error?.response?.data?.errorMessage || "아이템 추가 중 오류가 발생했습니다.";
             alert(errorMessage);
         },
@@ -124,7 +124,7 @@ export const useSaveItem = () => {
 // 이사 종류 + 상하차 방법 - 요금 비율 수정
 export const useUpdateDateRate = () => {
     return useMutation({
-        mutationFn:(updateRateForm) => patchUpdateDateFeeRate(updateRateForm),
+        mutationFn: (updateRateForm) => patchUpdateDateFeeRate(updateRateForm),
         retry: false,
         onError: (error) => {
             const errorMessage = error.errorMessage || "날짜 추가 요금 수정하는데 오류가 발생했습니다.";

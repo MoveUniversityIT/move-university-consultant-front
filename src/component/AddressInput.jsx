@@ -29,11 +29,10 @@ const AddressInput = ({
             } else if (e.key === 'Enter' && selectedIndex >= 0) {
                 const selectedAddress = addressList[selectedIndex];
                 const addressName = selectedAddress.address_name.trim();
-                const processedAddressName = addressName.replace(/[^가-힣\s]/g, "");
 
                 setCityCode(selectedAddress.address?.b_code || undefined);
                 handleCoordinates({ x: selectedAddress.x, y: selectedAddress.y });
-                onSelectAddress(processedAddressName);
+                onSelectAddress(addressName);
                 setShowAddressList(false);
                 setSkipAddressChangeEvent(true);
                 setSelectedIndex(-1);
@@ -48,56 +47,50 @@ const AddressInput = ({
     }, [addressList, showAddressList]);
 
     return (
-        <Form.Item label={label}>
-            <Input
-                placeholder="주소를 입력하세요"
-                value={location}
-                onChange={handleLocationChange}
-                onKeyDown={handleKeyDown}
-                onFocus={() => {
-                    setShowAddressList(true);
-                    setSelectedIndex(0);
-                }}
-                onBlur={() => setShowAddressList(false)}
-            />
-            {showAddressList && addressList.length > 0 && (
-                <ul
-                    style={{
-                        position: 'absolute',
-                        top: '100%',
-                        left: 0,
-                        right: 0,
-                        maxHeight: '200px',
-                        overflowY: 'auto',
-                        border: '1px solid #ccc',
-                        padding: '10px',
-                        marginTop: '5px',
-                        backgroundColor: '#fff',
-                        zIndex: 1000
-                    }}
-                    onMouseDown={(e) => e.preventDefault()}
-                >
-                    {addressList.map((address, index) => (
-                        <li
-                            key={index}
-                            onMouseDown={(e) => {
-                                setCityCode(address.address?.b_code || undefined);
-                                handleCoordinates({ x: address.x, y: address.y });
-                                onSelectAddress(address.address_name);
-                                setShowAddressList(false);
-                                e.preventDefault();
-                            }}
-                            style={{
-                                cursor: 'pointer',
-                                padding: '5px 0',
-                                backgroundColor: selectedIndex === index ? '#e6f7ff' : '#fff'
-                            }}
+        <Form.Item className="mb-1">
+            <div className="flex items-center">
+                <label className="w-12 text-gray-700 font-medium">{label}:</label>
+
+                <div className="relative flex-1">
+                    <Input
+                        placeholder="주소를 입력하세요"
+                        value={location}
+                        onChange={handleLocationChange}
+                        onKeyDown={handleKeyDown}
+                        onFocus={() => {
+                            setShowAddressList(true);
+                            setSelectedIndex(0);
+                        }}
+                        onBlur={() => setShowAddressList(false)}
+                        className="w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200"
+                    />
+
+                    {showAddressList && addressList.length > 0 && (
+                        <ul
+                            className="absolute left-0 right-0 mt-1 max-h-48 overflow-y-auto border border-gray-300 bg-white rounded-lg shadow-lg z-50"
+                            onMouseDown={(e) => e.preventDefault()}
                         >
-                            {address.address_name}
-                        </li>
-                    ))}
-                </ul>
-            )}
+                            {addressList.map((address, index) => (
+                                <li
+                                    key={index}
+                                    onMouseDown={(e) => {
+                                        setCityCode(address.address?.b_code || undefined);
+                                        handleCoordinates({ x: address.x, y: address.y });
+                                        onSelectAddress(address.address_name);
+                                        setShowAddressList(false);
+                                        e.preventDefault();
+                                    }}
+                                    className={`px-4 py-1 cursor-pointer ${
+                                        selectedIndex === index ? 'bg-blue-100' : 'bg-white'
+                                    } hover:bg-blue-50`}
+                                >
+                                    {address.address_name}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            </div>
         </Form.Item>
     );
 };
