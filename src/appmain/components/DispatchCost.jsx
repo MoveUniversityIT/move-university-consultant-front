@@ -87,8 +87,6 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
                 [key]: checked ? "Y" : "N",
             }
         }));
-
-        console.log(items);
     };
 
     return (

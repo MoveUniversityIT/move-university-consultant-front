@@ -50,7 +50,14 @@ const ItemSearch = ({
                     subcategory.items.filter((item) => {
                         const variations = generateNameVariations(item.itemName);
                         const normalizedCurrent = currentItem.toLowerCase();
-                        return variations.some((variation) => variation.includes(normalizedCurrent));
+
+                        // 모든 입력 문자가 포함되는지 확인
+                        return variations.some((variation) => {
+                            const normalizedVariation = variation.toLowerCase();
+                            return [...normalizedCurrent].every((char) =>
+                                normalizedVariation.includes(char)
+                            );
+                        });
                     })
                 )
             ).slice(0, 20);
