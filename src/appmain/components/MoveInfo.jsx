@@ -560,7 +560,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                     <Select
                         placeholder="예: 톤수"
                         className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        listHeight={96}
+                        listHeight={128}
                     >
                         <Select.Option value="1">1</Select.Option>
                         <Select.Option value="1.4">1.4</Select.Option>
