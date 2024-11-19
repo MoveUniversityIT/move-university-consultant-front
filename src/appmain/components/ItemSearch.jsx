@@ -71,7 +71,7 @@ const ItemSearch = ({
                         });
                     })
                 )
-            ).slice(0, 20);
+            ).sort((a, b) => (b.sortingIndex || 0) - (a.sortingIndex || 0)).slice(0, 20);
 
             setSuggestions(filteredSuggestions);
         } else {
