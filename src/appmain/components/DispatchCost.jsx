@@ -129,7 +129,7 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
             transportHelperPrice: dispatchAmount?.helpers
                 ? dispatchAmount.helpers.reduce((total, helper) => {
                     if (helper.helperType === "TRANSPORT") {
-                        return total + (helper.helperPrice || 0);
+                        return total + (helper.totalHelperPrice || 0);
                     }
                     return total;
                 }, 0)
@@ -137,7 +137,7 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
             cleaningHelperPrice: dispatchAmount?.helpers
                 ? dispatchAmount.helpers.reduce((total, helper) => {
                     if (helper.helperType === "PACKING_CLEANING") {
-                        return total + (helper.helperPrice || 0);
+                        return total + (helper.totalHelperPrice || 0);
                     }
                     return total;
                 }, 0)
