@@ -28,15 +28,17 @@ const AdditionalFunctions = ({handleExcepUpload, consultantData}) => {
                 <Button type="primary" onClick={() => handleCopy("화물보험")}>
                     화물보험
                 </Button>
-                <UploadExcel handleExcepUpload={handleExcepUpload}/>
-                <DownloadExcel url={'/download/item'} text={'모든 물품 엑셀 다운로드'}/>
-                <DownloadExcel url={'/download/special-date'} text={'특수일 다운로드'}/>
+                <UploadExcel url={'/item'} handleExcepUpload={handleExcepUpload} fileName={"물품 업로드"}/>
+                <DownloadExcel url={'/item'} fileName={'item.xlsx'} text={'모든 물품 엑셀 다운로드'}/>
             </div>
 
-            <Divider>이사 종류, 상하차 방법, 날짜 추가요금 업데이트</Divider>
-            <DateFeeUpdate consultant={consultantData}/>
+            <Divider>특수일</Divider>
+            <div className="grid grid-cols-1 gap-4">
+                <UploadExcel url={'/special-date'} handleExcepUpload={handleExcepUpload} fileName={"특수일 업로드"}/>
+                <DownloadExcel url={'/special-date'} fileName={'special-date.xlsx'} text={'특수일 다운로드'}/>
+            </div>
         </Card>
-    );
+);
 };
 
 export default AdditionalFunctions;

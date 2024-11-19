@@ -16,7 +16,7 @@ const ItemSearch = ({
         const cursorPosition = e.target.selectionStart;
         setIsDropdownVisible(true);
 
-        if(skipChangeEvent) {
+        if (skipChangeEvent) {
             setSkipChangeEvent(false);
             return;
         }
@@ -72,7 +72,7 @@ const ItemSearch = ({
             .map((term) => term.trim())
             .filter((term) => term);
 
-        const updatedItems = { ...items };
+        const updatedItems = {...items};
         const processedItemIds = new Set();
 
         Object.keys(updatedItems).forEach((key) => {
@@ -158,7 +158,7 @@ const ItemSearch = ({
             .replace(/,\s*$/, ','); // 문자열 끝에 있는 쉼표 정리
 
         // 기존 items 복사
-        const updatedItems = { ...items };
+        const updatedItems = {...items};
 
         // 선택된 아이템 이름 정규화
         const normalizeName = (name) => name.trim().toLowerCase();
@@ -246,7 +246,7 @@ const ItemSearch = ({
                         .replace(/,\s*$/, ","); // 문자열 끝에 있는 쉼표 정리
 
                     // 기존 items 복사
-                    const updatedItems = { ...items };
+                    const updatedItems = {...items};
 
                     // 이름 정규화
                     const normalizeName = (name) => name.trim().toLowerCase();

@@ -16,7 +16,7 @@ const Router = () => {
         {
             path: "/consultant",
             element: (
-                <ProtectedRoute requiredRoles={["ROLE_MANAGER", "ROLE_ADMIN"]}>
+                <ProtectedRoute requiredRoles={["ROLE_MANAGER", "ROLE_ADMIN", "ROLE_EMPLOYEE"]}>
                     <Consultant />
                 </ProtectedRoute>
             ),

@@ -93,7 +93,7 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
         <div className="flex flex-col h-full">
             <Card title="배차 금액" className="shadow-md rounded-md flex-1">
                 <Descriptions bordered column={1} size="middle" className="mb-1">
-                    <Descriptions.Item label={totalLabels["totalItemCbm"]}>
+                    <Descriptions.Item label={totalLabels["totalItemCbm"]} className="w-1">
                         {dispatchAmount?.totalItemCbm ? dispatchAmount?.totalItemCbm + " CBM" : ""}
                     </Descriptions.Item>
                     <Descriptions.Item label={totalLabels["totalRequiredHelperPrice"]}>

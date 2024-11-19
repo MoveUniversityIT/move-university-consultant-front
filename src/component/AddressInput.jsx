@@ -47,7 +47,7 @@ const AddressInput = ({
     }, [addressList, showAddressList]);
 
     return (
-        <Form.Item className="mb-1">
+        <Form.Item className="mb-2.5">
             <div className="flex items-center">
                 <label className="w-12 text-gray-700 font-medium">{label}:</label>
 

@@ -3,7 +3,7 @@ import API from "@api/API";
 import {Button, message, Upload} from "antd";
 import {UploadOutlined} from "@ant-design/icons";
 
-const UploadExcel = ({handleExcepUpload}) => {
+const UploadExcel = ({url, handleExcepUpload, fileName}) => {
     const [loading, setLoading] = useState(false);
 
     const handleUpload = ({file}) => {
@@ -12,7 +12,7 @@ const UploadExcel = ({handleExcepUpload}) => {
         const formData = new FormData();
         formData.append('file', file);
 
-        API.post('/excel/upload/item', formData, {
+        API.post(`/excel/upload${url}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             },
@@ -36,7 +36,7 @@ const UploadExcel = ({handleExcepUpload}) => {
 
     return (
         <Upload customRequest={handleUpload} showUploadList={false}>
-            <Button icon={<UploadOutlined />} loading={loading} disabled={loading}>물품 엑셀 업로드</Button>
+            <Button icon={<UploadOutlined />} loading={loading} disabled={loading}>{fileName}</Button>
         </Upload>
     );
 };

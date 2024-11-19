@@ -5,8 +5,9 @@ import {message} from "antd";
 import {resetState} from "@/features/user/loginSlice"; // Ant Design의 메시지 컴포넌트 사용
 
 const roleHierarchy = {
-    ROLE_ADMIN: ["ROLE_ADMIN", "ROLE_DISPATCH_MANAGE", "ROLE_USER"],
+    ROLE_ADMIN: ["ROLE_ADMIN", "ROLE_DISPATCH_MANAGE", "ROLE_USER", "ROLE_EMPLOYEE"],
     ROLE_DISPATCH_MANAGE: ["ROLE_DISPATCH_MANAGE", "ROLE_DISPATCH_READ", "ROLE_EMPLOYEE"],
+    ROLE_EMPLOYEE: ["ROLE_EMPLOYEE"]
 };
 
 const ProtectedRoute = ({ requiredRoles, children }) => {

@@ -3,21 +3,21 @@ import API from "@api/API";
 import {Button} from "antd";
 import {DownloadOutlined} from "@ant-design/icons";
 
-const DownloadExcel = ({url, text}) => {
+const DownloadExcel = ({url, fileName, text}) => {
     const [loading, setLoading] = useState(false);
 
     const handleDownload = () => {
         setLoading(true);
 
         API({
-            url: `/excel${url}`,
+            url: `/excel/download${url}`,
             method: 'GET',
             responseType: 'blob',
         }).then((response) => {
             const url = window.URL.createObjectURL(new Blob([response]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', url === '/download/item' ? 'item.xlsx' : 'special-date.xlsx');
+            link.setAttribute('download', fileName);
             document.body.appendChild(link);
             link.click();
         }).catch(() => {
