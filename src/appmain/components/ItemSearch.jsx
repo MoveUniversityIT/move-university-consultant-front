@@ -51,11 +51,22 @@ const ItemSearch = ({
                         const variations = generateNameVariations(item.itemName);
                         const normalizedCurrent = currentItem.toLowerCase();
 
-                        // 모든 입력 문자가 포함되는지 확인
                         return variations.some((variation) => {
                             const normalizedVariation = variation.toLowerCase();
-                            return [...normalizedCurrent].every((char) =>
-                                normalizedVariation.includes(char)
+
+                            const getCharFrequency = (str) => {
+                                const frequency = {};
+                                for (const char of str) {
+                                    frequency[char] = (frequency[char] || 0) + 1;
+                                }
+                                return frequency;
+                            };
+
+                            const currentFreq = getCharFrequency(normalizedCurrent);
+                            const variationFreq = getCharFrequency(normalizedVariation);
+
+                            return Object.keys(currentFreq).every(
+                                (char) => variationFreq[char] >= currentFreq[char]
                             );
                         });
                     })
@@ -223,6 +234,7 @@ const ItemSearch = ({
                     e.preventDefault();
                     const firstSuggestion = suggestions[selectedIndex];
                     const cursorPosition = e.target.selectionStart;
+                    const prevItemCount = items.length;
 
                     // 커서 앞뒤로 텍스트 분리
                     const beforeCursor = searchTerm.slice(0, cursorPosition);
@@ -285,6 +297,10 @@ const ItemSearch = ({
                     setSearchTerm(updatedSearchTerm);
                     setSelectedIndex(0);
                     setSkipChangeEvent(true);
+
+                    setTimeout(() => {
+                        setSkipChangeEvent(false);
+                    }, 0);
                 }
             } else {
                 setSkipChangeEvent(false);
