@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {notification, Button, Card, Checkbox, Form, Input, InputNumber, Select, TimePicker} from "antd";
+import {Button, Card, Checkbox, Form, Input, InputNumber, message, notification, Select, TimePicker} from "antd";
 import dayjs from "dayjs";
 import {useAddressSearch, useCalcConsultant, useRoadDistance} from "@hook/useConsultant";
 import AddressInput from "@/component/AddressInput";
@@ -231,7 +231,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                     message: "포장할 박스",
                     description: `포장이사의 경우 박스(필요) 물품이 존재해야 합니다.`,
                     placement: "top",
-                    style: { width: "700px", margin: "0 auto" },
+                    style: {width: "700px", margin: "0 auto"},
                     duration: 5,
                 });
 
@@ -244,7 +244,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                 message: "필수 입력 항목 누락",
                 description: `다음 필드를 입력해주세요: ${emptyFields.join(", ")}`,
                 placement: "top",
-                style: { width: "700px", margin: "0 auto" },
+                style: {width: "700px", margin: "0 auto"},
                 duration: 5,
             });
             return false;
@@ -254,17 +254,17 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
 
     const resetState = () => {
         setMoveType(null);
-        setVehicleType({ key: 1, value: '카고' });
+        setVehicleType({key: 1, value: '카고'});
         setLoadLocation('');
         setLoadCityCode(null);
-        setLoadMethod({ key: 1, value: '엘레베이터' });
+        setLoadMethod({key: 1, value: '엘레베이터'});
         setLoadFloor(null);
         setLoadArea(1);
         setLoadHouseholdMembers(0);
         setLoadCustomer([]);
         setUnloadLocation('');
         setUnloadCityCode(null);
-        setUnloadMethod({ key: 1, value: '엘레베이터' });
+        setUnloadMethod({key: 1, value: '엘레베이터'});
         setUnloadFloor(0);
         setUnloadArea(1);
         setUnloadHouseholdMembers(0);
@@ -274,8 +274,8 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
         setRequestTime(dayjs('08:00', 'HH:mm'));
         setDistance(0);
         setHelpers([
-            { helperType: 'TRANSPORT', peopleCount: 0 },
-            { helperType: 'PACKING_CLEANING', peopleCount: 0 }
+            {helperType: 'TRANSPORT', peopleCount: 0},
+            {helperType: 'PACKING_CLEANING', peopleCount: 0}
         ]);
         setItems([]);
     };
@@ -334,10 +334,10 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
             setDistance(initialData.distance);
             setHelpers(initialData.helpers);
             setItems(items);
-        }else {
+        } else {
             resetState();
         }
-    },[initialData]);
+    }, [initialData]);
 
 
     const fetchConsultant = () => {
@@ -370,6 +370,25 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
             items,
             totalItemCbm,
             employHelperPeople: helpers
+        }
+        
+        if (moveType.value !== '포장이사') {
+            const packingCleaningHelper = helpers.find(helper => helper.helperType === 'PACKING_CLEANING');
+
+            const peopleCount = packingCleaningHelper ? packingCleaningHelper.peopleCount : 0;
+            if(peopleCount > 0) {
+                message.warning("이사종류: 포장이사가 아닌경우 추가 이모 설정은 무시 후 계산됩니다.");
+            }
+        }
+
+        if (moveType.value === '단순운송') {
+            const transportHelper = helpers.find(helper => helper.helperType === 'TRANSPORT');
+            const packingCleaningHelper = helpers.find(helper => helper.helperType === 'PACKING_CLEANING');
+            const totalPeople = transportHelper?.peopleCount ?? 0 + packingCleaningHelper?.peopleCount ?? 0;
+
+            if(totalPeople > 0) {
+                message.warning("이사종류: 단순운송인 경우 추가 인부, 추가 이모 설정은 무시 후 계산됩니다.");
+            }
         }
 
         consultantMutate(consultantDataForm, {
@@ -631,7 +650,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                     />
                 </Form.Item>
 
-                <ShipperNumberInput />
+                <ShipperNumberInput/>
 
                 <Form.Item className="flex-1 !mb-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">결제방법:</label>
@@ -668,7 +687,8 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                 </div>
 
                 <div>
-                    <Button onClick={fetchConsultant} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                    <Button onClick={fetchConsultant}
+                            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
                         배차 금액 조회
                     </Button>
                 </div>

@@ -1,5 +1,5 @@
-import React, {useEffect} from "react";
-import {Card, Checkbox, Descriptions, Form, List} from "antd";
+import React, {useEffect, useState} from "react";
+import {Card, Checkbox, Descriptions, Divider, Form, List} from "antd";
 
 const totalLabels = {
     totalCalcPrice: "총 배차 금액",
@@ -43,6 +43,18 @@ const helperLabels = {
     LOAD_UNLOAD: "상차/하차(양쪽)"
 };
 
+const dataLabel = {
+    totalItemCbm: "물품 총 CBM",
+    transportHelperCount: "추가 인부 수",
+    cleaningHelperCount: "추가 이모 수",
+    vehicleName: "차량 종류",
+    vehicleCount: "차량 수",
+    vehicleRoundingHalfUp: "한 대 차량 가격",
+    transportHelperPrice: "추가 인부 가격",
+    cleaningHelperPrice: "추가 이모 가격",
+    totalCalcPrice: "총 배차 가격",
+}
+
 // "data": {
 //     "moveTypeName": "일반이사",
 //         "vehicleCount": 1,
@@ -78,7 +90,10 @@ const helperLabels = {
 //         "totalCalcPrice": 60000.0
 // }
 
+
 const DispatchCost = ({items, setItems, dispatchAmount}) => {
+    const [calcData, setCalcData] = useState({});
+
     const handleCheckboxChange = (itemId, key, checked) => {
         setItems(prevItems => ({
             ...prevItems,
@@ -89,34 +104,95 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
         }));
     };
 
+    useEffect(() => {
+        setCalcData({
+            totalItemCbm: dispatchAmount?.totalItemCbm ? dispatchAmount.totalItemCbm : 0,
+            transportHelperCount: dispatchAmount?.helpers
+                ? dispatchAmount.helpers.reduce((total, helper) => {
+                    if (helper.helperType === "TRANSPORT") {
+                        return total + (helper.helperCount || 0);
+                    }
+                    return total;
+                }, 0)
+                : 0,
+            cleaningHelperCount: dispatchAmount?.helpers
+                ? dispatchAmount.helpers.reduce((total, helper) => {
+                    if (helper.helperType === "PACKING_CLEANING") {
+                        return total + (helper.helperCount || 0);
+                    }
+                    return total;
+                }, 0)
+                : 0,
+            vehicleName: dispatchAmount?.vehicleName,
+            vehicleCount: dispatchAmount?.vehicleCount ? dispatchAmount.vehicleCount : 0,
+            vehicleRoundingHalfUp: dispatchAmount?.vehicleRoundingHalfUp ? dispatchAmount.vehicleRoundingHalfUp : 0,
+            transportHelperPrice: dispatchAmount?.helpers
+                ? dispatchAmount.helpers.reduce((total, helper) => {
+                    if (helper.helperType === "TRANSPORT") {
+                        return total + (helper.helperPrice || 0);
+                    }
+                    return total;
+                }, 0)
+                : 0,
+            cleaningHelperPrice: dispatchAmount?.helpers
+                ? dispatchAmount.helpers.reduce((total, helper) => {
+                    if (helper.helperType === "PACKING_CLEANING") {
+                        return total + (helper.helperPrice || 0);
+                    }
+                    return total;
+                }, 0)
+                : 0,
+            totalCalcPrice: dispatchAmount?.totalCalcPrice ? dispatchAmount.totalCalcPrice : 0,
+        })
+
+    }, [dispatchAmount]);
+
+    // 사다리가격도 별도 고지
     return (
         <div className="flex flex-col h-full">
             <Card title="배차 금액" className="shadow-md rounded-md flex-1">
-                <Descriptions bordered column={1} size="middle" className="mb-1">
-                    <Descriptions.Item label={totalLabels["totalItemCbm"]} className="w-1">
-                        {dispatchAmount?.totalItemCbm ? dispatchAmount?.totalItemCbm + " CBM" : ""}
-                    </Descriptions.Item>
-                    <Descriptions.Item label={totalLabels["totalRequiredHelperPrice"]}>
-                        {dispatchAmount?.totalRequiredHelperPrice ? dispatchAmount?.totalRequiredHelperPrice + " 원" : ""}
-                    </Descriptions.Item>
-                    {/*<Descriptions.Item label="추가 인부 금액">*/}
-                    {/*    /!*{dispatchAmount?.helpers} | 추가 이모 금액: X명*!/*/}
-                    {/*</Descriptions.Item>*/}
-                    <Descriptions.Item label={totalLabels["totalCalcPrice"]}>
-                        {dispatchAmount?.totalCalcPrice ? dispatchAmount?.totalCalcPrice + " 원" : ""}
-                    </Descriptions.Item>
-                </Descriptions>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                    {Object.entries(calcData).map(([key, value]) => (
+                        <div key={key} className="flex justify-between items-center border p-2 rounded-md">
+                            <span className="font-bold text-gray-600">{dataLabel[key]}:</span>
+                            <span className="text-gray-800">{value}</span>
+                        </div>
+                    ))}
+                </div>
 
+                {/*<p>총 CBM: {dispatchAmount?.totalItemCbm ? dispatchAmount?.totalItemCbm + " CBM" : ""} |*/}
+                {/*    {dispatchAmount?.helpers ? dispatchAmount?.helpers.map((key, value) => {*/}
+                {/*        if (key === 'helperType' && value === 'TRANSPORT') {*/}
+
+                {/*        }*/}
+                {/*    }) + " 원" : ""}</p>*/}
+                {/*<p>{dispatchAmount?.totalItemCbm ? dispatchAmount?.totalItemCbm + " CBM" : ""}</p>*/}
+                {/*<p>{dispatchAmount?.totalItemCbm ? dispatchAmount?.totalItemCbm + " CBM" : ""}</p>*/}
+                {/*<Descriptions bordered column={1} size="middle" className="mb-1">*/}
+                {/*    <Descriptions.Item label={totalLabels["totalItemCbm"]} className="w-1">*/}
+                {/*        {dispatchAmount?.totalItemCbm ? dispatchAmount?.totalItemCbm + " CBM" : ""}*/}
+                {/*    </Descriptions.Item>*/}
+                {/*    <Descriptions.Item label={totalLabels["totalRequiredHelperPrice"]}>*/}
+                {/*        {dispatchAmount?.totalRequiredHelperPrice ? dispatchAmount?.totalRequiredHelperPrice + " 원" : ""}*/}
+                {/*    </Descriptions.Item>*/}
+                {/*    /!*<Descriptions.Item label="추가 인부 금액">*!/*/}
+                {/*    /!*    /!*{dispatchAmount?.helpers} | 추가 이모 금액: X명*!/*!/*/}
+                {/*    /!*</Descriptions.Item>*!/*/}
+                {/*    <Descriptions.Item label={totalLabels["totalCalcPrice"]}>*/}
+                {/*        {dispatchAmount?.totalCalcPrice ? dispatchAmount?.totalCalcPrice + " 원" : ""}*/}
+                {/*    </Descriptions.Item>*/}
+                {/*</Descriptions>*/}
+
+                <Divider>아이템 목록 및 옵션 설정</Divider>
                 <Form
                     layout="vertical"
                     className="flex gap-1 h-[20vh] overflow-y-auto"
                 >
                     <div className="flex-1 border-l border-gray-300 pl-5">
-                        <h4 className="text-lg font-semibold mb-3">아이템 목록 및 옵션 설정</h4>
                         <List
                             dataSource={Object.values(items)}
                             renderItem={(item) => (
-                                <List.Item className="!p-0 flex justify-between items-center">
+                                <List.Item className="!p-1 flex justify-between items-center">
                                     <span className="text-sm">{item.itemName} {item.itemCount} 개</span>
                                     <div className="flex items-center space-x-2">
                                         {item.isDisassembly === "Y" && (
