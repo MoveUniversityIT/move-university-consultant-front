@@ -55,6 +55,17 @@ const dataLabel = {
     totalCalcPrice: "총 배차 가격",
 }
 
+const unitLabel = {
+    totalItemCbm: "CBM",
+    transportHelperCount: "명",
+    cleaningHelperCount: "명",
+    vehicleCount: "대",
+    vehicleRoundingHalfUp: "원",
+    transportHelperPrice: "원",
+    cleaningHelperPrice: "원",
+    totalCalcPrice: "원"
+};
+
 // "data": {
 //     "moveTypeName": "일반이사",
 //         "vehicleCount": 1,
@@ -155,7 +166,10 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
                     {Object.entries(calcData).map(([key, value]) => (
                         <div key={key} className="flex justify-between items-center border p-2 rounded-md">
                             <span className="font-bold text-gray-600">{dataLabel[key]}:</span>
-                            <span className="text-gray-800">{value}</span>
+                            <span className="text-gray-800">
+                            {value}
+                                {unitLabel[key] ? unitLabel[key] : ""}
+                        </span>
                         </div>
                     ))}
                 </div>
@@ -183,7 +197,7 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
                 {/*    </Descriptions.Item>*/}
                 {/*</Descriptions>*/}
 
-                <Divider>아이템 목록 및 옵션 설정</Divider>
+                <Divider>물품 목록 & 옵션 설정</Divider>
                 <Form
                     layout="vertical"
                     className="flex gap-1 h-[20vh] overflow-y-auto"
