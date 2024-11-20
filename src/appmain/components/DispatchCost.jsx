@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Card, Checkbox, Descriptions, Divider, Form, List} from "antd";
+import {Card, Checkbox, Descriptions, Divider, Form, List, Slider} from "antd";
 
 const totalLabels = {
     totalCalcPrice: "총 배차 금액",
@@ -104,12 +104,79 @@ const unitLabel = {
 
 const DispatchCost = ({items, setItems, dispatchAmount}) => {
     const [calcData, setCalcData] = useState({});
+    const [estimate, setEstimate] = useState({
+        minDeposit: dispatchAmount?.estimatePrice?.minDeposit || 0,
+        maxDeposit: dispatchAmount?.estimatePrice?.maxDeposit || 0,
+        minEstimatePrice: dispatchAmount?.estimatePrice?.minEstimatePrice || 0,
+        maxEstimatePrice: dispatchAmount?.estimatePrice?.maxEstimatePrice || 0,
+    });
 
-    const handleCheckboxChange = (itemId, key, checked) => {
+    const [sliderValue, setSliderValue] = useState(1);
+    const [depositPrice, setDepositPrice] = useState(estimate.minDeposit);
+    const [estimatePrice, setEstimatePrice] = useState(estimate.minEstimatePrice);
+
+    // minDeposit + (slider value - 1) * ((maxDeposit - minDeposit) / (10 -1))
+    const handleSliderChange = (value) => {
+        setSliderValue(value);
+
+        // 예측 값 계산
+        let calcDeposit =
+            estimate.minDeposit +
+            (value - 1) * ((estimate.maxDeposit - estimate.minDeposit) / (10 - 1));
+
+        let calcEstimate =
+            estimate.minEstimatePrice +
+            (value - 1) * ((estimate.maxEstimatePrice - estimate.minEstimatePrice) / (10 - 1));
+
+        // 소수점 안정성을 위해 Math.round 사용
+        calcDeposit = Math.round(calcDeposit * 100) / 100;
+        calcEstimate = Math.round(calcEstimate * 100) / 100;
+
+        // 30만 미만일 경우 5천원 단위로 반올림
+        if (calcDeposit < 300000) {
+            calcDeposit = Math.round(calcDeposit / 5000) * 5000;
+            calcEstimate = Math.round(calcEstimate / 5000) * 5000;
+        }
+        // 30만 이상 ~ 98만 이하일 경우 1만원 단위로 반올림
+        else if (calcDeposit <= 980000) {
+            calcDeposit = Math.round(calcDeposit / 10000) * 10000;
+            calcEstimate = Math.round(calcEstimate / 10000) * 10000;
+
+            console.log(calcDeposit);
+
+            // 10만 단위 및 1만 단위 보정
+            const thousandWon = Math.floor(calcDeposit / 100000); // 10만 단위
+            const tenThousandWon = calcDeposit % 100000; // 10만 단위 잔여값
+
+            // 6만 초과 또는 1만 이하 처리
+            if (tenThousandWon > 60000 || tenThousandWon <= 10000) {
+                if (tenThousandWon > 0) {
+                    calcDeposit = calcDeposit - tenThousandWon + (tenThousandWon > 60000 ? 80000 : 0);
+                } else {
+                    calcDeposit = thousandWon * 100000 + 80000;
+                }
+            }
+            // 1만 초과 ~ 6만 이하 처리
+            else if (tenThousandWon > 10000 && tenThousandWon <= 60000) {
+                calcDeposit = thousandWon * 100000 + 40000;
+            }
+
+            // 최종 보정
+            calcDeposit += 5000;
+
+            calcDeposit = Math.round(calcDeposit);
+            calcEstimate = Math.round(calcEstimate);
+        }
+
+        setDepositPrice(calcDeposit);
+        setEstimatePrice(calcEstimate);
+    };
+
+    const handleCheckboxChange = (itemName, key, checked) => {
         setItems(prevItems => ({
             ...prevItems,
-            [itemId]: {
-                ...prevItems[itemId],
+            [itemName]: {
+                ...prevItems[itemName],
                 [key]: checked ? "Y" : "N",
             }
         }));
@@ -156,7 +223,17 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
             totalCalcPrice: dispatchAmount?.totalCalcPrice ? dispatchAmount.totalCalcPrice : 0,
         })
 
+        setEstimate({
+            minDeposit: dispatchAmount?.estimatePrice?.minDeposit || 0,
+            maxDeposit: dispatchAmount?.estimatePrice?.maxDeposit || 0,
+            minEstimatePrice: dispatchAmount?.estimatePrice?.minEstimatePrice || 0,
+            maxEstimatePrice: dispatchAmount?.estimatePrice?.maxEstimatePrice || 0,
+        })
     }, [dispatchAmount]);
+
+    useEffect(() => {
+        handleSliderChange(sliderValue);
+    }, [estimate]);
 
     // 사다리가격도 별도 고지
     return (
@@ -213,7 +290,7 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
                                             <Checkbox
                                                 className="text-sm"
                                                 checked={item?.requiredIsDisassembly === "Y"}
-                                                onChange={(e) => handleCheckboxChange(item.itemId, 'requiredIsDisassembly', e.target.checked)}
+                                                onChange={(e) => handleCheckboxChange(item.itemName, 'requiredIsDisassembly', e.target.checked)}
                                             >
                                                 분해
                                             </Checkbox>
@@ -222,7 +299,7 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
                                             <Checkbox
                                                 className="text-sm"
                                                 checked={item?.requiredIsInstallation === "Y"}
-                                                onChange={(e) => handleCheckboxChange(item.itemId, 'requiredIsInstallation', e.target.checked)}
+                                                onChange={(e) => handleCheckboxChange(item.itemName, 'requiredIsInstallation', e.target.checked)}
                                             >
                                                 설치
                                             </Checkbox>
@@ -235,6 +312,24 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
                 </Form>
             </Card>
             <Card title="견적 자판기" className="shadow-md rounded-md flex-1">
+                <div>
+                    <h3 className="text-lg font-bold mb-4">가격 조정</h3>
+                    <div className="flex items-center space-x-4">
+                        <span className="text-sm w-2/5 font-semibold text-gray-700">견적금액 레버:</span>
+
+                        <Slider
+                            min={1}
+                            max={10}
+                            value={sliderValue}
+                            onChange={handleSliderChange}
+                            className="w-full"
+                            style={{ height: "10px" }}
+                        />
+
+                        <span className="text-sm font-semibold text-gray-700">{sliderValue}</span>
+                    </div>
+                    <p className="mt-4 text-gray-600">견적금액: {depositPrice}원(계약금: {estimatePrice}원)</p>
+                </div>
             </Card>
         </div>
     );
