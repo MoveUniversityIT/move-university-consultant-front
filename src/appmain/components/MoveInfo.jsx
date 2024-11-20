@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Button, Card, Checkbox, Form, Input, InputNumber, message, notification, Select, TimePicker} from "antd";
+import {Button, Card, Checkbox, Form, Input, InputNumber, message, Modal, notification, Select, TimePicker} from "antd";
 import dayjs from "dayjs";
 import {useAddressSearch, useCalcConsultant, useRoadDistance} from "@hook/useConsultant";
 import AddressInput from "@/component/AddressInput";
@@ -80,6 +80,10 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
 
     const {isLoading: isLoadingConsultantMutate, mutate: consultantMutate, data: calcData} = useCalcConsultant();
     const {data: roadDistanceData} = useRoadDistance(locationInfo);
+
+    // 메모
+    const [isMemoModalVisible, setIsMemoModalVisible] = useState(false);
+    const [memo, setMemo] = useState("");
 
     useEffect(() => {
 
@@ -601,8 +605,6 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                         }
                         onChange={(value) => updateWorkerCount("TRANSPORT", value)}
                         placeholder="인원 수"
-                        formatter={(value) => `${value} 명`}
-                        parser={(value) => value.replace(" 명", "")}
                         className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                 </Form.Item>
@@ -618,8 +620,6 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                         }
                         onChange={(value) => updateWorkerCount("PACKING_CLEANING", value)}
                         placeholder="인원 수"
-                        formatter={(value) => `${value} 명`}
-                        parser={(value) => value.replace(" 명", "")}
                         className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                 </Form.Item>
@@ -636,7 +636,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
             <Form.Item className="relative !mb-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">특이사항:</label>
                 <Input.TextArea
-                    autoSize={{minRows: 3, maxRows: 3}}
+                    autoSize={{minRows: 2}}
                     className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
             </Form.Item>
@@ -666,9 +666,36 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
             <Form.Item className="relative !mb-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">메모:</label>
                 <Input.TextArea
-                    autoSize={{minRows: 3, maxRows: 3}}
+                    autoSize={{ minRows: 3, maxRows: 3 }}
                     className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    value={memo}
+                    onClick={() => setIsMemoModalVisible(true)}
+                    readOnly
                 />
+
+                <Modal
+                    title="메모 작성"
+                    open={isMemoModalVisible}
+                    onCancel={() => setIsMemoModalVisible(false)}
+                    width={800}
+                    footer={[
+                        <Button
+                            key="ok"
+                            type="primary"
+                            onClick={() => setIsMemoModalVisible(false)}
+                        >
+                            확인
+                        </Button>,
+                    ]}
+                >
+                    <Input.TextArea
+                        autoSize={{ minRows: 10 }}
+                        value={memo}
+                        onChange={(e) => setMemo(e.target.value)}
+                        placeholder="메모를 입력하세요..."
+                        className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                </Modal>
             </Form.Item>
 
             <div className="flex justify-between items-center">
