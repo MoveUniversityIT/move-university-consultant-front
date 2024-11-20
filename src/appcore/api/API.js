@@ -52,6 +52,9 @@ API.interceptors.response.use(
             const refreshToken = RootStore.getState().login.refreshToken;
 
             if (!refreshToken) {
+                // 상태 초기화
+                RootStore.dispatch(toggleAccessToken(""));
+                RootStore.dispatch(toggleRefreshToken(""));
                 RootStore.dispatch(toggleLoginState(false));
                 return Promise.reject(error.response?.data);
             }
@@ -73,20 +76,27 @@ API.interceptors.response.use(
                     processQueue(null, newAccessToken);
 
                     originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-
                     return API(originalRequest);
                 } catch (refreshError) {
                     isRefreshing = false;
                     processQueue(refreshError, null);
 
+                    // 초기화 로직 추가
                     RootStore.dispatch(toggleAccessToken(""));
                     RootStore.dispatch(toggleRefreshToken(""));
                     RootStore.dispatch(toggleLoginState(false));
 
                     return Promise.reject(refreshError);
                 }
+            }else if(error.config.url.includes("/user/token/refresh")) {
+                RootStore.dispatch(toggleAccessToken(""));
+                RootStore.dispatch(toggleRefreshToken(""));
+                RootStore.dispatch(toggleLoginState(false));
+
+                return Promise.reject(error.response?.data);
             }
 
+            // Refresh 중인 경우 대기열 추가
             return new Promise((resolve, reject) => {
                 failedQueue.push({ resolve, reject });
             })
@@ -95,28 +105,32 @@ API.interceptors.response.use(
                     return API(originalRequest);
                 })
                 .catch((err) => {
+                    // 초기화 로직 보장
                     RootStore.dispatch(toggleAccessToken(""));
                     RootStore.dispatch(toggleRefreshToken(""));
                     RootStore.dispatch(toggleLoginState(false));
-                    Promise.reject(err)
+                    return Promise.reject(err);
                 });
-        } else if (error.response?.status === 403) {
-            if (error.response && error.response.data instanceof Blob) {
+        }
+
+        console.log(error.response?.status)
+
+        // 403 에러 처리
+        if (error.response?.status === 403) {
+            if (error.response.data instanceof Blob) {
                 try {
-                    const text = await error.response.data.text(); // Blob을 문자열로 변환
-                    const errorData = JSON.parse(text); // 문자열을 JSON으로 파싱
+                    const text = await error.response.data.text();
+                    const errorData = JSON.parse(text);
                     const errorMessage = errorData.errorMessage || "알 수 없는 오류가 발생했습니다.";
                     alert(errorMessage);
                 } catch (parseError) {
                     alert("알 수 없는 오류가 발생했습니다.");
                 }
-                return Promise.reject(error.response?.data);
-            }else {
+            } else {
                 const errorMessage = error?.response?.data.errorMessage || "알 수 없는 오류가 발생했습니다.";
-
                 alert(errorMessage);
-                return Promise.reject(error.response?.data);
             }
+            return Promise.reject(error.response?.data);
         }
 
         return Promise.reject(error.response?.data);
