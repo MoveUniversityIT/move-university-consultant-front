@@ -128,7 +128,6 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
             estimate.minEstimatePrice +
             (value - 1) * ((estimate.maxEstimatePrice - estimate.minEstimatePrice) / (10 - 1));
 
-        // 소수점 안정성을 위해 Math.round 사용
         calcDeposit = Math.round(calcDeposit * 100) / 100;
         calcEstimate = Math.round(calcEstimate * 100) / 100;
 
@@ -137,35 +136,35 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
             calcDeposit = Math.round(calcDeposit / 5000) * 5000;
             calcEstimate = Math.round(calcEstimate / 5000) * 5000;
         }
-        // 30만 이상 ~ 98만 이하일 경우 1만원 단위로 반올림
-        else if (calcDeposit <= 980000) {
+        // 30만 이상 ~ 130만 미만일 경우 1만원 단위로 반올림
+        else if (calcDeposit < 1300000) {
             calcDeposit = Math.round(calcDeposit / 10000) * 10000;
             calcEstimate = Math.round(calcEstimate / 10000) * 10000;
 
-            console.log(calcDeposit);
-
-            // 10만 단위 및 1만 단위 보정
             const thousandWon = Math.floor(calcDeposit / 100000); // 10만 단위
             const tenThousandWon = calcDeposit % 100000; // 10만 단위 잔여값
 
-            // 6만 초과 또는 1만 이하 처리
             if (tenThousandWon > 60000 || tenThousandWon <= 10000) {
                 if (tenThousandWon > 0) {
                     calcDeposit = calcDeposit - tenThousandWon + (tenThousandWon > 60000 ? 80000 : 0);
                 } else {
                     calcDeposit = thousandWon * 100000 + 80000;
                 }
-            }
-            // 1만 초과 ~ 6만 이하 처리
-            else if (tenThousandWon > 10000 && tenThousandWon <= 60000) {
+            } else if (tenThousandWon > 10000 && tenThousandWon <= 60000) {
                 calcDeposit = thousandWon * 100000 + 40000;
             }
 
-            // 최종 보정
-            calcDeposit += 5000;
+            if(calcDeposit <= 980000) {
+                calcDeposit += 5000;
+            }
 
             calcDeposit = Math.round(calcDeposit);
             calcEstimate = Math.round(calcEstimate);
+        }
+        // 130만 이상의 경우 5만원단위 반올림
+        else {
+            calcDeposit = Math.round(calcDeposit / 50000) * 50000;
+            calcEstimate = Math.round(calcDeposit / 50000) * 50000;
         }
 
         setDepositPrice(calcDeposit);
