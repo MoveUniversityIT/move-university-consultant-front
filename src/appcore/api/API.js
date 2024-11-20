@@ -94,7 +94,12 @@ API.interceptors.response.use(
                     originalRequest.headers["Authorization"] = `Bearer ${token}`;
                     return API(originalRequest);
                 })
-                .catch((err) => Promise.reject(err));
+                .catch((err) => {
+                    RootStore.dispatch(toggleAccessToken(""));
+                    RootStore.dispatch(toggleRefreshToken(""));
+                    RootStore.dispatch(toggleLoginState(false));
+                    Promise.reject(err)
+                });
         } else if (error.response?.status === 403) {
             if (error.response && error.response.data instanceof Blob) {
                 try {
