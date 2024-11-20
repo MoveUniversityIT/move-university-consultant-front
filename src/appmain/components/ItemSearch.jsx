@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from "react";
+import React, {useRef, useState} from "react";
 import {Form, Input} from "antd";
 
 const ItemSearch = ({
@@ -87,7 +87,7 @@ const ItemSearch = ({
         const processedItemIds = new Set();
 
         Object.keys(updatedItems).forEach((key) => {
-            if (!terms.includes(updatedItems[key].itemName)) {
+            if (!terms.includes(updatedItems[key].itemId)) {
                 delete updatedItems[key];
             } else {
                 processedItemIds.add(key);
@@ -113,9 +113,9 @@ const ItemSearch = ({
                             const item = subcategory.items[k];
                             const normalizedItemName = item.itemName.toLowerCase();
 
-                            if (itemName === normalizedItemName && !processedItemIds.has(item.itemId.toString())) {
+                            if (itemName === normalizedItemName && !processedItemIds.has(item.itemName.toString())) {
                                 // 새로 입력된 항목만 처리
-                                updatedItems[item.itemId] = {
+                                updatedItems[item.itemName] = {
                                     itemId: item.itemId,
                                     itemName: item.itemName,
                                     itemCount: quantity,
@@ -124,7 +124,7 @@ const ItemSearch = ({
                                     requiredIsDisassembly: item.isDisassembly,
                                     requiredIsInstallation: items[item.itemId]?.requiredIsInstallation || "N",
                                 };
-                                processedItemIds.add(item.itemId.toString());
+                                processedItemIds.add(item.itemName.toString());
                                 break;
                             }
                         }
@@ -183,7 +183,7 @@ const ItemSearch = ({
 
         if (!existingItem) {
             // 새로운 아이템 추가
-            updatedItems[item.itemId] = {
+            updatedItems[item.itemName] = {
                 itemId: item.itemId,
                 itemName: newItemName,
                 itemCount: 1,
@@ -272,7 +272,7 @@ const ItemSearch = ({
 
                     if (!existingItem) {
                         // 새로운 아이템 추가
-                        updatedItems[firstSuggestion.itemId] = {
+                        updatedItems[firstSuggestion.itemName] = {
                             itemId: firstSuggestion.itemId,
                             itemName: newItemName,
                             itemCount: 1,
