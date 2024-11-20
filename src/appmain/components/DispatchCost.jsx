@@ -111,7 +111,7 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
         maxEstimatePrice: dispatchAmount?.estimatePrice?.maxEstimatePrice || 0,
     });
 
-    const [sliderValue, setSliderValue] = useState(1);
+    const [sliderValue, setSliderValue] = useState(5);
     const [depositPrice, setDepositPrice] = useState(estimate.minDeposit);
     const [estimatePrice, setEstimatePrice] = useState(estimate.minEstimatePrice);
 
@@ -231,7 +231,7 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
     }, [dispatchAmount]);
 
     useEffect(() => {
-        handleSliderChange(sliderValue);
+        handleSliderChange(5);
     }, [estimate]);
 
     // 사다리가격도 별도 고지
@@ -249,29 +249,6 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
                         </div>
                     ))}
                 </div>
-
-                {/*<p>총 CBM: {dispatchAmount?.totalItemCbm ? dispatchAmount?.totalItemCbm + " CBM" : ""} |*/}
-                {/*    {dispatchAmount?.helpers ? dispatchAmount?.helpers.map((key, value) => {*/}
-                {/*        if (key === 'helperType' && value === 'TRANSPORT') {*/}
-
-                {/*        }*/}
-                {/*    }) + " 원" : ""}</p>*/}
-                {/*<p>{dispatchAmount?.totalItemCbm ? dispatchAmount?.totalItemCbm + " CBM" : ""}</p>*/}
-                {/*<p>{dispatchAmount?.totalItemCbm ? dispatchAmount?.totalItemCbm + " CBM" : ""}</p>*/}
-                {/*<Descriptions bordered column={1} size="middle" className="mb-1">*/}
-                {/*    <Descriptions.Item label={totalLabels["totalItemCbm"]} className="w-1">*/}
-                {/*        {dispatchAmount?.totalItemCbm ? dispatchAmount?.totalItemCbm + " CBM" : ""}*/}
-                {/*    </Descriptions.Item>*/}
-                {/*    <Descriptions.Item label={totalLabels["totalRequiredHelperPrice"]}>*/}
-                {/*        {dispatchAmount?.totalRequiredHelperPrice ? dispatchAmount?.totalRequiredHelperPrice + " 원" : ""}*/}
-                {/*    </Descriptions.Item>*/}
-                {/*    /!*<Descriptions.Item label="추가 인부 금액">*!/*/}
-                {/*    /!*    /!*{dispatchAmount?.helpers} | 추가 이모 금액: X명*!/*!/*/}
-                {/*    /!*</Descriptions.Item>*!/*/}
-                {/*    <Descriptions.Item label={totalLabels["totalCalcPrice"]}>*/}
-                {/*        {dispatchAmount?.totalCalcPrice ? dispatchAmount?.totalCalcPrice + " 원" : ""}*/}
-                {/*    </Descriptions.Item>*/}
-                {/*</Descriptions>*/}
 
                 <Divider>물품 목록 & 옵션 설정</Divider>
                 <Form
