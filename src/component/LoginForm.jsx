@@ -1,13 +1,19 @@
 import React from 'react';
-import {Button, Form, Input} from 'antd';
-import {useLogin} from "@hook/useUser";
-import {CalculatorOutlined, LockOutlined, UserOutlined} from '@ant-design/icons';
+import { Button, Form, Input } from 'antd';
+import { useLogin } from "@hook/useUser";
+import { CalculatorOutlined, LockOutlined, UserOutlined } from '@ant-design/icons';
+import {Link, useNavigate} from 'react-router-dom'; // 회원가입 페이지 이동을 위한 react-router-dom
 
 const LoginForm = () => {
     const { mutate: loginMutate } = useLogin();
+    const navigate = useNavigate();
 
     const onFinish = (values) => {
         loginMutate(values);
+    };
+
+    const goToRegister = () => {
+        navigate('/register');
     };
 
     return (
@@ -24,7 +30,6 @@ const LoginForm = () => {
                     name="login_form"
                     onFinish={onFinish}
                     layout="vertical"
-                    className="space-y-6"
                 >
                     <Form.Item
                         name="email"
@@ -62,6 +67,17 @@ const LoginForm = () => {
                         </Button>
                     </Form.Item>
                 </Form>
+                <div className="text-center mt-4">
+                    <p className="text-sm text-gray-600">
+                        계정이 없으신가요?{" "}
+                        <button
+                            onClick={goToRegister}
+                            className="text-blue-600 hover:underline font-semibold"
+                        >
+                            회원가입
+                        </button>
+                    </p>
+                </div>
             </div>
         </div>
     );
