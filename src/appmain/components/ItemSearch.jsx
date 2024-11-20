@@ -229,7 +229,7 @@ const ItemSearch = ({
                     adjustScrollPosition(newIndex);
                     return newIndex;
                 });
-            } else if (e.key === ' ' || e.key === 'Enter') {
+            } else if (e.key === ' ') {
                 if (suggestions.length > 0) {
                     e.preventDefault();
                     const firstSuggestion = suggestions[selectedIndex];
