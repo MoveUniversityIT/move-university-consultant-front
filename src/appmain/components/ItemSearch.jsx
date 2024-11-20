@@ -343,7 +343,7 @@ const ItemSearch = ({
                 onKeyDown={handleInputKeyDown}
                 onFocus={() => setIsDropdownVisible(true)}
                 onBlur={handleBlur}
-                autoSize={{minRows: 3, maxRows: 3}}
+                autoSize={{minRows: 2}}
                 className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
 
