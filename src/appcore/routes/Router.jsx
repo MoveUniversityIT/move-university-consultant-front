@@ -4,6 +4,7 @@ import LoginForm from "@/component/LoginForm";
 import Consultant from "@component/Consultant";
 import {useSelector} from "react-redux";
 import ProtectedRoute from "@/appcore/routes/ProtectedRoute";
+import RegisterForm from "@/component/RegisterForm";
 
 const Router = () => {
     const isLogin = useSelector((state) => state.login.loginState);
@@ -20,6 +21,12 @@ const Router = () => {
                     <Consultant />
                 </ProtectedRoute>
             ),
+        },
+        {
+            path: "/register",
+            element: (
+                <RegisterForm />
+            )
         },
         {
             path: "*",

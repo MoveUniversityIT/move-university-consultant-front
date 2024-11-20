@@ -2,6 +2,7 @@ import {useMutation} from "@tanstack/react-query";
 import {postLogin} from "@api/userApi";
 import {toggleAccessToken, toggleLoginState, toggleRefreshToken, toggleRoles} from "@/features/user/loginSlice";
 import RootStore from "@/appcore/rootStore";
+import {message} from "antd";
 
 export const useLogin = () => {
     return useMutation({
@@ -14,8 +15,8 @@ export const useLogin = () => {
             RootStore.dispatch(toggleRoles(data.roles));
         },
         onError: (error) => {
-            const errorMessage = error?.errorMessage || "로그인 실패했습니다.";
-            alert(`API 요청 오류: ${errorMessage}`);
+            const errorMessage = error?.errorMessage || "로그인 실패했습니다";
+            message.error(errorMessage);
         }
     })
 }

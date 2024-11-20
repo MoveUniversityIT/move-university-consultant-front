@@ -8,7 +8,7 @@ import CustomDatePicker from "@/component/CustomDatePicker";
 import koKR from "antd/es/date-picker/locale/ko_KR";
 import ItemSearch from "@component/ItemSearch";
 import _ from "lodash";
-import ShipperNumberInput from "@component/ShipperNumberInput";
+import PhoneNumberInput from "@component/PhoneNumberInput";
 
 const {Option} = Select;
 
@@ -344,6 +344,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
             setIsCollapsed(true);
             return;
         }
+
         const consultantDataForm = {
             loadLocationName: loadLocation,
             loadCityCode: loadCityCode.substring(0, 6),
@@ -406,9 +407,9 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                         <Select
                             placeholder="예: 담당자"
                             className="min-w-32 border border-gray-300 rounded-lg"
+                            defaultValue={consultantData.userName}
                         >
-                            <Option value="담당자1">담당자1</Option>
-                            <Option value="담당자2">담당자2</Option>
+                            <Option value={consultantData.userName}>{consultantData.userName}</Option>
                         </Select>
                     </div>
 
@@ -448,8 +449,6 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                             setSkipAddressChangeEvent={setSkipAddressChangeEvent}
                         />
                     </div>
-
-
                 </div>
 
                 <div className="flex items-center">
@@ -578,6 +577,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                     <Select
                         placeholder="예: 톤수"
                         className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        defaultValue="1"
                         listHeight={128}
                     >
                         <Select.Option value="1">1</Select.Option>
@@ -591,8 +591,8 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                     </Select>
                 </Form.Item>
 
-                <Form.Item className="flex flex-col !mb-1" style={{flex: "1 1 0"}}>
-                    <label className="text-sm font-medium text-gray-700 mb-1 block">인부:</label>
+                <Form.Item className="flex flex-col !mb-1" style={{flex: "0.7 1 0"}}>
+                    <label className="text-sm font-medium text-gray-700 mb-1 block">추가 인부:</label>
                     <InputNumber
                         min={0}
                         max={10}
@@ -607,8 +607,8 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                     />
                 </Form.Item>
 
-                <Form.Item className="flex flex-col !mb-1" style={{flex: "1 1 0"}}>
-                    <label className="text-sm font-medium text-gray-700 mb-1 block">이모:</label>
+                <Form.Item className="flex flex-col !mb-1" style={{flex: "0.7 1 0"}}>
+                    <label className="text-sm font-medium text-gray-700 mb-1 block">추가 이모:</label>
                     <InputNumber
                         min={0}
                         max={10}
@@ -649,7 +649,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                     />
                 </Form.Item>
 
-                <ShipperNumberInput/>
+                <PhoneNumberInput/>
 
                 <Form.Item className="flex-1 !mb-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">결제방법:</label>

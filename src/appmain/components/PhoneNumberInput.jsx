@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Form, Input } from "antd";
 
-const ShipperNumberInput = () => {
+const PhoneNumberInput = () => {
     const [shipperNumber, setShipperNumber] = useState("");
 
     const formatShipperNumber = (value) => {
@@ -33,4 +33,4 @@ const ShipperNumberInput = () => {
     );
 };
 
-export default ShipperNumberInput;
+export default PhoneNumberInput;
