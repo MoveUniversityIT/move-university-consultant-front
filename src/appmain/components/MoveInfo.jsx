@@ -527,6 +527,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
 
                 <Form.Item className="flex-1 !mb-1">
                     <CustomDatePicker
+                        dateCheckList={dateCheckList}
                         requestDate={requestDate}
                         handleDateChange={handleDateChange}
                     />

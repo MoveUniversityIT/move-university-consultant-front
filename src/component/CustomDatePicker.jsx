@@ -4,7 +4,7 @@ import {useSpecialDay} from "@hook/useConsultant";
 import dayjs from "dayjs";
 import koKR from 'antd/es/date-picker/locale/ko_KR';
 
-const CustomDatePicker = ({requestDate, handleDateChange}) => {
+const CustomDatePicker = ({dateCheckList, requestDate, handleDateChange}) => {
     const {mutate: dateMutate} = useSpecialDay();
     const [noHandsDaysByYear, setNoHandsDaysByYear] = useState({});
 
@@ -61,18 +61,22 @@ const CustomDatePicker = ({requestDate, handleDateChange}) => {
         );
     };
 
-    const Legend = () => (
-        <div className="flex items-center">
-            <div className="w-2 h-2 bg-no-hands-day mr-2 rounded-full"/>
-            <span className="text-gray-700">손 없는 날</span>
+    const Legend = ({ isVisible }) => (
+        <div
+            className={`flex items-center ${!isVisible ? "invisible" : ""}`}
+        >
+            <div className="w-2 h-2 bg-no-hands-day mr-2 rounded-full" />
+            <p className="text-gray-700">손 없는 날</p>
         </div>
     );
 
     return (
         <>
             <div className="flex items-center justify-between mb-0.5">
-                <label className="text-sm font-medium text-gray-700 block mr-2">요청일:</label>
-                <Legend className="text-sm font-medium text-gray-700"/>
+                <label className="text-sm font-medium text-gray-700 block mr-2">
+                    요청일:
+                </label>
+                <Legend isVisible={dateCheckList.includes("NO_HANDS_SON")}/>
             </div>
             <DatePicker
                 style={{width: "100%"}}
