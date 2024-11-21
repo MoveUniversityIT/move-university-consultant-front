@@ -411,9 +411,9 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                         <Select
                             placeholder="예: 담당자"
                             className="min-w-32 border border-gray-300 rounded-lg"
-                            defaultValue={consultantData.userName}
+                            defaultValue={consultantData?.userName}
                         >
-                            <Option value={consultantData.userName}>{consultantData.userName}</Option>
+                            <Option value={consultantData?.userName}>{consultantData?.userName}</Option>
                         </Select>
                     </div>
 

@@ -53,7 +53,7 @@ const MethodAndFloorInput = ({
                     onChange={handleMethodChange(setMethod, setFloor)}
                     className="w-full min-w-[100px]"
                 >
-                    {consultant.methods.map((method) => (
+                    {consultant?.methods.map((method) => (
                         <Select.Option key={method.methodId} value={method.methodName}>
                             {method.methodName}
                         </Select.Option>

@@ -10,6 +10,7 @@ const ItemSearch = ({
     const searchTermRef = useRef(null);
     const dropdownRef = useRef();
     const [skipChangeEvent, setSkipChangeEvent] = useState(false);
+    const [currentWord, setCurrentWord] = useState("");
 
     const handleInputChange = (e) => {
         const value = e.target.value;
@@ -31,6 +32,7 @@ const ItemSearch = ({
         const end = afterCommaIndex === -1 ? value.length : cursorPosition + afterCommaIndex;
 
         const currentItem = value.slice(start, end).trim();
+        setCurrentWord(currentItem);
 
         // 이름 변형 생성 함수
         const generateNameVariations = (name) => {
@@ -208,6 +210,7 @@ const ItemSearch = ({
         setSearchTerm(updatedSearchTerm);
         setSkipChangeEvent(true);
         setSelectedIndex(0);
+        setCurrentWord("");
 
         // 텍스트 영역 포커스 유지
         textAreaElement.focus();
@@ -297,6 +300,7 @@ const ItemSearch = ({
                     setSearchTerm(updatedSearchTerm);
                     setSelectedIndex(0);
                     setSkipChangeEvent(true);
+                    setCurrentWord("");
 
                     setTimeout(() => {
                         setSkipChangeEvent(false);
@@ -347,11 +351,17 @@ const ItemSearch = ({
                 className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
 
+            <div className="mt-1 min-h-[20px] top-full left-0 w-full text-sm pl-3">
+                {isDropdownVisible && suggestions.length === 0 && (
+                    <span className="text-red-500 font-bold">{currentWord}</span>
+                )}
+            </div>
+
             {isDropdownVisible && suggestions.length > 0 && (
                 <div
                     ref={dropdownRef}
-                    className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-md max-h-[112px] overflow-y-auto z-50"
-                    onMouseDown={(e) => e.preventDefault()} // Input의 onBlur 방지
+                    className="absolute top-full left-0 -mt-6 w-full bg-white border border-gray-300 rounded-lg shadow-md max-h-[112px] overflow-y-auto z-50"
+                    onMouseDown={(e) => e.preventDefault()}
                 >
                     {suggestions.map((item, index) => (
                         <div

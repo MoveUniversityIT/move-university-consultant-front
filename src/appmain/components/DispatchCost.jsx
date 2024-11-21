@@ -289,7 +289,6 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
             </Card>
             <Card title="견적 자판기" className="shadow-md rounded-md flex-1">
                 <div>
-                    <h3 className="text-lg font-bold mb-4">가격 조정</h3>
                     <div className="flex items-center space-x-4">
                         <span className="text-sm w-2/5 font-semibold text-gray-700">견적금액 레버:</span>
 
