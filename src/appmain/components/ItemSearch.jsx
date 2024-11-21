@@ -22,11 +22,9 @@ const ItemSearch = ({
             return;
         }
 
-        // 커서 앞뒤로 텍스트 분리
         const beforeCursor = value.slice(0, cursorPosition);
         const afterCursor = value.slice(cursorPosition);
 
-        // 콤마 기준으로 텍스트 시작과 끝 위치 계산
         const start = beforeCursor.lastIndexOf(',') + 1;
         const afterCommaIndex = afterCursor.indexOf(',');
         const end = afterCommaIndex === -1 ? value.length : cursorPosition + afterCommaIndex;
@@ -34,25 +32,27 @@ const ItemSearch = ({
         const currentItem = value.slice(start, end).trim();
         setCurrentWord(currentItem);
 
-        // 이름 변형 생성 함수
         const generateNameVariations = (name) => {
-            const baseName = name.replace(/\(([^)]*)\)/g, '').trim().toLowerCase();
+            const baseName = name.replace(/\(([^)]*)\)/g, '').trim().toLowerCase(); // 괄호 제거
             const match = name.match(/\(([^)]*)\)/);
             if (match) {
                 const parenthetical = match[1].trim().toLowerCase();
-                return [parenthetical + baseName, baseName + `(${parenthetical})`];
+                return [
+                    baseName,
+                    parenthetical + baseName,
+                    baseName + `(${parenthetical})`
+                ];
             }
             return [baseName];
         };
 
-        // 추천 항목 필터링
         if (start <= end && currentItem) {
+            const normalizedCurrent = currentItem.replace(/\(([^)]*)\)/g, '').trim().toLowerCase();
+
             const filteredSuggestions = collapseItems.flatMap((category) =>
                 category.subcategories.flatMap((subcategory) =>
                     subcategory.items.filter((item) => {
                         const variations = generateNameVariations(item.itemName);
-                        const normalizedCurrent = currentItem.toLowerCase();
-
                         return variations.some((variation) => {
                             const normalizedVariation = variation.toLowerCase();
 
@@ -73,9 +73,36 @@ const ItemSearch = ({
                         });
                     })
                 )
-            ).sort((a, b) => (b.sortingIndex || 0) - (a.sortingIndex || 0)).slice(0, 20);
+            );
 
-            setSuggestions(filteredSuggestions);
+            const exactMatches = filteredSuggestions.filter((item) =>
+                generateNameVariations(item.itemName).some(
+                    (variation) => variation.replace(/\(([^)]*)\)/g, '').trim() === normalizedCurrent
+                )
+            );
+
+            const partialMatches = filteredSuggestions.filter(
+                (item) =>
+                    !exactMatches.includes(item) &&
+                    generateNameVariations(item.itemName).some((variation) => {
+                        const normalizedVariation = variation.replace(/\(([^)]*)\)/g, '').trim();
+                        return normalizedVariation.includes(normalizedCurrent) || normalizedCurrent.includes(normalizedVariation);
+                    })
+            );
+
+            const otherMatches = filteredSuggestions.filter(
+                (item) =>
+                    !exactMatches.includes(item) &&
+                    !partialMatches.includes(item)
+            );
+
+            const sortedSuggestions = [
+                ...exactMatches,
+                ...partialMatches,
+                ...otherMatches.sort((a, b) => (b.sortingIndex || 0) - (a.sortingIndex || 0))
+            ];
+
+            setSuggestions(sortedSuggestions.slice(0, 20));
         } else {
             setSuggestions([]);
         }
@@ -96,7 +123,6 @@ const ItemSearch = ({
             }
         });
 
-        // 정규식으로 입력된 항목 파싱
         const itemPattern = /^(.+?)(?:\(([^)]*)\))?(\d*)$/;
         terms.forEach((term) => {
             const match = term.match(itemPattern);
