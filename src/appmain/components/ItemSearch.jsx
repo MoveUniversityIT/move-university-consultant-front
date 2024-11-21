@@ -232,9 +232,10 @@ const ItemSearch = ({
                     adjustScrollPosition(newIndex);
                     return newIndex;
                 });
-            } else if (e.key === ' ') {
+            } else if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+
                 if (suggestions.length > 0) {
-                    e.preventDefault();
                     const firstSuggestion = suggestions[selectedIndex];
                     const cursorPosition = e.target.selectionStart;
                     const prevItemCount = items.length;
@@ -249,16 +250,16 @@ const ItemSearch = ({
 
                     const beforeText = searchTerm.slice(0, start).trim();
                     const afterText = searchTerm.slice(end).trim();
-                    const newItemName = firstSuggestion.itemName.trim(); // 공백 제거
+                    const newItemName = firstSuggestion.itemName.trim();
 
                     // 기존 텍스트 제거 후 새 항목 삽입
                     let updatedSearchTerm = `${beforeText} ${newItemName}, ${afterText}`.trim();
 
                     updatedSearchTerm = updatedSearchTerm
-                        .replace(/,\s*,/g, ", ") // 중복된 쉼표 제거
-                        .replace(/\s+,/g, ",") // 쉼표 앞 공백 제거
-                        .replace(/,\s+/g, ", ") // 쉼표 뒤 공백 정리
-                        .replace(/,\s*$/, ","); // 문자열 끝에 있는 쉼표 정리
+                        .replace(/,\s*,/g, ", ")
+                        .replace(/\s+,/g, ",")
+                        .replace(/,\s+/g, ", ")
+                        .replace(/,\s*$/, ",");
 
                     // 기존 items 복사
                     const updatedItems = {...items};

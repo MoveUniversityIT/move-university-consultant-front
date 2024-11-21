@@ -128,12 +128,17 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
             if (currentValue === maxValue) return max;
             if (currentValue === Math.floor((minValue + maxValue) / 2)) return mid;
 
+            const midPoint = Math.floor((minValue + maxValue) / 2);
+
             // 선형 보간 공식
-            return currentValue < Math.floor((minValue + maxValue) / 2)
-                ? min + ((mid - min) / (Math.floor((minValue + maxValue) / 2) - minValue)) * (currentValue - minValue)
-                : mid + ((max - mid) / (maxValue - Math.floor((minValue + maxValue) / 2))) * (currentValue - Math.floor((minValue + maxValue) / 2));
+            if (currentValue < midPoint) {
+                return min + ((mid - min) / (midPoint - minValue)) * (currentValue - minValue);
+            } else {
+                return mid + ((max - mid) / (maxValue - midPoint)) * (currentValue - midPoint);
+            }
         };
 
+        // `interpolate` 함수로 계산
         let calcEstimate = interpolate(
             estimate.minEstimatePrice,
             estimate.estimatePrice,
@@ -143,6 +148,10 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
             10
         );
 
+        // 디버깅 로그
+        console.log("Value:", value, "Calculated Estimate:", calcEstimate);
+
+        // 반올림 처리
         calcEstimate = Math.round(calcEstimate * 100) / 100;
 
         // 30만 미만일 경우 5천원 단위로 반올림
@@ -156,26 +165,31 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
             const thousandWon = Math.floor(calcEstimate / 100000); // 10만 단위
             const tenThousandWon = calcEstimate % 100000; // 10만 단위 잔여값
 
-            if (tenThousandWon > 60000 || tenThousandWon <= 10000) {
-                if (tenThousandWon > 0) {
-                    calcEstimate = calcEstimate - tenThousandWon + (tenThousandWon > 60000 ? 80000 : 0);
-                } else {
-                    calcEstimate = thousandWon * 100000 + 80000;
+            if (tenThousandWon > 60000 || tenThousandWon <= 10000 || tenThousandWon === 0) {
+                console.log(tenThousandWon, thousandWon);
+                if(60000 < tenThousandWon && tenThousandWon < 100000) {
+                    calcEstimate = (calcEstimate - tenThousandWon) + 80000;
+                }else {
+                    calcEstimate = (thousandWon - 1) * 100000 + 80000;
                 }
+
             } else if (tenThousandWon > 10000 && tenThousandWon <= 60000) {
-                calcEstimate = thousandWon * 100000 + 40000;
+                calcEstimate = Math.floor(calcEstimate / 100000) * 100000 + 40000;
             }
 
-            if(calcEstimate <= 980000) {
+            if (calcEstimate <= 980000) {
                 calcEstimate += 5000;
             }
 
             calcEstimate = Math.round(calcEstimate);
         }
-        // 130만 이상의 경우 5만원단위 반올림
+        // 130만 이상의 경우 5만원 단위 반올림
         else {
             calcEstimate = Math.round(calcEstimate / 50000) * 50000;
         }
+
+        // 결과 출력
+        console.log("Final Calculation: ", calcEstimate);
 
         setEstimatePrice(calcEstimate);
         setDepositPrice(calcEstimate - estimate.totalCalcPrice);
