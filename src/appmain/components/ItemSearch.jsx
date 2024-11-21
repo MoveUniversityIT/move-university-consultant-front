@@ -232,7 +232,7 @@ const ItemSearch = ({
                     adjustScrollPosition(newIndex);
                     return newIndex;
                 });
-            } else if (e.key === 'Enter' || e.key === ' ') {
+            } else if (e.key === ' ') {
                 e.preventDefault();
 
                 if (suggestions.length > 0) {

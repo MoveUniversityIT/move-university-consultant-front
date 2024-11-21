@@ -148,9 +148,6 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
             10
         );
 
-        // 디버깅 로그
-        console.log("Value:", value, "Calculated Estimate:", calcEstimate);
-
         // 반올림 처리
         calcEstimate = Math.round(calcEstimate * 100) / 100;
 
@@ -166,7 +163,6 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
             const tenThousandWon = calcEstimate % 100000; // 10만 단위 잔여값
 
             if (tenThousandWon > 60000 || tenThousandWon <= 10000 || tenThousandWon === 0) {
-                console.log(tenThousandWon, thousandWon);
                 if(60000 < tenThousandWon && tenThousandWon < 100000) {
                     calcEstimate = (calcEstimate - tenThousandWon) + 80000;
                 }else {
@@ -187,9 +183,6 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
         else {
             calcEstimate = Math.round(calcEstimate / 50000) * 50000;
         }
-
-        // 결과 출력
-        console.log("Final Calculation: ", calcEstimate);
 
         setEstimatePrice(calcEstimate);
         setDepositPrice(calcEstimate - estimate.totalCalcPrice);
