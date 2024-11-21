@@ -111,6 +111,7 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
         estimatePrice: dispatchAmount?.estimatePrice?.estimatePrice || 0,
         minEstimatePrice: dispatchAmount?.estimatePrice?.minEstimatePrice || 0,
         maxEstimatePrice: dispatchAmount?.estimatePrice?.maxEstimatePrice || 0,
+        totalCalcPrice: dispatchAmount?.totalCalcPrice || 0,
     });
 
     const [sliderValue, setSliderValue] = useState(5);
@@ -133,15 +134,6 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
                 : mid + ((max - mid) / (maxValue - Math.floor((minValue + maxValue) / 2))) * (currentValue - Math.floor((minValue + maxValue) / 2));
         };
 
-        let calcDeposit = interpolate(
-            estimate.minDeposit,
-            estimate.deposit,
-            estimate.maxDeposit,
-            value,
-            1,
-            10
-        );
-
         let calcEstimate = interpolate(
             estimate.minEstimatePrice,
             estimate.estimatePrice,
@@ -151,47 +143,42 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
             10
         );
 
-        calcDeposit = Math.round(calcDeposit * 100) / 100;
         calcEstimate = Math.round(calcEstimate * 100) / 100;
 
         // 30만 미만일 경우 5천원 단위로 반올림
-        if (calcDeposit < 300000) {
-            calcDeposit = Math.round(calcDeposit / 5000) * 5000;
+        if (calcEstimate < 300000) {
             calcEstimate = Math.round(calcEstimate / 5000) * 5000;
         }
         // 30만 이상 ~ 130만 미만일 경우 1만원 단위로 반올림
-        else if (calcDeposit < 1300000) {
-            calcDeposit = Math.round(calcDeposit / 10000) * 10000;
+        else if (calcEstimate < 1300000) {
             calcEstimate = Math.round(calcEstimate / 10000) * 10000;
 
-            const thousandWon = Math.floor(calcDeposit / 100000); // 10만 단위
-            const tenThousandWon = calcDeposit % 100000; // 10만 단위 잔여값
+            const thousandWon = Math.floor(calcEstimate / 100000); // 10만 단위
+            const tenThousandWon = calcEstimate % 100000; // 10만 단위 잔여값
 
             if (tenThousandWon > 60000 || tenThousandWon <= 10000) {
                 if (tenThousandWon > 0) {
-                    calcDeposit = calcDeposit - tenThousandWon + (tenThousandWon > 60000 ? 80000 : 0);
+                    calcEstimate = calcEstimate - tenThousandWon + (tenThousandWon > 60000 ? 80000 : 0);
                 } else {
-                    calcDeposit = thousandWon * 100000 + 80000;
+                    calcEstimate = thousandWon * 100000 + 80000;
                 }
             } else if (tenThousandWon > 10000 && tenThousandWon <= 60000) {
-                calcDeposit = thousandWon * 100000 + 40000;
+                calcEstimate = thousandWon * 100000 + 40000;
             }
 
-            if(calcDeposit <= 980000) {
-                calcDeposit += 5000;
+            if(calcEstimate <= 980000) {
+                calcEstimate += 5000;
             }
 
-            calcDeposit = Math.round(calcDeposit);
             calcEstimate = Math.round(calcEstimate);
         }
         // 130만 이상의 경우 5만원단위 반올림
         else {
-            calcDeposit = Math.round(calcDeposit / 50000) * 50000;
-            calcEstimate = Math.round(calcDeposit / 50000) * 50000;
+            calcEstimate = Math.round(calcEstimate / 50000) * 50000;
         }
 
-        setDepositPrice(calcDeposit);
         setEstimatePrice(calcEstimate);
+        setDepositPrice(calcEstimate - estimate.totalCalcPrice);
     };
 
     const handleCheckboxChange = (itemName, key, checked) => {
@@ -252,6 +239,7 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
             estimatePrice: dispatchAmount?.estimatePrice?.estimatePrice || 0,
             minEstimatePrice: dispatchAmount?.estimatePrice?.minEstimatePrice || 0,
             maxEstimatePrice: dispatchAmount?.estimatePrice?.maxEstimatePrice || 0,
+            totalCalcPrice: dispatchAmount?.totalCalcPrice || 0,
         })
     }, [dispatchAmount]);
 
