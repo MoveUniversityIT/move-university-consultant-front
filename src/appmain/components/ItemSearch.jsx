@@ -37,7 +37,7 @@ const ItemSearch = ({
         // 이름 변형 생성 함수
         const generateNameVariations = (name) => {
             const baseName = name.replace(/\(([^)]*)\)/g, '').trim().toLowerCase();
-            const match = name.match(/\(([^)]*)\)/); // 괄호 안의 내용 추출
+            const match = name.match(/\(([^)]*)\)/);
             if (match) {
                 const parenthetical = match[1].trim().toLowerCase();
                 return [parenthetical + baseName, baseName + `(${parenthetical})`];

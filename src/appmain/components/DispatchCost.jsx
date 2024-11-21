@@ -105,8 +105,10 @@ const unitLabel = {
 const DispatchCost = ({items, setItems, dispatchAmount}) => {
     const [calcData, setCalcData] = useState({});
     const [estimate, setEstimate] = useState({
+        deposit: dispatchAmount?.estimatePrice?.deposit || 0,
         minDeposit: dispatchAmount?.estimatePrice?.minDeposit || 0,
         maxDeposit: dispatchAmount?.estimatePrice?.maxDeposit || 0,
+        estimatePrice: dispatchAmount?.estimatePrice?.estimatePrice || 0,
         minEstimatePrice: dispatchAmount?.estimatePrice?.minEstimatePrice || 0,
         maxEstimatePrice: dispatchAmount?.estimatePrice?.maxEstimatePrice || 0,
     });
@@ -119,14 +121,35 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
     const handleSliderChange = (value) => {
         setSliderValue(value);
 
-        // 예측 값 계산
-        let calcDeposit =
-            estimate.minDeposit +
-            (value - 1) * ((estimate.maxDeposit - estimate.minDeposit) / (10 - 1));
+        // 중간값 계산
+        const interpolate = (min, mid, max, currentValue, minValue, maxValue) => {
+            if (currentValue === minValue) return min;
+            if (currentValue === maxValue) return max;
+            if (currentValue === Math.floor((minValue + maxValue) / 2)) return mid;
 
-        let calcEstimate =
-            estimate.minEstimatePrice +
-            (value - 1) * ((estimate.maxEstimatePrice - estimate.minEstimatePrice) / (10 - 1));
+            // 선형 보간 공식
+            return currentValue < Math.floor((minValue + maxValue) / 2)
+                ? min + ((mid - min) / (Math.floor((minValue + maxValue) / 2) - minValue)) * (currentValue - minValue)
+                : mid + ((max - mid) / (maxValue - Math.floor((minValue + maxValue) / 2))) * (currentValue - Math.floor((minValue + maxValue) / 2));
+        };
+
+        let calcDeposit = interpolate(
+            estimate.minDeposit,
+            estimate.deposit,
+            estimate.maxDeposit,
+            value,
+            1,
+            10
+        );
+
+        let calcEstimate = interpolate(
+            estimate.minEstimatePrice,
+            estimate.estimatePrice,
+            estimate.maxEstimatePrice,
+            value,
+            1,
+            10
+        );
 
         calcDeposit = Math.round(calcDeposit * 100) / 100;
         calcEstimate = Math.round(calcEstimate * 100) / 100;
@@ -223,8 +246,10 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
         })
 
         setEstimate({
+            deposit: dispatchAmount?.estimatePrice?.deposit || 0,
             minDeposit: dispatchAmount?.estimatePrice?.minDeposit || 0,
             maxDeposit: dispatchAmount?.estimatePrice?.maxDeposit || 0,
+            estimatePrice: dispatchAmount?.estimatePrice?.estimatePrice || 0,
             minEstimatePrice: dispatchAmount?.estimatePrice?.minEstimatePrice || 0,
             maxEstimatePrice: dispatchAmount?.estimatePrice?.maxEstimatePrice || 0,
         })
@@ -303,7 +328,7 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
 
                         <span className="text-sm font-semibold text-gray-700">{sliderValue}</span>
                     </div>
-                    <p className="mt-4 text-gray-600">견적금액: {depositPrice}원(계약금: {estimatePrice}원)</p>
+                    <p className="mt-4 text-gray-600">견적금액: {estimatePrice}원(계약금: {depositPrice}원)</p>
                 </div>
             </Card>
         </div>
