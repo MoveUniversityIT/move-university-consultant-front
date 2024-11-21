@@ -176,13 +176,6 @@ const UserManagement = ({ setIsLoading }) => {
 
     return (
         <div className="w-full h-full flex flex-col bg-white rounded-lg shadow-md">
-            <div className="flex justify-between items-center p-4 border-b">
-                <h2 className="text-xl font-bold">사용자 관리</h2>
-                <Button type="primary" className="bg-blue-500">
-                    사용자 추가
-                </Button>
-            </div>
-
             <div className="flex gap-4 p-4">
                 <Input
                     placeholder="이름 또는 이메일 검색"
