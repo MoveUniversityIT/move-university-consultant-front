@@ -10,7 +10,7 @@ const ItemSearch = ({
     const searchTermRef = useRef(null);
     const dropdownRef = useRef();
     const [skipChangeEvent, setSkipChangeEvent] = useState(false);
-    const [currentWord, setCurrentWord] = useState("");
+    const [unregisterWord, setUnregisterWord] = useState("");
 
     const handleInputChange = (e) => {
         const value = e.target.value;
@@ -30,10 +30,9 @@ const ItemSearch = ({
         const end = afterCommaIndex === -1 ? value.length : cursorPosition + afterCommaIndex;
 
         const currentItem = value.slice(start, end).trim();
-        setCurrentWord(currentItem);
 
         const generateNameVariations = (name) => {
-            const baseName = name.replace(/\(([^)]*)\)/g, '').trim().toLowerCase(); // 괄호 제거
+            const baseName = name.replace(/\(([^)]*)\)/g, '').trim().toLowerCase();
             const match = name.match(/\(([^)]*)\)/);
             if (match) {
                 const parenthetical = match[1].trim().toLowerCase();
@@ -112,11 +111,15 @@ const ItemSearch = ({
             .map((term) => term.trim())
             .filter((term) => term);
 
-        const updatedItems = {...items};
+        // 기존 `items` 유지
+        const updatedItems = { ...items };
         const processedItemIds = new Set();
 
+        const unregisteredItems = [];
+
         Object.keys(updatedItems).forEach((key) => {
-            if (!terms.includes(updatedItems[key].itemId)) {
+            // 기존 항목을 유지하면서 terms에 없는 경우 처리
+            if (!terms.some((term) => term.startsWith(updatedItems[key].itemName))) {
                 delete updatedItems[key];
             } else {
                 processedItemIds.add(key);
@@ -131,6 +134,8 @@ const ItemSearch = ({
                 const itemName = `${match[1].trim()}${match[2] ? `(${match[2]})` : ''}`;
                 const quantity = parseInt(match[3]) || 1;
 
+                let isRegistered = false;
+
                 for (let i = 0; i < collapseItems.length; i++) {
                     const category = collapseItems[i];
 
@@ -141,26 +146,34 @@ const ItemSearch = ({
                             const item = subcategory.items[k];
                             const normalizedItemName = item.itemName.toLowerCase();
 
-                            if (itemName === normalizedItemName && !processedItemIds.has(item.itemName.toString())) {
-                                // 새로 입력된 항목만 처리
+                            if (itemName === normalizedItemName) {
+                                // 기존 항목 유지
                                 updatedItems[item.itemName] = {
+                                    ...updatedItems[item.itemName], // 기존 데이터 유지
                                     itemId: item.itemId,
                                     itemName: item.itemName,
-                                    itemCount: quantity,
+                                    itemCount: quantity, // 수량 업데이트
                                     isDisassembly: item.isDisassembly,
                                     isInstallation: item.isInstallation,
-                                    requiredIsDisassembly: item.isDisassembly,
-                                    requiredIsInstallation: items[item.itemId]?.requiredIsInstallation || "N",
                                 };
                                 processedItemIds.add(item.itemName.toString());
+                                isRegistered = true;
                                 break;
                             }
                         }
+
+                        if (isRegistered) break;
+                    }
+
+                    if (!isRegistered) {
+                        unregisteredItems.push(term);
+                        break;
                     }
                 }
             }
         });
 
+        // setUnregisterWord(unregisteredItems.join(', '));
         setSelectedIndex(0);
         setItems(updatedItems);
         setSearchTerm(value);
@@ -222,28 +235,45 @@ const ItemSearch = ({
             };
         }
 
-        // 중복 텍스트 제거
         const terms = updatedSearchTerm
             .split(',')
             .map((term) => term.trim())
-            .filter((term, index, array) => array.findIndex((t) => normalizeName(t) === normalizeName(term)) === index); // 중복 제거
+            .filter((term, index, array) => array.findIndex((t) => normalizeName(t) === normalizeName(term)) === index);
 
         updatedSearchTerm = terms.join(', ');
 
-        // 상태 업데이트
         setItems(updatedItems);
         setSuggestions([]);
         setSearchTerm(updatedSearchTerm);
         setSkipChangeEvent(true);
         setSelectedIndex(0);
-        setCurrentWord("");
 
-        // 텍스트 영역 포커스 유지
         textAreaElement.focus();
     };
 
     const handleInputKeyDown = (e) => {
-        if (isDropdownVisible && suggestions.length > 0) {
+        if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+            // TODO - 위치를 벗어났을때 추천필터 제거 로직
+            // const value = e.target.value;
+            // const cursorPosition = e.target.selectionStart;
+            //
+            // // 현재 위치 범위 계산
+            // const beforeCursor = value.slice(0, cursorPosition);
+            // const afterCursor = value.slice(cursorPosition);
+            //
+            // const start = beforeCursor.lastIndexOf(',') + 1;
+            // const afterCommaIndex = afterCursor.indexOf(',');
+            // const end = afterCommaIndex === -1 ? searchTerm.length : cursorPosition + afterCommaIndex;
+            //
+            // // 커서가 현재 위치를 벗어난 경우 추천 초기화
+            // if (cursorPosition < start || cursorPosition > end) {
+            //     setSuggestions([]); // 범위를 벗어나면 초기화
+            // }
+            //
+            // console.log("cursorPosition", cursorPosition)
+            // console.log("start", start)
+            // console.log("end", end)
+        }else if (isDropdownVisible && suggestions.length > 0) {
             if (e.key === "ArrowDown") {
                 e.preventDefault();
                 setSelectedIndex((prevIndex) => {
@@ -258,19 +288,16 @@ const ItemSearch = ({
                     adjustScrollPosition(newIndex);
                     return newIndex;
                 });
-            } else if (e.key === ' ') {
+            } else if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
 
                 if (suggestions.length > 0) {
                     const firstSuggestion = suggestions[selectedIndex];
                     const cursorPosition = e.target.selectionStart;
-                    const prevItemCount = items.length;
 
-                    // 커서 앞뒤로 텍스트 분리
                     const beforeCursor = searchTerm.slice(0, cursorPosition);
                     const afterCursor = searchTerm.slice(cursorPosition);
 
-                    // 콤마 기준으로 텍스트 시작과 끝 위치 계산
                     const start = beforeCursor.lastIndexOf(",") + 1;
                     const end = cursorPosition + (afterCursor.indexOf(",") === -1 ? afterCursor.length : afterCursor.indexOf(","));
 
@@ -278,7 +305,6 @@ const ItemSearch = ({
                     const afterText = searchTerm.slice(end).trim();
                     const newItemName = firstSuggestion.itemName.trim();
 
-                    // 기존 텍스트 제거 후 새 항목 삽입
                     let updatedSearchTerm = `${beforeText} ${newItemName}, ${afterText}`.trim();
 
                     updatedSearchTerm = updatedSearchTerm
@@ -321,13 +347,11 @@ const ItemSearch = ({
 
                     updatedSearchTerm = terms.join(", ");
 
-                    // 상태 업데이트
                     setItems(updatedItems);
                     setSuggestions([]);
                     setSearchTerm(updatedSearchTerm);
                     setSelectedIndex(0);
                     setSkipChangeEvent(true);
-                    setCurrentWord("");
 
                     setTimeout(() => {
                         setSkipChangeEvent(false);
@@ -375,12 +399,17 @@ const ItemSearch = ({
                 onFocus={() => setIsDropdownVisible(true)}
                 onBlur={handleBlur}
                 autoSize={{minRows: 2}}
+                onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                        e.preventDefault();
+                    }
+                }}
                 className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
 
             <div className="mt-1 min-h-[20px] top-full left-0 w-full text-sm pl-3">
                 {isDropdownVisible && suggestions.length === 0 && (
-                    <span className="text-red-500 font-bold">{currentWord}</span>
+                    <span className="text-red-500 font-bold">{unregisterWord}</span>
                 )}
             </div>
 

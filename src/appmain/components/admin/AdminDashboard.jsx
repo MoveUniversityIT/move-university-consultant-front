@@ -7,6 +7,7 @@ import {
     BarChartOutlined,
 } from "@ant-design/icons";
 import UserManagement from "@component/admin/UserManagement";
+import SystemManagement from "@component/admin/SystemManagement";
 
 const { TabPane } = Tabs;
 
@@ -18,6 +19,8 @@ const AdminDashboard = () => {
         switch (activeTab) {
             case "1":
                 return <UserManagement setIsLoading={setIsLoading} />;
+            case "2":
+                return <SystemManagement setIsLoding={setIsLoading} />;
             default:
                 return <p>콘텐츠를 선택하세요</p>;
         }
@@ -68,25 +71,25 @@ const AdminDashboard = () => {
                         }
                         key="1"
                     />
-                    {/*<TabPane*/}
-                    {/*    tab={*/}
-                    {/*        <span*/}
-                    {/*            className={`flex items-center gap-2 ${*/}
-                    {/*                activeTab === "2"*/}
-                    {/*                    ? "text-blue-600 font-semibold"*/}
-                    {/*                    : "text-gray-500"*/}
-                    {/*            } hover:text-blue-500 transition-all`}*/}
-                    {/*        >*/}
-                    {/*            <SettingOutlined*/}
-                    {/*                className={`${*/}
-                    {/*                    activeTab === "2" ? "text-blue-600" : "text-gray-400"*/}
-                    {/*                }`}*/}
-                    {/*            />*/}
-                    {/*            시스템 설정*/}
-                    {/*        </span>*/}
-                    {/*    }*/}
-                    {/*    key="2"*/}
-                    {/*/>*/}
+                    <TabPane
+                        tab={
+                            <span
+                                className={`flex items-center gap-2 ${
+                                    activeTab === "2"
+                                        ? "text-blue-600 font-semibold"
+                                        : "text-gray-500"
+                                } hover:text-blue-500 transition-all`}
+                            >
+                                <SettingOutlined
+                                    className={`${
+                                        activeTab === "2" ? "text-blue-600" : "text-gray-400"
+                                    }`}
+                                />
+                                시스템 설정
+                            </span>
+                        }
+                        key="2"
+                    />
                     {/*<TabPane*/}
                     {/*    tab={*/}
                     {/*        <span*/}

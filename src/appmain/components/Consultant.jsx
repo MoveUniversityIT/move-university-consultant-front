@@ -1,18 +1,16 @@
 import React, {useEffect, useState} from "react";
-import {Alert, Layout, Spin} from "antd";
+import {Layout, Spin} from "antd";
 import Reservation from "@component/Reservation";
 import MoveInfo from "@component/MoveInfo";
 import DispatchCost from "@component/DispatchCost";
 import AdditionalFunctions from "@component/AdditionalFunctions";
-import { useConsultantMetadata } from "@hook/useConsultant";
-import {useQueryClient} from "@tanstack/react-query";
+import {useConsultantMetadata} from "@hook/useConsultant";
 import {useDispatch} from "react-redux";
 import {resetState} from "@/features/user/loginSlice";
 
 const STORAGE_KEY = "reservations";
 
 const Consultant = () => {
-    const queryClient = useQueryClient();
     const { isLoading, data: consultant, error: consultantMetaError } = useConsultantMetadata();
     const [isMoveInfoLoading, setIsMoveInfoLoading] = useState(true);
     const [reservations, setReservations] = useState([]);
@@ -31,10 +29,6 @@ const Consultant = () => {
     const loadFromStorage = () => {
         const storedData = localStorage.getItem(STORAGE_KEY);
         return storedData ? JSON.parse(storedData) : [];
-    };
-
-    const handleExcepUpload = () => {
-        queryClient.invalidateQueries('consultantMetadata');
     };
 
     useEffect(() => {
@@ -114,7 +108,7 @@ const Consultant = () => {
                     onReady={() => setIsMoveInfoLoading(false)}
                 />
                 <DispatchCost items={items} setItems={setItems} dispatchAmount={dispatchAmount} />
-                <AdditionalFunctions handleExcepUpload={handleExcepUpload} consultantData={consultant} />
+                <AdditionalFunctions consultantData={consultant} />
             </div>
         </Layout>
     );

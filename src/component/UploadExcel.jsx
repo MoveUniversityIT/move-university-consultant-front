@@ -35,9 +35,20 @@ const UploadExcel = ({url, handleExcepUpload, fileName}) => {
     };
 
     return (
-        <Upload customRequest={handleUpload} showUploadList={false}>
-            <Button icon={<UploadOutlined />} loading={loading} disabled={loading}>{fileName}</Button>
+        <Upload
+            customRequest={handleUpload}
+            showUploadList={false}
+        >
+            <Button
+                icon={<UploadOutlined />}
+                loading={loading}
+                disabled={loading}
+                className="w-52 h-12 flex items-center justify-center text-sm font-medium bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none"
+            >
+                {fileName || "Upload File"}
+            </Button>
         </Upload>
+
     );
 };
 

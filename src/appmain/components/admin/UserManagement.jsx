@@ -1,54 +1,48 @@
-import { Button, Input, Select, Spin, Table } from "antd";
-import { Option } from "antd/es/mentions";
-import React, { useEffect, useState } from "react";
+import {Button, Input, Select, Spin, Table} from "antd";
+import {Option} from "antd/es/mentions";
+import React, {useEffect, useState} from "react";
+import {useUpdateUser, useUserManagement} from "@hook/useAdmin";
+import dayjs from "dayjs";
+import {useQueryClient} from "@tanstack/react-query";
+import {message} from "antd";
+
+const positionLabel = {
+    "CEO": "대표",
+    "GENERAL_DIRECTOR": "총괄 이사",
+    "DEV_TEAM": "개발자",
+    "DISPATCH_TEAM_LEADER": "배차 팀장",
+    "SALES_TEAM_LEADER_1": "영업 1팀장",
+    "SALES_TEAM_LEADER_2": "영업 2팀장",
+    "DISPATCH": "배차 팀원",
+    "SALES": "영업 팀원",
+    "MARKETER": "마케터",
+    "HR_MANAGER": "인사 책임자",
+    "EMPLOYEE": "사원"
+}
 
 const UserManagement = ({ setIsLoading }) => {
+    const queryClient = useQueryClient();
+    const { isLoading, data: userManagementData} = useUserManagement();
+    const {mutate: userMutate } = useUpdateUser();
+
     const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [searchValue, setSearchValue] = useState("");
     const [roleFilter, setRoleFilter] = useState("전체");
 
+
+
+
     useEffect(() => {
-        setLoading(true);
-        setTimeout(() => {
-            const userData = [
-                {
-                    key: "1",
-                    email: "user1@example.com",
-                    name: "홍길동",
-                    role: "대표",
-                    phone: "010-1234-5678",
-                    status: "ACTIVE",
-                    createdAt: "2023-01-01",
-                    updatedAt: "2023-06-15",
-                },
-                {
-                    key: "2",
-                    email: "user2@example.com",
-                    name: "김영희",
-                    role: "개발자",
-                    phone: "010-9876-5432",
-                    status: "PENDING",
-                    createdAt: "2022-12-10",
-                    updatedAt: "2023-05-20",
-                },
-                {
-                    key: "3",
-                    email: "user3@example.com",
-                    name: "이철수",
-                    role: "영업 팀원",
-                    phone: "010-5678-1234",
-                    status: "SUSPENDED",
-                    createdAt: "2023-02-14",
-                    updatedAt: "2023-04-01",
-                },
-            ];
-            setUsers(userData);
-            setFilteredUsers(userData);
-            setLoading(false);
-        }, 1000);
-    }, []);
+        if (userManagementData) {
+            const usersWithOriginalStatus = userManagementData.map((user) => ({
+                ...user,
+                originalStatus: user.status,
+            }));
+            setUsers(usersWithOriginalStatus);
+            setFilteredUsers(usersWithOriginalStatus);
+        }
+    }, [userManagementData]);
 
     const statusLabels = {
         ACTIVE: { text: "활성", color: "bg-green-100 text-green-600" },
@@ -64,7 +58,7 @@ const UserManagement = ({ setIsLoading }) => {
     const onStatusChange = (key, newStatus) => {
         const updatedUsers = users.map((user) => {
             if (user.key === key) {
-                return { ...user, status: newStatus, updatedAt: new Date().toISOString().split("T")[0] };
+                return { ...user, status: newStatus };
             }
             return user;
         });
@@ -100,7 +94,29 @@ const UserManagement = ({ setIsLoading }) => {
         );
     };
 
+    const handleUpdateUser = (userId, statusType) => {
+        const userInfo = {
+            userId,
+            statusType
+        }
+
+
+        userMutate(userInfo, {
+            onSuccess: (data) => {
+                queryClient.invalidateQueries('userManagement');
+                const successMessage = data?.data?.message ? data?.data?.message : "정상적으로 처리되었습니다";
+                message.success(successMessage);
+            }
+        })
+    }
+
     const columns = [
+        {
+            title: "index",
+            dataIndex: "id",
+            key: "id",
+            hidden: true
+        },
         {
             title: "이메일",
             dataIndex: "email",
@@ -114,13 +130,14 @@ const UserManagement = ({ setIsLoading }) => {
         },
         {
             title: "직책",
-            dataIndex: "role",
-            key: "role",
+            dataIndex: "positionName",
+            key: "positionName",
+            render: (positionName) => positionName ? positionLabel[positionName] : ""
         },
         {
             title: "휴대폰번호",
-            dataIndex: "phone",
-            key: "phone",
+            dataIndex: "phoneNumber",
+            key: "phoneNumber",
         },
         {
             title: "상태",
@@ -148,11 +165,28 @@ const UserManagement = ({ setIsLoading }) => {
             title: "생성일",
             dataIndex: "createdAt",
             key: "createdAt",
+            render: (createdAt) => createdAt ? dayjs(createdAt).format("YYYY-MM-DD HH:mm") : "",
         },
         {
             title: "수정일",
             dataIndex: "updatedAt",
             key: "updatedAt",
+            render: (updatedAt) => updatedAt ? dayjs(updatedAt).format("YYYY-MM-DD HH:mm") : "",
+        },
+        {
+            title: "상태 변경",
+            key: "action",
+            render: (record) => (
+                record.status ? (
+                    <Button
+                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        onClick={() => handleUpdateUser(record.id, record.status)}
+                        disabled={record.status === record.originalStatus}
+                    >
+                        수정
+                    </Button>
+                ) : null
+            ),
         },
     ];
 
@@ -163,8 +197,8 @@ const UserManagement = ({ setIsLoading }) => {
                 key: `empty-${i}`,
                 email: "",
                 name: "",
-                role: "",
-                phone: "",
+                positionName: "",
+                phoneNumber: "",
                 status: "",
                 createdAt: "",
                 updatedAt: "",
@@ -205,7 +239,7 @@ const UserManagement = ({ setIsLoading }) => {
             </div>
 
             <div className="flex-grow overflow-auto p-4">
-                {loading ? (
+                {isLoading ? (
                     <div className="flex items-center justify-center h-full">
                         <Spin size="large" />
                     </div>

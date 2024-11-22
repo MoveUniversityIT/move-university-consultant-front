@@ -27,8 +27,14 @@ const DownloadExcel = ({url, fileName, text}) => {
     };
 
     return (
-        <Button icon={<DownloadOutlined />} onClick={handleDownload} loading={loading} disabled={loading}>
-            {text}
+        <Button
+            icon={<DownloadOutlined />}
+            onClick={handleDownload}
+            loading={loading}
+            disabled={loading}
+            className="w-52 h-12 flex items-center justify-center text-sm font-medium bg-green-500 hover:bg-green-600 text-white rounded-md focus:outline-none"
+        >
+            {text || "Download File"}
         </Button>
     );
 };

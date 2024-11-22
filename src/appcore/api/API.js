@@ -113,8 +113,6 @@ API.interceptors.response.use(
                 });
         }
 
-        console.log(error.response?.status)
-
         // 403 에러 처리
         if (error.response?.status === 403) {
             if (error.response.data instanceof Blob) {
