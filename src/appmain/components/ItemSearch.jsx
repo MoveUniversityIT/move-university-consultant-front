@@ -134,6 +134,8 @@ const ItemSearch = ({
                 const itemName = `${match[1].trim()}${match[2] ? `(${match[2]})` : ''}`;
                 const quantity = parseInt(match[3]) || 1;
 
+                console.log(itemName, quantity);
+
                 let isRegistered = false;
 
                 for (let i = 0; i < collapseItems.length; i++) {
@@ -167,7 +169,7 @@ const ItemSearch = ({
 
                     if (!isRegistered) {
                         unregisteredItems.push(term);
-                        break;
+                        // break;
                     }
                 }
             }
