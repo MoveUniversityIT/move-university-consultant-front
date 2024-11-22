@@ -39,10 +39,24 @@ const ItemSearch = ({
                 return [
                     baseName,
                     parenthetical + baseName,
-                    baseName + `(${parenthetical})`
+                    baseName + parenthetical,
+                    baseName + `(${parenthetical})`,
                 ];
             }
             return [baseName];
+        };
+
+        const similarityScore = (input, candidate) => {
+            const cleanInput = input.replace(/\s|\(|\)/g, '').toLowerCase();
+            const cleanCandidate = candidate.replace(/\s|\(|\)/g, '').toLowerCase();
+
+            let score = 0;
+            for (const char of cleanInput) {
+                if (cleanCandidate.includes(char)) {
+                    score++;
+                }
+            }
+            return score;
         };
 
         if (start <= end && currentItem) {
@@ -97,8 +111,20 @@ const ItemSearch = ({
 
             const sortedSuggestions = [
                 ...exactMatches,
-                ...partialMatches,
-                ...otherMatches.sort((a, b) => (b.sortingIndex || 0) - (a.sortingIndex || 0))
+                ...partialMatches.sort((a, b) => {
+                    const aScore = Math.max(
+                        ...generateNameVariations(a.itemName).map((variation) =>
+                            similarityScore(normalizedCurrent, variation)
+                        )
+                    );
+                    const bScore = Math.max(
+                        ...generateNameVariations(b.itemName).map((variation) =>
+                            similarityScore(normalizedCurrent, variation)
+                        )
+                    );
+                    return bScore - aScore; // 높은 유사도 순으로 정렬
+                }),
+                ...otherMatches.sort((a, b) => (b.sortingIndex || 0) - (a.sortingIndex || 0)),
             ];
 
             setSuggestions(sortedSuggestions.slice(0, 20));
@@ -134,8 +160,6 @@ const ItemSearch = ({
                 const itemName = `${match[1].trim()}${match[2] ? `(${match[2]})` : ''}`;
                 const quantity = parseInt(match[3]) || 1;
 
-                console.log(itemName, quantity);
-
                 let isRegistered = false;
 
                 for (let i = 0; i < collapseItems.length; i++) {
@@ -169,13 +193,11 @@ const ItemSearch = ({
 
                     if (!isRegistered) {
                         unregisteredItems.push(term);
-                        // break;
                     }
                 }
             }
         });
 
-        // setUnregisterWord(unregisteredItems.join(', '));
         setSelectedIndex(0);
         setItems(updatedItems);
         setSearchTerm(value);
