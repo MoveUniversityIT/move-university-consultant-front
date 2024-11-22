@@ -30,17 +30,15 @@ const UserManagement = ({ setIsLoading }) => {
     const [searchValue, setSearchValue] = useState("");
     const [roleFilter, setRoleFilter] = useState("전체");
 
-
-
-
     useEffect(() => {
         if (userManagementData) {
-            const usersWithOriginalStatus = userManagementData.map((user) => ({
+            const usersWithKey = userManagementData.map((user) => ({
                 ...user,
+                key: user.id || user.email,
                 originalStatus: user.status,
             }));
-            setUsers(usersWithOriginalStatus);
-            setFilteredUsers(usersWithOriginalStatus);
+            setUsers(usersWithKey);
+            setFilteredUsers(usersWithKey);
         }
     }, [userManagementData]);
 
@@ -62,53 +60,64 @@ const UserManagement = ({ setIsLoading }) => {
             }
             return user;
         });
+
         setUsers(updatedUsers);
-        setFilteredUsers(updatedUsers);
+
+        const updatedFilteredUsers = filteredUsers.map((user) => {
+            if (user.key === key) {
+                return { ...user, status: newStatus };
+            }
+            return user;
+        });
+
+        setFilteredUsers(updatedFilteredUsers);
     };
 
     const handleSearchChange = (e) => {
-        const value = e.target.value;
+        const value = e.target.value.trim();
         setSearchValue(value);
-        const filtered = users.filter(
-            (user) =>
-                user.name.includes(value) || user.email.includes(value)
+
+        const filtered = users.filter((user) =>
+            user.name.includes(value) || user.email.includes(value)
         );
+
         setFilteredUsers(
             roleFilter === "전체"
                 ? filtered
-                : filtered.filter((user) => user.role === roleFilter)
+                : filtered.filter((user) => user.positionName === roleFilter)
         );
     };
 
     const handleFilterChange = (value) => {
         setRoleFilter(value);
+
+        const filtered = users.filter((user) =>
+            user.email.includes(searchValue) || user.name.includes(searchValue)
+        );
+
         setFilteredUsers(
             value === "전체"
-                ? users.filter((user) => user.name.includes(searchValue))
-                : users.filter(
-                    (user) =>
-                        user.role === value &&
-                        (user.name.includes(searchValue) ||
-                            user.email.includes(searchValue))
-                )
+                ? filtered
+                : filtered.filter((user) => user.positionName === value)
         );
     };
 
     const handleUpdateUser = (userId, statusType) => {
-        const userInfo = {
-            userId,
-            statusType
-        }
-
+        const userInfo = { userId, statusType };
 
         userMutate(userInfo, {
             onSuccess: (data) => {
-                queryClient.invalidateQueries('userManagement');
-                const successMessage = data?.data?.message ? data?.data?.message : "정상적으로 처리되었습니다";
+                queryClient.invalidateQueries('userManagement'); // 서버 상태 최신화
+                const successMessage = data?.data?.message
+                    ? data?.data?.message
+                    : "정상적으로 처리되었습니다";
                 message.success(successMessage);
-            }
-        })
-    }
+            },
+            onError: (error) => {
+                message.error(error?.response?.data?.message || "처리 중 오류가 발생했습니다.");
+            },
+        });
+    };
 
     const columns = [
         {
@@ -144,7 +153,7 @@ const UserManagement = ({ setIsLoading }) => {
             dataIndex: "status",
             key: "status",
             render: (status, record) => (
-                record && !record.key?.startsWith("empty-") ? (
+                record && typeof(record.key) !== 'string'? (
                     <Select
                         value={status}
                         onChange={(value) => onStatusChange(record.key, value)}
@@ -223,18 +232,11 @@ const UserManagement = ({ setIsLoading }) => {
                     className="w-32"
                 >
                     <Option value="전체">전체</Option>
-                    <Option value="대표">대표</Option>
-                    <Option value="총괄 이사">총괄 이사</Option>
-                    <Option value="개발자">개발자</Option>
-                    <Option value="배차 팀장">배차 팀장</Option>
-                    <Option value="영업 1팀장">영업 1팀장</Option>
-                    <Option value="영업 2팀장">영업 2팀장</Option>
-                    <Option value="배차 팀원">배차 팀원</Option>
-                    <Option value="영업 팀원">영업 팀원</Option>
-                    <Option value="마케터">마케터</Option>
-                    <Option value="인사 책임자">인사 책임자</Option>
-                    <Option value="사원">사원</Option>
-                    <Option value="프리랜서">프리랜서</Option>
+                    {Object.keys(positionLabel).map((key) => (
+                        <Option key={key} value={key}>
+                            {positionLabel[key]}
+                        </Option>
+                    ))}
                 </Select>
             </div>
 
