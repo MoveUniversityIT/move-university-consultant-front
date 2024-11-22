@@ -77,7 +77,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
     const [calcConsultantData, setCalcConsultantData] = useState(null);
     const [dateCheckList, setDateCheckList] = useState([]);
 
-    const {isLoading: isLoadingConsultantMutate, mutate: consultantMutate, data: calcData} = useCalcConsultant();
+    const {mutate: consultantMutate} = useCalcConsultant();
     const {data: roadDistanceData} = useRoadDistance(locationInfo);
 
     const [specialItems, setSpecialItems] = useState('');
@@ -88,6 +88,19 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
     // 메모
     const [isMemoModalVisible, setIsMemoModalVisible] = useState(false);
     const [memo, setMemo] = useState("");
+
+    useEffect(() => {
+        if (
+            locationInfo.startX &&
+            locationInfo.startY &&
+            locationInfo.endX &&
+            locationInfo.endY &&
+            locationInfo.startX === locationInfo.endX &&
+            locationInfo.startY === locationInfo.endY
+        ) {
+            setDistance(0);
+        }
+    }, [locationInfo, ]);
 
     useEffect(() => {
 
@@ -125,7 +138,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
         setLocationSearch({address, locationType});
 
         setShowList(true);
-        if (locationType === 'start') {
+        if (locationType === 'load') {
             setShowUnloadAddressList(false);
         } else {
             setShowLoadAddressList(false);
@@ -147,30 +160,30 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
     const handleFloorChange = (setFloor) => (value) => setFloor(value);
 
     useEffect(() => {
-        if (locationList && locationSearch?.address) {
-            if (locationSearch?.address === loadLocation) {
+        if (locationSearch?.locationType === "load") {
+            if (locationList) {
                 setLoadAddressList(locationList.address || []);
 
-                if (loadLocation === locationList.address[0]?.address?.address_name) {
+                if (locationSearch.address === locationList.address[0]?.address?.address_name) {
                     handleLoadCoordinates({x: locationList.address[0]?.x, y: locationList.address[0]?.y});
                     handleAddressSelect(setLoadLocation, setShowLoadAddressList);
                     setLoadCityCode(locationList.address[0]?.address?.b_code?.trim() || null);
                 }
-            } else if (locationSearch?.address === unloadLocation) {
+            } else {
+                handleLoadCoordinates({x: null, y: null});
+                setLoadCityCode(null);
+                setLoadAddressList([]);
+            }
+        } else if (locationSearch?.locationType === "unload") {
+            if (locationList) {
                 setUnloadAddressList(locationList.address || []);
 
-                if (unloadLocation === locationList.address[0]?.address?.address_name) {
+                if (locationSearch.address === locationList.address[0]?.address?.address_name) {
                     handleUnloadCoordinates({x: locationList.address[0]?.x, y: locationList.address[0]?.y});
                     handleAddressSelect(setUnloadLocation, setShowUnloadAddressList);
                     setUnloadCityCode(locationList.address[0]?.address?.b_code?.trim() || null);
                 }
-            }
-        } else {
-            if (locationSearch?.address === loadLocation) {
-                handleLoadCoordinates({x: null, y: null});
-                setLoadCityCode(null)
-                setLoadAddressList([]);
-            } else if (locationSearch?.address === unloadLocation) {
+            } else {
                 handleUnloadCoordinates({x: null, y: null});
                 setUnloadCityCode(null);
                 setUnloadAddressList([]);
@@ -493,11 +506,11 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                             location={loadLocation}
                             setCityCode={setLoadCityCode}
                             handleCoordinates={handleLoadCoordinates}
-                            handleLocationChange={handleLocationChange(setLoadLocation, setShowLoadAddressList, 'start')}
+                            handleLocationChange={handleLocationChange(setLoadLocation, setShowLoadAddressList, 'load')}
                             addressList={loadAddressList}
                             showAddressList={showLoadAddressList}
                             setShowAddressList={setShowLoadAddressList}
-                            onSelectAddress={handleAddressSelect(setLoadLocation, setShowLoadAddressList, 'start')}
+                            onSelectAddress={handleAddressSelect(setLoadLocation, setShowLoadAddressList, 'load')}
                             setSkipAddressChangeEvent={setSkipAddressChangeEvent}
                         />
                     </div>
@@ -527,11 +540,11 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                     location={unloadLocation}
                     setCityCode={setUnloadCityCode}
                     handleCoordinates={handleUnloadCoordinates}
-                    handleLocationChange={handleLocationChange(setUnloadLocation, setShowUnloadAddressList, 'end')}
+                    handleLocationChange={handleLocationChange(setUnloadLocation, setShowUnloadAddressList, 'unload')}
                     addressList={unloadAddressList}
                     showAddressList={showUnloadAddressList}
                     setShowAddressList={setShowUnloadAddressList}
-                    onSelectAddress={handleAddressSelect(setUnloadLocation, setShowUnloadAddressList, 'end')}
+                    onSelectAddress={handleAddressSelect(setUnloadLocation, setShowUnloadAddressList, 'unload')}
                     setSkipAddressChangeEvent={setSkipAddressChangeEvent}
                 />
 
