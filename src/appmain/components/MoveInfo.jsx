@@ -15,6 +15,7 @@ const {Option} = Select;
 const MoveInfo = ({consultantData, items, setItems, addReservation, initialData, setDispatchAmount, onReady}) => {
     const [moveType, setMoveType] = useState(null);
     const [vehicleType, setVehicleType] = useState({key: 1, value: '카고'});
+    const [vehicleTonnage, setVehicleTonnage] = useState(1);
 
     const [loadLocation, setLoadLocation] = useState('');
     const [loadCityCode, setLoadCityCode] = useState(null);
@@ -25,7 +26,6 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
     const [loadHouseholdMembers, setLoadHouseholdMembers] = useState(0);
     const [loadCustomer, setLoadCustomer] = useState([]);
     const [showLoadAddressList, setShowLoadAddressList] = useState(false);
-
 
     const [unloadLocation, setUnloadLocation] = useState('');
     const [unloadCityCode, setUnloadCityCode] = useState(null);
@@ -40,7 +40,6 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
     const [isTogether, setIsTogether] = useState(false);
 
     const [searchTerm, setSearchTerm] = useState('');
-
     const [suggestions, setSuggestions] = useState([]);
 
 
@@ -80,6 +79,11 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
 
     const {isLoading: isLoadingConsultantMutate, mutate: consultantMutate, data: calcData} = useCalcConsultant();
     const {data: roadDistanceData} = useRoadDistance(locationInfo);
+
+    const [specialItems, setSpecialItems] = useState('');
+    const [customerName, setCustomerName] = useState('');
+    const [customerPhoneNumber, setCustomerPhoneNumber] = useState('');
+    const [paymentMethod, setPaymentMethod] = useState('');
 
     // 메모
     const [isMemoModalVisible, setIsMemoModalVisible] = useState(false);
@@ -256,8 +260,8 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
     };
 
     const resetState = () => {
-        setMoveType(null);
-        setVehicleType({key: 1, value: '카고'});
+        setDistance(0);
+
         setLoadLocation('');
         setLoadCityCode(null);
         setLoadMethod({key: 1, value: '엘레베이터'});
@@ -265,6 +269,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
         setLoadArea(1);
         setLoadHouseholdMembers(0);
         setLoadCustomer([]);
+
         setUnloadLocation('');
         setUnloadCityCode(null);
         setUnloadMethod({key: 1, value: '엘레베이터'});
@@ -272,41 +277,71 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
         setUnloadArea(1);
         setUnloadHouseholdMembers(0);
         setUnloadCustomer([]);
-        setIsTogether(false);
+
+        setLocationInfo({startX: null, startY: null, endX: null, endY: null});
+        
+        setMoveType(null);
         setRequestDate(dayjs(new Date()));
         setRequestTime(dayjs('08:00', 'HH:mm'));
-        setDistance(0);
+        setIsTogether(false);
+        
+        setVehicleType({key: 1, value: '카고'});
+        setVehicleTonnage(1);
+        
         setHelpers([
             {helperType: 'TRANSPORT', peopleCount: 0},
             {helperType: 'PACKING_CLEANING', peopleCount: 0}
         ]);
         setItems([]);
+        setSpecialItems('');
+        setCustomerName('');
+        setCustomerPhoneNumber('');
+        setPaymentMethod('');
+        setMemo('');
+
+        setSearchTerm('');
     };
 
     const handleSave = () => {
+        // 상담 예약
         const reservationData = {
-            moveType,
-            vehicleType,
-            loadLocation,
-            loadCityCode,
-            loadMethod,
-            loadFloor,
-            loadArea,
-            loadHouseholdMembers,
-            loadCustomer,
-            unloadLocation,
-            unloadCityCode,
-            unloadMethod,
-            unloadFloor,
-            unloadArea,
-            unloadHouseholdMembers,
+            distance,
+
+            loadLocation,           // 상차지
+            loadCityCode,           // 상차지 행정동 코드
+            loadMethod,             // 상차 방법
+            loadFloor,              // 상차 층수
+            loadArea,               // 상차 평수
+            loadHouseholdMembers,   // 상차 거주 인원
+            loadCustomer,           // 상차 도움
+
+            unloadLocation,         // 하차지
+            unloadCityCode,         // 하차지 행정동 코드
+            unloadMethod,           // 하차 방법
+            unloadFloor,            // 하차 층수
+            unloadArea,             // 하차 평수
+            unloadHouseholdMembers, // 하차 거주 인원
             unloadCustomer,
-            isTogether,
+
+            locationInfo,
+
+            moveType,               // 이사 종류
             requestDate: requestDate.format("YYYY-MM-DD"),
             requestTime: requestTime.format("HH:mm"),
-            distance,
+            isTogether,
+
+            vehicleType,            // 차량 종류
+            vehicleTonnage,         // 톤수
+
             helpers,
             items,
+            specialItems,
+            customerName,
+            customerPhoneNumber,
+            paymentMethod,
+            memo,
+
+            searchTerm
         };
 
         addReservation(reservationData);
@@ -315,8 +350,8 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
 
     useEffect(() => {
         if (initialData) {
-            setMoveType(initialData.moveType);
-            setVehicleType(initialData.vehicleType);
+            setDistance(initialData.distance);
+
             setLoadLocation(initialData.loadLocation);
             setLoadCityCode(initialData.loadCityCode);
             setLoadMethod(initialData.loadMethod);
@@ -324,6 +359,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
             setLoadArea(initialData.loadArea);
             setLoadHouseholdMembers(initialData.loadHouseholdMembers);
             setLoadCustomer(initialData.loadCustomer);
+
             setUnloadLocation(initialData.unloadLocation);
             setUnloadCityCode(initialData.unloadCityCode);
             setUnloadMethod(initialData.unloadMethod);
@@ -331,12 +367,24 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
             setUnloadArea(initialData.unloadArea);
             setUnloadHouseholdMembers(initialData.unloadHouseholdMembers);
             setUnloadCustomer(initialData.unloadCustomer);
-            setIsTogether(initialData.isTogether);
+
+            setMoveType(initialData.moveType);
             setRequestDate(dayjs(initialData.requestDate));
             setRequestTime(dayjs(initialData.requestTime, "HH:mm"));
-            setDistance(initialData.distance);
+            setIsTogether(initialData.isTogether);
+
+            setVehicleType(initialData.vehicleType);
+            setVehicleTonnage(initialData.vehicleTonnage);
+
             setHelpers(initialData.helpers);
-            setItems(items);
+            setItems(initialData.items);
+            setSpecialItems(initialData.specialItems);
+            setCustomerName(initialData.customerName);
+            setCustomerPhoneNumber(initialData.customerPhoneNumber);
+            setPaymentMethod(initialData.paymentMethod);
+            setMemo(initialData.memo);
+
+            setSearchTerm(initialData.searchTerm);
         } else {
             resetState();
         }
@@ -375,12 +423,12 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
             totalItemCbm,
             employHelperPeople: helpers
         }
-        
+
         if (moveType.value !== '포장이사') {
             const packingCleaningHelper = helpers.find(helper => helper.helperType === 'PACKING_CLEANING');
 
             const peopleCount = packingCleaningHelper ? packingCleaningHelper.peopleCount : 0;
-            if(peopleCount > 0) {
+            if (peopleCount > 0) {
                 message.warning("이사종류: 포장이사가 아닌경우 추가 이모 설정은 무시 후 계산됩니다.");
             }
         }
@@ -390,7 +438,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
             const packingCleaningHelper = helpers.find(helper => helper.helperType === 'PACKING_CLEANING');
             const totalPeople = transportHelper?.peopleCount ?? 0 + packingCleaningHelper?.peopleCount ?? 0;
 
-            if(totalPeople > 0) {
+            if (totalPeople > 0) {
                 message.warning("이사종류: 단순운송인 경우 추가 인부, 추가 이모 설정은 무시 후 계산됩니다.");
             }
         }
@@ -582,8 +630,9 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                     <Select
                         placeholder="예: 톤수"
                         className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        defaultValue="1"
+                        defaultValue={vehicleTonnage}
                         listHeight={128}
+                        onChange={(value) => setVehicleTonnage(value)}
                     >
                         <Select.Option value="1">1</Select.Option>
                         <Select.Option value="1.4">1.4</Select.Option>
@@ -639,6 +688,8 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                 <Input.TextArea
                     autoSize={{minRows: 2}}
                     className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    value={specialItems}
+                    onChange={(e) => setSpecialItems(e.target.value)}
                 />
             </Form.Item>
             <div className="flex gap-1 items-center">
@@ -646,17 +697,21 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                     <label className="block text-sm font-medium text-gray-700 mb-1">화주이름:</label>
                     <Input
                         className="w-full"
-                        placeholder="예: 누구세요?"
+                        placeholder="예: 이름"
+                        value={customerName}
+                        onChange={(e) => setCustomerName(e.target.value)}
                     />
                 </Form.Item>
 
-                <PhoneNumberInput/>
+                <PhoneNumberInput phoneNumber={customerPhoneNumber} setPhoneNumber={setCustomerPhoneNumber}/>
 
                 <Form.Item className="flex-1 !mb-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">결제방법:</label>
                     <Select
                         placeholder="예: 카드"
                         className="w-full"
+                        defaultValue={paymentMethod}
+                        onChange={(data) => setPaymentMethod(data)}
                     >
                         <Select.Option value="테스트">
                             테스트
@@ -667,7 +722,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
             <Form.Item className="relative !mb-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">메모:</label>
                 <Input.TextArea
-                    autoSize={{ minRows: 3, maxRows: 3 }}
+                    autoSize={{minRows: 3, maxRows: 3}}
                     className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     value={memo}
                     onClick={() => setIsMemoModalVisible(true)}
@@ -690,7 +745,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                     ]}
                 >
                     <Input.TextArea
-                        autoSize={{ minRows: 10 }}
+                        autoSize={{minRows: 10}}
                         value={memo}
                         onChange={(e) => setMemo(e.target.value)}
                         placeholder="메모를 입력하세요..."

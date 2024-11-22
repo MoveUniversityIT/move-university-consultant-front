@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { Form, Input } from "antd";
 
-const PhoneNumberInput = () => {
-    const [shipperNumber, setShipperNumber] = useState("");
-
+const PhoneNumberInput = ({phoneNumber, setPhoneNumber}) => {
     const formatShipperNumber = (value) => {
         // 숫자만 추출
         const numericValue = value.replace(/\D/g, "");
@@ -16,7 +14,7 @@ const PhoneNumberInput = () => {
 
     const handleChange = (e) => {
         const formattedValue = formatShipperNumber(e.target.value);
-        setShipperNumber(formattedValue);
+        setPhoneNumber(formattedValue);
     };
 
     return (
@@ -25,7 +23,7 @@ const PhoneNumberInput = () => {
             <Input
                 className="w-full"
                 placeholder="예: 010-1234-1234"
-                value={shipperNumber}
+                value={phoneNumber}
                 onChange={handleChange}
                 maxLength={13} // 최대 길이 제한
             />

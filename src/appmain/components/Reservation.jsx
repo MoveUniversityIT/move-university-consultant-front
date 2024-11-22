@@ -28,10 +28,10 @@ const Reservation = ({ reservations, onDelete, onLoad, onNew }) => {
                                 {reservation.requestDate}
                             </p>
                             <p className="text-sm text-gray-600 mb-1">
-                                <strong>상차지:</strong> {reservation.loadLocation}
+                                <strong>화주이름:</strong> {reservation.customerName}
                             </p>
                             <p className="text-sm text-gray-600">
-                                <strong>하차지:</strong> {reservation.unloadLocation}
+                                <strong>화주번호:</strong> {reservation.customerPhoneNumber}
                             </p>
                         </div>
 
