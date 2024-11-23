@@ -1,30 +1,60 @@
-import React, { useState } from "react";
-import { Layout, Tabs, Spin } from "antd";
-import {
-    UserOutlined,
-    SettingOutlined,
-    FileSearchOutlined,
-    BarChartOutlined,
-} from "@ant-design/icons";
+import React, {useState} from "react";
+import {Layout, Spin, Tabs} from "antd";
+import {SettingOutlined, UserOutlined,} from "@ant-design/icons";
 import UserManagement from "@component/admin/UserManagement";
 import SystemManagement from "@component/admin/SystemManagement";
-
-const { TabPane } = Tabs;
 
 const AdminDashboard = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [activeTab, setActiveTab] = useState("1");
 
-    const renderContent = () => {
-        switch (activeTab) {
-            case "1":
-                return <UserManagement setIsLoading={setIsLoading} />;
-            case "2":
-                return <SystemManagement setIsLoding={setIsLoading} />;
-            default:
-                return <p>콘텐츠를 선택하세요</p>;
-        }
-    };
+    const items = [
+        {
+            key: "1",
+            label: (
+                <span
+                    className={`flex items-center gap-2 ${
+                        activeTab === "1"
+                            ? "text-blue-600 font-semibold"
+                            : "text-gray-500"
+                    } hover:text-blue-500 transition-all`}
+                >
+                    <UserOutlined
+                        className={`${
+                            activeTab === "1" ? "text-blue-600" : "text-gray-400"
+                        }`}
+                    />
+                    사용자 관리
+                </span>
+            ),
+            children: <UserManagement setIsLoading={setIsLoading} />,
+        },
+        {
+            key: "2",
+            label: (
+                <span
+                    className={`flex items-center gap-2 ${
+                        activeTab === "2"
+                            ? "text-blue-600 font-semibold"
+                            : "text-gray-500"
+                    } hover:text-blue-500 transition-all`}
+                >
+                    <SettingOutlined
+                        className={`${
+                            activeTab === "2" ? "text-blue-600" : "text-gray-400"
+                        }`}
+                    />
+                    시스템 설정
+                </span>
+            ),
+            children: <SystemManagement setIsLoading={setIsLoading} />,
+        },
+        // {
+        //     key: "3",
+        //     label: "로그 뷰어",
+        //     children: <LogViewer />,
+        // },
+    ];
 
     return (
         <Layout
@@ -40,104 +70,24 @@ const AdminDashboard = () => {
                 </div>
             )}
 
-            {/* Admin Layout */}
             <div className="bg-white shadow-xl rounded-lg m-4 h-full flex flex-col">
-                {/* 탭 메뉴 */}
                 <Tabs
-                    defaultActiveKey="1"
-                    onChange={(key) => setActiveTab(key)}
+                    activeKey={activeTab}
+                    onChange={setActiveTab}
+                    items={items}
                     className="rounded-t-lg"
                     tabBarStyle={{
                         padding: "0 16px",
                         borderBottom: "1px solid #e0e0e0",
                     }}
-                >
-                    <TabPane
-                        tab={
-                            <span
-                                className={`flex items-center gap-2 ${
-                                    activeTab === "1"
-                                        ? "text-blue-600 font-semibold"
-                                        : "text-gray-500"
-                                } hover:text-blue-500 transition-all`}
-                            >
-                                <UserOutlined
-                                    className={`${
-                                        activeTab === "1" ? "text-blue-600" : "text-gray-400"
-                                    }`}
-                                />
-                                사용자 관리
-                            </span>
-                        }
-                        key="1"
-                    />
-                    <TabPane
-                        tab={
-                            <span
-                                className={`flex items-center gap-2 ${
-                                    activeTab === "2"
-                                        ? "text-blue-600 font-semibold"
-                                        : "text-gray-500"
-                                } hover:text-blue-500 transition-all`}
-                            >
-                                <SettingOutlined
-                                    className={`${
-                                        activeTab === "2" ? "text-blue-600" : "text-gray-400"
-                                    }`}
-                                />
-                                시스템 설정
-                            </span>
-                        }
-                        key="2"
-                    />
-                    {/*<TabPane*/}
-                    {/*    tab={*/}
-                    {/*        <span*/}
-                    {/*            className={`flex items-center gap-2 ${*/}
-                    {/*                activeTab === "3"*/}
-                    {/*                    ? "text-blue-600 font-semibold"*/}
-                    {/*                    : "text-gray-500"*/}
-                    {/*            } hover:text-blue-500 transition-all`}*/}
-                    {/*        >*/}
-                    {/*            <FileSearchOutlined*/}
-                    {/*                className={`${*/}
-                    {/*                    activeTab === "3" ? "text-blue-600" : "text-gray-400"*/}
-                    {/*                }`}*/}
-                    {/*            />*/}
-                    {/*            로그 뷰어*/}
-                    {/*        </span>*/}
-                    {/*    }*/}
-                    {/*    key="3"*/}
-                    {/*/>*/}
-                    {/*<TabPane*/}
-                    {/*    tab={*/}
-                    {/*        <span*/}
-                    {/*            className={`flex items-center gap-2 ${*/}
-                    {/*                activeTab === "4"*/}
-                    {/*                    ? "text-blue-600 font-semibold"*/}
-                    {/*                    : "text-gray-500"*/}
-                    {/*            } hover:text-blue-500 transition-all`}*/}
-                    {/*        >*/}
-                    {/*            <BarChartOutlined*/}
-                    {/*                className={`${*/}
-                    {/*                    activeTab === "4" ? "text-blue-600" : "text-gray-400"*/}
-                    {/*                }`}*/}
-                    {/*            />*/}
-                    {/*            보고서*/}
-                    {/*        </span>*/}
-                    {/*    }*/}
-                    {/*    key="4"*/}
-                    {/*/>*/}
-                </Tabs>
+                />
 
-                {/* 콘텐츠 영역 */}
                 <div
                     className="flex-grow overflow-hidden p-4"
                     style={{
                         transition: "background-color 0.3s ease",
                     }}
                 >
-                    {renderContent()}
                 </div>
             </div>
         </Layout>
