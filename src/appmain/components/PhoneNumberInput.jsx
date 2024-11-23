@@ -3,12 +3,23 @@ import { Form, Input } from "antd";
 
 const PhoneNumberInput = ({phoneNumber, setPhoneNumber}) => {
     const formatShipperNumber = (value) => {
-        // 숫자만 추출
         const numericValue = value.replace(/\D/g, "");
-        // 핸드폰 번호 형식 적용
-        if (numericValue.length <= 3) return numericValue;
-        if (numericValue.length <= 7)
+
+        if (numericValue.length <= 2) return numericValue;
+        if (numericValue.length <= 4) return `${numericValue.slice(0, 2)}-${numericValue.slice(2)}`;
+        if (numericValue.length <= 7) {
+
+            if (numericValue.startsWith("02")) {
+                return `${numericValue.slice(0, 2)}-${numericValue.slice(2)}`;
+            }
             return `${numericValue.slice(0, 3)}-${numericValue.slice(3)}`;
+        }
+        if (numericValue.length <= 10) {
+            if (numericValue.startsWith("02")) {
+                return `${numericValue.slice(0, 2)}-${numericValue.slice(2, 6)}-${numericValue.slice(6)}`;
+            }
+            return `${numericValue.slice(0, 3)}-${numericValue.slice(3, 6)}-${numericValue.slice(6)}`;
+        }
         return `${numericValue.slice(0, 3)}-${numericValue.slice(3, 7)}-${numericValue.slice(7, 11)}`;
     };
 
