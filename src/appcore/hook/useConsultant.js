@@ -43,16 +43,30 @@ export const useRoadDistance = (location) => {
 };
 
 // 배차 금액 조회
-export const useCalcConsultant = () => {
-    return useMutation({
-        mutationFn: (consultantDataForm) => getCalcConsultant(consultantDataForm),
-        retry: false,
-        onError: (error) => {
-            const errorMessage = error.errorMessage || "알 수 없는 오류가 발생했습니다.";
-            alert(`API 요청 오류: ${errorMessage}`);
-        },
-    });
-}
+// export const useCalcConsultant = () => {
+//     return useMutation({
+//         mutationFn: (consultantDataForm) => getCalcConsultant(consultantDataForm),
+//         retry: false,
+//         onError: (error) => {
+//             const errorMessage = error.errorMessage || "알 수 없는 오류가 발생했습니다.";
+//             alert(`API 요청 오류: ${errorMessage}`);
+//         },
+//     });
+// }
+
+export const useCalcConsultant = (consultantDataForm, enabled) => {
+    return useQuery({
+            queryKey: ['calcConsultant', consultantDataForm],
+            queryFn: ({queryKey}) => getCalcConsultant(queryKey[1]),
+            enabled,
+            retry: false,
+            onError: (error) => {
+                const errorMessage = error.errorMessage || "알 수 없는 오류가 발생했습니다.";
+                alert(`API 요청 오류: ${errorMessage}`);
+            },
+        }
+    );
+};
 
 // 특수일(손 없는날) 조회
 export const useSpecialDay = () => {

@@ -1,5 +1,18 @@
 import React, {useEffect, useState} from "react";
-import {Button, Card, Checkbox, Form, Input, InputNumber, message, Modal, notification, Select, TimePicker} from "antd";
+import {
+    Button,
+    Card,
+    Checkbox,
+    Form,
+    Input,
+    InputNumber,
+    message,
+    Modal,
+    notification,
+    Select,
+    Spin,
+    TimePicker
+} from "antd";
 import dayjs from "dayjs";
 import {useAddressSearch, useCalcConsultant, useRoadDistance} from "@hook/useConsultant";
 import AddressInput from "@/component/AddressInput";
@@ -14,7 +27,16 @@ import {addReservation} from "@/features/reservation/reservationSlice";
 
 const {Option} = Select;
 
-const MoveInfo = ({consultantData, items, setItems, reservationData, isNewMoveInfo, setIsNewMoveInfo, setDispatchAmount, onReady}) => {
+const MoveInfo = ({
+                      consultantData,
+                      items,
+                      setItems,
+                      reservationData,
+                      isNewMoveInfo,
+                      setIsNewMoveInfo,
+                      setDispatchAmount,
+                      onReady
+                  }) => {
     const dispatch = useDispatch();
 
     const [moveType, setMoveType] = useState(null);
@@ -81,8 +103,17 @@ const MoveInfo = ({consultantData, items, setItems, reservationData, isNewMoveIn
     const [calcConsultantData, setCalcConsultantData] = useState(null);
     const [dateCheckList, setDateCheckList] = useState([]);
 
-    const {mutate: consultantMutate} = useCalcConsultant();
-    const {data: roadDistanceData} = useRoadDistance(locationInfo);
+
+    const [consultantDataForm, setConsultantDataForm] = useState(null);
+    const [isFormValid, setIsFormValid] = useState(false);
+
+    const {data: dispatchAmount, isLoading} = useCalcConsultant(
+        consultantDataForm,
+        isFormValid
+    );
+
+    // const {mutate: consultantMutate} = useCalcConsultant();
+    const {isLoading: isDistanceData, data: roadDistanceData} = useRoadDistance(locationInfo);
 
     const [specialItems, setSpecialItems] = useState('');
     const [customerName, setCustomerName] = useState('');
@@ -104,7 +135,7 @@ const MoveInfo = ({consultantData, items, setItems, reservationData, isNewMoveIn
         ) {
             setDistance(0);
         }
-    }, [locationInfo, ]);
+    }, [locationInfo,]);
 
     useEffect(() => {
 
@@ -264,13 +295,13 @@ const MoveInfo = ({consultantData, items, setItems, reservationData, isNewMoveIn
         }
 
         if (emptyFields.length > 0) {
-            notification.error({
-                message: "필수 입력 항목 누락",
-                description: `다음 필드를 입력해주세요: ${emptyFields.join(", ")}`,
-                placement: "top",
-                style: {width: "700px", margin: "0 auto"},
-                duration: 5,
-            });
+            // notification.error({
+            //     message: "필수 입력 항목 누락",
+            //     description: `다음 필드를 입력해주세요: ${emptyFields.join(", ")}`,
+            //     placement: "top",
+            //     style: {width: "700px", margin: "0 auto"},
+            //     duration: 5,
+            // });
             return false;
         }
         return true;
@@ -296,15 +327,15 @@ const MoveInfo = ({consultantData, items, setItems, reservationData, isNewMoveIn
         setUnloadCustomer([]);
 
         setLocationInfo({startX: null, startY: null, endX: null, endY: null});
-        
+
         setMoveType(null);
         setRequestDate(dayjs(new Date()));
         setRequestTime(dayjs('08:00', 'HH:mm'));
         setIsTogether(false);
-        
+
         setVehicleType({key: 1, value: '카고'});
         setVehicleTonnage(1);
-        
+
         setHelpers([
             {helperType: 'TRANSPORT', peopleCount: 0},
             {helperType: 'PACKING_CLEANING', peopleCount: 0}
@@ -367,7 +398,6 @@ const MoveInfo = ({consultantData, items, setItems, reservationData, isNewMoveIn
 
     useEffect(() => {
         if (reservationData) {
-            console.log(reservationData.unloadLocation);
             setDistance(reservationData.distance);
 
             setLoadLocation(reservationData.loadLocation);
@@ -407,71 +437,161 @@ const MoveInfo = ({consultantData, items, setItems, reservationData, isNewMoveIn
     }, [reservationData]);
 
     useEffect(() => {
-        if(isNewMoveInfo) {
+        if (isNewMoveInfo) {
             resetState();
             setIsNewMoveInfo(false);
         }
     }, [isNewMoveInfo]);
 
 
-    const fetchConsultant = () => {
-        if (!checkRequiredFields()) {
-            setIsCollapsed(true);
-            return;
-        }
+    // const fetchConsultant = () => {
+    //     if (!checkRequiredFields()) {
+    //         setIsCollapsed(true);
+    //         return;
+    //     }
+    //
+    //     const consultantDataForm = {
+    //         loadLocationName: loadLocation,
+    //         loadCityCode: loadCityCode.substring(0, 6),
+    //         loadSubCityCode: loadCityCode.substring(6),
+    //         loadMethodId: loadMethod?.key,
+    //         loadMethodName: loadMethod?.value,
+    //         loadFloorNumber: loadFloor,
+    //         loadHelperPeople: loadCustomer,
+    //         unloadLocationName: unloadLocation,
+    //         unloadCityCode: unloadCityCode.substring(0, 6),
+    //         unloadSubCityCode: unloadCityCode.substring(6),
+    //         unloadMethodId: unloadMethod?.key,
+    //         unloadMethodName: unloadMethod?.value,
+    //         unloadFloorNumber: unloadFloor,
+    //         unloadHelperPeople: unloadCustomer,
+    //         moveTypeId: moveType.key,
+    //         moveTypeName: moveType.value,
+    //         vehicleId: vehicleType.key,
+    //         vehicleName: vehicleType.value,
+    //         distance,
+    //         requestDate: requestDate.format('YYYY-MM-DD') || null,
+    //         requestTime: requestTime.format('HH:mm') || null,
+    //         items,
+    //         totalItemCbm,
+    //         employHelperPeople: helpers
+    //     }
+    //
+    //     if (moveType.value !== '포장이사') {
+    //         const packingCleaningHelper = helpers.find(helper => helper.helperType === 'PACKING_CLEANING');
+    //
+    //         const peopleCount = packingCleaningHelper ? packingCleaningHelper.peopleCount : 0;
+    //         if (peopleCount > 0) {
+    //             message.warning("이사종류: 포장이사가 아닌경우 추가 이모 설정은 무시 후 계산됩니다.");
+    //         }
+    //     }
+    //
+    //     if (moveType.value === '단순운송') {
+    //         const transportHelper = helpers.find(helper => helper.helperType === 'TRANSPORT');
+    //         const packingCleaningHelper = helpers.find(helper => helper.helperType === 'PACKING_CLEANING');
+    //         const totalPeople = transportHelper?.peopleCount ?? 0 + packingCleaningHelper?.peopleCount ?? 0;
+    //
+    //         if (totalPeople > 0) {
+    //             message.warning("이사종류: 단순운송인 경우 추가 인부, 추가 이모 설정은 무시 후 계산됩니다.");
+    //         }
+    //     }
+    //
+    //     consultantMutate(consultantDataForm, {
+    //         onSuccess: (data) => {
+    //             setDispatchAmount(data);
+    //         }
+    //     });
+    // };
 
-        const consultantDataForm = {
-            loadLocationName: loadLocation,
-            loadCityCode: loadCityCode.substring(0, 6),
-            loadSubCityCode: loadCityCode.substring(6),
-            loadMethodId: loadMethod?.key,
-            loadMethodName: loadMethod?.value,
-            loadFloorNumber: loadFloor,
-            loadHelperPeople: loadCustomer,
-            unloadLocationName: unloadLocation,
-            unloadCityCode: unloadCityCode.substring(0, 6),
-            unloadSubCityCode: unloadCityCode.substring(6),
-            unloadMethodId: unloadMethod?.key,
-            unloadMethodName: unloadMethod?.value,
-            unloadFloorNumber: unloadFloor,
-            unloadHelperPeople: unloadCustomer,
-            moveTypeId: moveType.key,
-            moveTypeName: moveType.value,
-            vehicleId: vehicleType.key,
-            vehicleName: vehicleType.value,
-            distance,
-            requestDate: requestDate.format('YYYY-MM-DD') || null,
-            requestTime: requestTime.format('HH:mm') || null,
-            items,
-            totalItemCbm,
-            employHelperPeople: helpers
-        }
+    useEffect(() => {
+        if (checkRequiredFields()) {
+            const formData = {
+                loadLocationName: loadLocation,
+                loadCityCode: loadCityCode.substring(0, 6),
+                loadSubCityCode: loadCityCode.substring(6),
+                loadMethodId: loadMethod?.key,
+                loadMethodName: loadMethod?.value,
+                loadFloorNumber: loadFloor,
+                loadHelperPeople: loadCustomer,
+                unloadLocationName: unloadLocation,
+                unloadCityCode: unloadCityCode.substring(0, 6),
+                unloadSubCityCode: unloadCityCode.substring(6),
+                unloadMethodId: unloadMethod?.key,
+                unloadMethodName: unloadMethod?.value,
+                unloadFloorNumber: unloadFloor,
+                unloadHelperPeople: unloadCustomer,
+                moveTypeId: moveType.key,
+                moveTypeName: moveType.value,
+                vehicleId: vehicleType.key,
+                vehicleName: vehicleType.value,
+                distance,
+                requestDate: requestDate.format("YYYY-MM-DD") || null,
+                requestTime: requestTime.format("HH:mm") || null,
+                items,
+                totalItemCbm,
+                employHelperPeople: helpers,
+            };
 
-        if (moveType.value !== '포장이사') {
-            const packingCleaningHelper = helpers.find(helper => helper.helperType === 'PACKING_CLEANING');
+            const packingCleaningKey = "packing-cleaning-warning";
+            const transportKey = "transport-warning";
 
-            const peopleCount = packingCleaningHelper ? packingCleaningHelper.peopleCount : 0;
-            if (peopleCount > 0) {
-                message.warning("이사종류: 포장이사가 아닌경우 추가 이모 설정은 무시 후 계산됩니다.");
+            if (moveType.value !== '포장이사') {
+                const packingCleaningHelper = helpers.find(helper => helper.helperType === 'PACKING_CLEANING');
+                const peopleCount = packingCleaningHelper ? packingCleaningHelper.peopleCount : 0;
+
+                if (peopleCount > 0) {
+                    message.warning({
+                        content: "이사종류: 포장이사가 아닌경우 추가 이모 설정은 무시 후 계산됩니다.",
+                        key: packingCleaningKey,
+                        duration: 3,
+                    });
+                } else {
+                    message.destroy(packingCleaningKey);
+                }
             }
-        }
 
-        if (moveType.value === '단순운송') {
-            const transportHelper = helpers.find(helper => helper.helperType === 'TRANSPORT');
-            const packingCleaningHelper = helpers.find(helper => helper.helperType === 'PACKING_CLEANING');
-            const totalPeople = transportHelper?.peopleCount ?? 0 + packingCleaningHelper?.peopleCount ?? 0;
+            if (moveType.value === '단순운송') {
+                const transportHelper = helpers.find(helper => helper.helperType === 'TRANSPORT');
+                const packingCleaningHelper = helpers.find(helper => helper.helperType === 'PACKING_CLEANING');
+                const totalPeople = transportHelper?.peopleCount ?? 0 + packingCleaningHelper?.peopleCount ?? 0;
 
-            if (totalPeople > 0) {
-                message.warning("이사종류: 단순운송인 경우 추가 인부, 추가 이모 설정은 무시 후 계산됩니다.");
+                if (totalPeople > 0) {
+                    message.warning({
+                        content: "이사종류: 단순운송인 경우 추가 인부, 추가 이모 설정은 무시 후 계산됩니다.",
+                        key: transportKey,
+                        duration: 3,
+                    });
+                } else {
+                    message.destroy(transportKey);
+                }
             }
-        }
 
-        consultantMutate(consultantDataForm, {
-            onSuccess: (data) => {
-                setDispatchAmount(data);
-            }
-        });
-    };
+            setConsultantDataForm(formData);
+            setIsFormValid(true);
+        } else {
+            setIsFormValid(false);
+        }
+    }, [
+        loadLocation,
+        loadCityCode,
+        loadMethod,
+        loadFloor,
+        unloadLocation,
+        unloadCityCode,
+        moveType,
+        vehicleType,
+        distance,
+        requestDate,
+        requestTime,
+        items,
+        helpers,
+    ]);
+
+    useEffect(() => {
+        if (dispatchAmount) {
+            setDispatchAmount(dispatchAmount);
+        }
+    }, [dispatchAmount]);
 
     return (
         <Card title="이사 정보" className="shadow-md rounded-md">
@@ -505,6 +625,7 @@ const MoveInfo = ({consultantData, items, setItems, reservationData, isNewMoveIn
                             value={`${distance} Km`}
                             disabled
                             className="flex-1 border border-gray-300 rounded-lg text-right"
+                            suffix={isDistanceData ? <Spin size="small"/> : null}
                         />
                     </div>
                 </div>
@@ -791,12 +912,12 @@ const MoveInfo = ({consultantData, items, setItems, reservationData, isNewMoveIn
                     </Button>
                 </div>
 
-                <div>
-                    <Button onClick={fetchConsultant}
-                            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                        배차 금액 조회
-                    </Button>
-                </div>
+                {/*<div>*/}
+                {/*<Button onClick={fetchConsultant}*/}
+                {/*        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">*/}
+                {/*    배차 금액 조회*/}
+                {/*</Button>*/}
+                {/*</div>*/}
             </div>
         </Card>
     );
