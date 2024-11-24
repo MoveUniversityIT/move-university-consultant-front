@@ -14,6 +14,7 @@ const Consultant = () => {
     const [reservationData, setReservationData] = useState(null);
     const [isNewMoveInfo, setIsNewMoveInfo] = useState(false);
     const [dispatchAmount, setDispatchAmount] = useState(null);
+    const [isDispatchAmount, setIsDispatchAmount] = useState(false);
 
     const dispatch = useDispatch();
 
@@ -80,9 +81,10 @@ const Consultant = () => {
                     isNewMoveInfo={isNewMoveInfo}
                     setIsNewMoveInfo={setIsNewMoveInfo}
                     setDispatchAmount={setDispatchAmount}
+                    setIsDispatchAmount={setIsDispatchAmount}
                     onReady={() => setIsMoveInfoLoading(false)}
                 />
-                <DispatchCost items={items} setItems={setItems} dispatchAmount={dispatchAmount} />
+                <DispatchCost items={items} setItems={setItems} dispatchAmount={dispatchAmount} isDispatchAmount={isDispatchAmount} />
                 <AdditionalFunctions consultantData={consultant} />
             </div>
         </Layout>

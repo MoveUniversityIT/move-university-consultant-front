@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Card, Checkbox, Descriptions, Divider, Form, List, Slider} from "antd";
+import {Card, Checkbox, Descriptions, Divider, Form, List, Slider, Spin} from "antd";
 
 const totalLabels = {
     totalCalcPrice: "총 배차 금액",
@@ -102,7 +102,7 @@ const unitLabel = {
 // }
 
 
-const DispatchCost = ({items, setItems, dispatchAmount}) => {
+const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount}) => {
     const [calcData, setCalcData] = useState({});
     const [estimate, setEstimate] = useState({
         deposit: dispatchAmount?.estimatePrice?.deposit || 0,
@@ -258,16 +258,23 @@ const DispatchCost = ({items, setItems, dispatchAmount}) => {
     return (
         <div className="flex flex-col h-full">
             <Card title="배차 금액" className="shadow-md rounded-md flex-1">
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                    {Object.entries(calcData).map(([key, value]) => (
-                        <div key={key} className="flex justify-between items-center border p-2 rounded-md">
-                            <span className="font-bold text-gray-600">{dataLabel[key]}:</span>
-                            <span className="text-gray-800">
-                            {value}
-                                {unitLabel[key] ? unitLabel[key] : ""}
-                        </span>
+                <div className="relative">
+                    {isDispatchAmount && (
+                        <div className="absolute inset-0 flex justify-center items-center bg-white bg-opacity-75 z-10">
+                            <Spin size="large"/>
                         </div>
-                    ))}
+                    )}
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                        {Object.entries(calcData).map(([key, value]) => (
+                            <div key={key} className="flex justify-between items-center border p-2 rounded-md">
+                                <span className="font-bold text-gray-600">{dataLabel[key]}:</span>
+                                <span className="text-gray-800">
+                        {value}
+                                    {unitLabel[key] ? unitLabel[key] : ""}
+                    </span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
                 <Divider>물품 목록 & 옵션 설정</Divider>

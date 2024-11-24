@@ -35,6 +35,7 @@ const MoveInfo = ({
                       isNewMoveInfo,
                       setIsNewMoveInfo,
                       setDispatchAmount,
+                      setIsDispatchAmount,
                       onReady
                   }) => {
     const dispatch = useDispatch();
@@ -107,7 +108,7 @@ const MoveInfo = ({
     const [consultantDataForm, setConsultantDataForm] = useState(null);
     const [isFormValid, setIsFormValid] = useState(false);
 
-    const {data: dispatchAmount, isLoading} = useCalcConsultant(
+    const {data: dispatchAmount, isLoading: isDispatchAmount} = useCalcConsultant(
         consultantDataForm,
         isFormValid
     );
@@ -588,10 +589,11 @@ const MoveInfo = ({
     ]);
 
     useEffect(() => {
+        setIsDispatchAmount(isDispatchAmount);
         if (dispatchAmount) {
             setDispatchAmount(dispatchAmount);
         }
-    }, [dispatchAmount]);
+    }, [isDispatchAmount, dispatchAmount]);
 
     return (
         <Card title="이사 정보" className="shadow-md rounded-md">
