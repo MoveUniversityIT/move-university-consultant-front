@@ -1,7 +1,12 @@
 import React from "react";
 import { Card, List, Button, Modal } from "antd";
+import {useDispatch, useSelector} from "react-redux";
+import {deleteReservation} from "@/features/reservation/reservationSlice";
 
-const Reservation = ({ reservations, onDelete, onLoad, onNew }) => {
+const Reservation = ({ onLoad, onNew }) => {
+    const dispatch = useDispatch();
+    const reservations = useSelector((state) => state.reservation.reservations);
+
     const confirmAction = (title, content, onConfirm) => {
         Modal.confirm({
             title,
@@ -56,7 +61,7 @@ const Reservation = ({ reservations, onDelete, onLoad, onNew }) => {
                                     confirmAction(
                                         "삭제 확인",
                                         "정말로 이 데이터를 삭제하시겠습니까?",
-                                        () => onDelete(index)
+                                        () => dispatch(deleteReservation(index))
                                     )
                                 }
                             >

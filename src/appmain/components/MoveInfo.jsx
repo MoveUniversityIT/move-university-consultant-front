@@ -9,10 +9,14 @@ import koKR from "antd/es/date-picker/locale/ko_KR";
 import ItemSearch from "@component/ItemSearch";
 import _ from "lodash";
 import PhoneNumberInput from "@component/PhoneNumberInput";
+import {useDispatch} from "react-redux";
+import {addReservation} from "@/features/reservation/reservationSlice";
 
 const {Option} = Select;
 
-const MoveInfo = ({consultantData, items, setItems, addReservation, initialData, setDispatchAmount, onReady}) => {
+const MoveInfo = ({consultantData, items, setItems, reservationData, isNewMoveInfo, setIsNewMoveInfo, setDispatchAmount, onReady}) => {
+    const dispatch = useDispatch();
+
     const [moveType, setMoveType] = useState(null);
     const [vehicleType, setVehicleType] = useState({key: 1, value: '카고'});
     const [vehicleTonnage, setVehicleTonnage] = useState(1);
@@ -278,7 +282,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
         setLoadLocation('');
         setLoadCityCode(null);
         setLoadMethod({key: 1, value: '엘레베이터'});
-        setLoadFloor(null);
+        setLoadFloor(1);
         setLoadArea(1);
         setLoadHouseholdMembers(0);
         setLoadCustomer([]);
@@ -286,7 +290,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
         setUnloadLocation('');
         setUnloadCityCode(null);
         setUnloadMethod({key: 1, value: '엘레베이터'});
-        setUnloadFloor(0);
+        setUnloadFloor(1);
         setUnloadArea(1);
         setUnloadHouseholdMembers(0);
         setUnloadCustomer([]);
@@ -357,51 +361,57 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
             searchTerm
         };
 
-        addReservation(reservationData);
+        dispatch(addReservation(reservationData));
         resetState();
     };
 
     useEffect(() => {
-        if (initialData) {
-            setDistance(initialData.distance);
+        if (reservationData) {
+            console.log(reservationData.unloadLocation);
+            setDistance(reservationData.distance);
 
-            setLoadLocation(initialData.loadLocation);
-            setLoadCityCode(initialData.loadCityCode);
-            setLoadMethod(initialData.loadMethod);
-            setLoadFloor(initialData.loadFloor);
-            setLoadArea(initialData.loadArea);
-            setLoadHouseholdMembers(initialData.loadHouseholdMembers);
-            setLoadCustomer(initialData.loadCustomer);
+            setLoadLocation(reservationData.loadLocation);
+            setLoadCityCode(reservationData.loadCityCode);
+            setLoadMethod(reservationData.loadMethod);
+            setLoadFloor(reservationData.loadFloor);
+            setLoadArea(reservationData.loadArea);
+            setLoadHouseholdMembers(reservationData.loadHouseholdMembers);
+            setLoadCustomer(reservationData.loadCustomer);
 
-            setUnloadLocation(initialData.unloadLocation);
-            setUnloadCityCode(initialData.unloadCityCode);
-            setUnloadMethod(initialData.unloadMethod);
-            setUnloadFloor(initialData.unloadFloor);
-            setUnloadArea(initialData.unloadArea);
-            setUnloadHouseholdMembers(initialData.unloadHouseholdMembers);
-            setUnloadCustomer(initialData.unloadCustomer);
+            setUnloadLocation(reservationData.unloadLocation);
+            setUnloadCityCode(reservationData.unloadCityCode);
+            setUnloadMethod(reservationData.unloadMethod);
+            setUnloadFloor(reservationData.unloadFloor);
+            setUnloadArea(reservationData.unloadArea);
+            setUnloadHouseholdMembers(reservationData.unloadHouseholdMembers);
+            setUnloadCustomer(reservationData.unloadCustomer);
 
-            setMoveType(initialData.moveType);
-            setRequestDate(dayjs(initialData.requestDate));
-            setRequestTime(dayjs(initialData.requestTime, "HH:mm"));
-            setIsTogether(initialData.isTogether);
+            setMoveType(reservationData.moveType);
+            setRequestDate(dayjs(reservationData.requestDate));
+            setRequestTime(dayjs(reservationData.requestTime, "HH:mm"));
+            setIsTogether(reservationData.isTogether);
 
-            setVehicleType(initialData.vehicleType);
-            setVehicleTonnage(initialData.vehicleTonnage);
+            setVehicleType(reservationData.vehicleType);
+            setVehicleTonnage(reservationData.vehicleTonnage);
 
-            setHelpers(initialData.helpers);
-            setItems(initialData.items);
-            setSpecialItems(initialData.specialItems);
-            setCustomerName(initialData.customerName);
-            setCustomerPhoneNumber(initialData.customerPhoneNumber);
-            setPaymentMethod(initialData.paymentMethod);
-            setMemo(initialData.memo);
+            setHelpers(reservationData.helpers);
+            setItems(reservationData.items);
+            setSpecialItems(reservationData.specialItems);
+            setCustomerName(reservationData.customerName);
+            setCustomerPhoneNumber(reservationData.customerPhoneNumber);
+            setPaymentMethod(reservationData.paymentMethod);
+            setMemo(reservationData.memo);
 
-            setSearchTerm(initialData.searchTerm);
-        } else {
-            resetState();
+            setSearchTerm(reservationData.searchTerm);
         }
-    }, [initialData]);
+    }, [reservationData]);
+
+    useEffect(() => {
+        if(isNewMoveInfo) {
+            resetState();
+            setIsNewMoveInfo(false);
+        }
+    }, [isNewMoveInfo]);
 
 
     const fetchConsultant = () => {
@@ -472,7 +482,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                         <Select
                             placeholder="예: 담당자"
                             className="min-w-32 border border-gray-300 rounded-lg"
-                            defaultValue={consultantData?.userName}
+                            value={consultantData?.userName}
                         >
                             <Option value={consultantData?.userName}>{consultantData?.userName}</Option>
                         </Select>
@@ -578,9 +588,9 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                             onChange={handleMoveTypeChange}
                         >
                             {consultantData.moveTypes.map((moveType) => (
-                                <Select.Option key={moveType.moveTypeId} value={moveType.moveTypeName}>
+                                <Option key={moveType.moveTypeId} value={moveType.moveTypeName}>
                                     {moveType.moveTypeName}
-                                </Select.Option>
+                                </Option>
                             ))}
                         </Select>
                     </Form.Item>
@@ -643,7 +653,7 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                     <Select
                         placeholder="예: 톤수"
                         className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        defaultValue={vehicleTonnage}
+                        value={vehicleTonnage}
                         listHeight={128}
                         onChange={(value) => setVehicleTonnage(value)}
                     >
@@ -723,12 +733,12 @@ const MoveInfo = ({consultantData, items, setItems, addReservation, initialData,
                     <Select
                         placeholder="예: 카드"
                         className="w-full"
-                        defaultValue={paymentMethod}
+                        value={paymentMethod}
                         onChange={(data) => setPaymentMethod(data)}
                     >
-                        <Select.Option value="테스트">
+                        <Option value="테스트">
                             테스트
-                        </Select.Option>
+                        </Option>
                     </Select>
                 </Form.Item>
             </div>

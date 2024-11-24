@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Form, Input } from "antd";
+import React from "react";
+import {Form, Input} from "antd";
 
 const PhoneNumberInput = ({phoneNumber, setPhoneNumber}) => {
     const formatShipperNumber = (value) => {
@@ -36,7 +36,7 @@ const PhoneNumberInput = ({phoneNumber, setPhoneNumber}) => {
                 placeholder="예: 010-1234-1234"
                 value={phoneNumber}
                 onChange={handleChange}
-                maxLength={13} // 최대 길이 제한
+                maxLength={13}
             />
         </Form.Item>
     );

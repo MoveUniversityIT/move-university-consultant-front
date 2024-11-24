@@ -35,6 +35,10 @@ const CustomDatePicker = ({dateCheckList, requestDate, handleDateChange}) => {
     };
 
     useEffect(() => {
+        handleDateChange(isNoHandsDay(requestDate))(requestDate);
+    }, [requestDate]);
+
+    useEffect(() => {
         const currentYear = dayjs().format("YYYY");
         fetchNoHandsDaysForYear(currentYear);
     }, []);

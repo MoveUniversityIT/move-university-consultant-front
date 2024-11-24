@@ -2,6 +2,7 @@ import {combineReducers, configureStore} from "@reduxjs/toolkit";
 import {persistReducer} from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import login from "@/features/user/loginSlice";
+import reservation from "@/features/reservation/reservationSlice";
 
 const persistConfig = {
     key: "root",
@@ -11,6 +12,7 @@ const persistConfig = {
 
 const reducers = combineReducers({
     login,
+    reservation
 })
 
 const persistedReducer = persistReducer(persistConfig, reducers);
