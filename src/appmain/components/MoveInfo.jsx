@@ -609,6 +609,7 @@ const MoveInfo = ({
         unloadLocation,
         unloadCityCode,
         unloadMethod,
+        unloadFloor,
         moveType,
         vehicleType,
         distance,
