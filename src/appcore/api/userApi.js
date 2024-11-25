@@ -9,3 +9,9 @@ export const postLogin = async (loginForm) => {
 export const getCheckEmail = async (email) => {
     return await API.get(`/user/check-email?email=${email}`)
 }
+
+export const postRegisterUser = async (registerForm) => {
+    const response = await API.post('/user/register', registerForm)
+
+    return response?.data;
+}

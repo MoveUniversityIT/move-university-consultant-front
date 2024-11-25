@@ -1,39 +1,64 @@
 import React, {useEffect, useState} from 'react';
-import { Button, Form, Input, Spin } from 'antd';
+import {Button, Form, Input, message, Spin} from 'antd';
 import { CalculatorOutlined, LockOutlined, UserOutlined, CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import {useCheckEmail} from "@hook/useUser";
+import {useCheckEmail, useRegisterUser} from "@hook/useUser";
 
 const RegisterForm = () => {
     const [form] = Form.useForm();
     const navigate = useNavigate();
     const [isDuplicate, setIsDuplicate] = useState(null);
     const [isValidEmail, setIsValidEmail] = useState(false);
-    const {data: isCheckEmail, isLoading: isEmailLoading, error: isCheckEmailError} = useCheckEmail(form.getFieldValue('email'), isValidEmail);
+    const email = Form.useWatch('email', form);
 
-    const formatPhoneNumber = (value) => {
-        const numericValue = value.replace(/\D/g, "");
+    const {data: isCheckEmail, isLoading: isEmailLoading, error: isCheckEmailError} = useCheckEmail(
+        email, isValidEmail
+    );
+    const { mutate: registerMutation } = useRegisterUser();
 
-        if (numericValue.length <= 2) return numericValue;
-        if (numericValue.length <= 4) return `${numericValue.slice(0, 2)}-${numericValue.slice(2)}`;
-        if (numericValue.length <= 7) {
-            if (numericValue.startsWith("02")) {
-                return `${numericValue.slice(0, 2)}-${numericValue.slice(2)}`;
-            }
-            return `${numericValue.slice(0, 3)}-${numericValue.slice(3)}`;
-        }
-        if (numericValue.length <= 10) {
-            if (numericValue.startsWith("02")) {
-                return `${numericValue.slice(0, 2)}-${numericValue.slice(2, 6)}-${numericValue.slice(6)}`;
-            }
-            return `${numericValue.slice(0, 3)}-${numericValue.slice(3, 6)}-${numericValue.slice(6)}`;
-        }
-        return `${numericValue.slice(0, 3)}-${numericValue.slice(3, 7)}-${numericValue.slice(7, 11)}`;
-    };
+    // const formatPhoneNumber = (value) => {
+    //     const numericValue = value.replace(/\D/g, "");
+    //
+    //     if (numericValue.length <= 2) return numericValue;
+    //     if (numericValue.length <= 4) return `${numericValue.slice(0, 2)}-${numericValue.slice(2)}`;
+    //     if (numericValue.length <= 7) {
+    //         if (numericValue.startsWith("02")) {
+    //             return `${numericValue.slice(0, 2)}-${numericValue.slice(2)}`;
+    //         }
+    //         return `${numericValue.slice(0, 3)}-${numericValue.slice(3)}`;
+    //     }
+    //     if (numericValue.length <= 10) {
+    //         if (numericValue.startsWith("02")) {
+    //             return `${numericValue.slice(0, 2)}-${numericValue.slice(2, 6)}-${numericValue.slice(6)}`;
+    //         }
+    //         return `${numericValue.slice(0, 3)}-${numericValue.slice(3, 6)}-${numericValue.slice(6)}`;
+    //     }
+    //     return `${numericValue.slice(0, 3)}-${numericValue.slice(3, 7)}-${numericValue.slice(7, 11)}`;
+    // };
 
     const handlePhoneNumberChange = (e) => {
         const formattedValue = formatPhoneNumber(e.target.value);
         form.setFieldValue('phoneNumber', formattedValue);
+    };
+
+    const formatPhoneNumber = (value) => {
+        const numericValue = value.replace(/\D/g, ""); // 숫자만 추출
+
+        // 길이에 따라 번호를 형식화
+        if (numericValue.length < 10) return numericValue; // 유효한 길이가 아니면 그대로 반환
+        if (numericValue.length === 10) {
+            return `${numericValue.slice(0, 3)}-${numericValue.slice(3, 6)}-${numericValue.slice(6)}`;
+        }
+        if (numericValue.length === 11) {
+            return `${numericValue.slice(0, 3)}-${numericValue.slice(3, 7)}-${numericValue.slice(7)}`;
+        }
+
+        return numericValue; // 기본 반환
+    };
+
+    const validatePhoneNumber = (value) => {
+        const phoneRegex = /^01([0|1|6|7|8|9])-([0-9]{3,4})-([0-9]{4})$/; // 정규식 검증
+        return phoneRegex.test(value);
     };
 
     const handleEmailChange = async (e) => {
@@ -48,10 +73,24 @@ const RegisterForm = () => {
         navigate('/login');
     };
 
-    const handleSubmit = (values) => {
-        console.log('Submitted:', values);
-        console.log(form.getFieldValue('email'))
-        console.log(isValidEmail)
+    const handleSubmit = (registerForm) => {
+        registerMutation(registerForm, {
+            onSuccess: (data) => {
+                const successMessage = data?.data?.message
+                    ? data?.data?.message
+                    : "정상적으로 생성되었습니다.";
+
+                navigate('/login');
+                message.success(successMessage);
+            },
+            onError: (error) => {
+                const validationMessages = error?.validation
+                    ? Object.values(error.validation).join("\n")
+                    : "처리 중 오류가 발생했습니다.";
+
+                message.error(validationMessages);
+            },
+        })
     };
 
     useEffect(() => {

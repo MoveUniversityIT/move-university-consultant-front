@@ -1,5 +1,5 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
-import {getCheckEmail, postLogin} from "@api/userApi";
+import {getCheckEmail, postLogin, postRegisterUser} from "@api/userApi";
 import {toggleAccessToken, toggleLoginState, toggleRefreshToken, toggleRoles} from "@/features/user/loginSlice";
 import RootStore from "@/appcore/rootStore";
 import {message} from "antd";
@@ -30,3 +30,9 @@ export const useCheckEmail = (email, enabled) => {
     })
 }
 
+export const useRegisterUser = () => {
+    return useMutation({
+        mutationFn:(registerForm) => postRegisterUser(registerForm),
+        retry: false,
+    })
+}

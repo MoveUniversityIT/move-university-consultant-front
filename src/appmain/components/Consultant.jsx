@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {Layout, Spin} from "antd";
 import Reservation from "@component/Reservation";
 import MoveInfo from "@component/MoveInfo";
