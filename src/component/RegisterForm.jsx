@@ -53,11 +53,11 @@ const RegisterForm = () => {
             return `${numericValue.slice(0, 3)}-${numericValue.slice(3, 7)}-${numericValue.slice(7)}`;
         }
 
-        return numericValue; // 기본 반환
+        return numericValue;
     };
 
     const validatePhoneNumber = (value) => {
-        const phoneRegex = /^01([0|1|6|7|8|9])-([0-9]{3,4})-([0-9]{4})$/; // 정규식 검증
+        const phoneRegex = /^01([0|1|6|7|8|9])-([0-9]{3,4})-([0-9]{4})$/;
         return phoneRegex.test(value);
     };
 

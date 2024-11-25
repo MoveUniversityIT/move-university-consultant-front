@@ -32,23 +32,24 @@ const ItemSearch = ({
         const currentItem = value.slice(start, end).trim();
 
         const generateNameVariations = (name) => {
-            const baseName = name.replace(/\(([^)]*)\)/g, '').trim().toLowerCase();
+            const baseName = name.trim().toLowerCase();
             const match = name.match(/\(([^)]*)\)/);
             if (match) {
                 const parenthetical = match[1].trim().toLowerCase();
+
                 return [
                     baseName,
-                    parenthetical + baseName,
-                    baseName + parenthetical,
-                    baseName + `(${parenthetical})`,
+                    baseName.replace(/\(([^)]*)\)/g, '').trim(),
+                    parenthetical,
+                    baseName.replace(/\(([^)]*)\)/g, '').trim() + `(${parenthetical})`,
                 ];
             }
             return [baseName];
         };
 
         const similarityScore = (input, candidate) => {
-            const cleanInput = input.replace(/\s|\(|\)/g, '').toLowerCase();
-            const cleanCandidate = candidate.replace(/\s|\(|\)/g, '').toLowerCase();
+            const cleanInput = input.replace(/\s/g, '').toLowerCase();
+            const cleanCandidate = candidate.replace(/\s/g, '').toLowerCase();
 
             let score = 0;
             for (const char of cleanInput) {
@@ -73,6 +74,12 @@ const ItemSearch = ({
                         }
 
                         const variations = generateNameVariations(item.itemName);
+
+                        const hasExtraQuantity = /\d+$/.test(currentItem);
+                        if (hasExtraQuantity) {
+                            return false;
+                        }
+
                         return variations.some((variation) => {
                             const normalizedVariation = variation.toLowerCase();
 
@@ -144,7 +151,6 @@ const ItemSearch = ({
             .map((term) => term.trim())
             .filter((term) => term);
 
-        // 기존 `items` 유지
         const updatedItems = { ...items };
         const processedItemIds = new Set();
 
