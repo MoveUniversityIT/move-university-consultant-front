@@ -10,7 +10,7 @@ const CustomDatePicker = ({dateCheckList, requestDate, handleDateChange}) => {
 
     const isNoHandsDay = (date) => {
         const year = dayjs(date, 'YYYY').year();
-        const formattedDate = date.format('YYYY-MM-DD');
+        const formattedDate = date?.format('YYYY-MM-DD');
 
         return noHandsDaysByYear[year]?.some((d) => d.format('YYYY-MM-DD') === formattedDate);
     };
