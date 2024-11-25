@@ -75,11 +75,6 @@ const ItemSearch = ({
 
                         const variations = generateNameVariations(item.itemName);
 
-                        const hasExtraQuantity = /\d+$/.test(currentItem);
-                        if (hasExtraQuantity) {
-                            return false;
-                        }
-
                         return variations.some((variation) => {
                             const normalizedVariation = variation.toLowerCase();
 
