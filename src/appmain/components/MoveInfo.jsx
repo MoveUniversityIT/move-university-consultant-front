@@ -128,10 +128,6 @@ const MoveInfo = ({
     const [memo, setMemo] = useState("");
 
     useEffect(() => {
-        dispatchError
-    }, [dispatchError]);
-
-    useEffect(() => {
         if (
             locationInfo.startX &&
             locationInfo.startY &&
