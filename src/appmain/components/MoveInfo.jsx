@@ -270,7 +270,9 @@ const MoveInfo = ({
     const updateWorkerCount = (type, value) => {
         setHelpers((prevList) =>
             prevList.map((item) =>
-                item.helperType === type ? {...item, peopleCount: value} : item
+                item.helperType === type
+                    ? { ...item, peopleCount: value }
+                    : { ...item }
             )
         );
     };
@@ -593,10 +595,12 @@ const MoveInfo = ({
         loadCityCode,
         loadMethod,
         loadFloor,
+        loadCustomer,
         unloadLocation,
         unloadCityCode,
         unloadMethod,
         unloadFloor,
+        unloadCustomer,
         moveType,
         vehicleType,
         distance,
