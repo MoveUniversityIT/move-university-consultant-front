@@ -190,9 +190,8 @@ const MoveInfo = ({
     };
 
     // 상차 벙법 관련 메서드 구간
-    const handleMethodChange = (setMethod, setFloor) => (value, option) => {
+    const handleMethodChange = (setMethod) => (value, option) => {
         setMethod({key: option.key, value});
-        setFloor(1);
     };
 
     const handleFloorChange = (setFloor) => (value) => setFloor(value);
@@ -609,6 +608,7 @@ const MoveInfo = ({
         loadFloor,
         unloadLocation,
         unloadCityCode,
+        unloadMethod,
         moveType,
         vehicleType,
         distance,

@@ -17,10 +17,6 @@ const MethodAndFloorInput = ({
                                  handleMethodChange,
                                  handleFloorChange
                              }) => {
-    useEffect(() => {
-        method?.key === '4' ? setFloor(2) : setFloor(1);
-
-    }, [method]);
 
     const handleGenderChange = (gender, count) => {
         if (count > 0) {
@@ -50,7 +46,7 @@ const MethodAndFloorInput = ({
                 <Select
                     placeholder="엘리베이터"
                     value={method}
-                    onChange={handleMethodChange(setMethod, setFloor)}
+                    onChange={handleMethodChange(setMethod)}
                     className="w-full min-w-[100px]"
                 >
                     {consultant?.methods.map((method) => (
