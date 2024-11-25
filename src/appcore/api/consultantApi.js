@@ -81,9 +81,13 @@ export const getRoadDistance = async (location) => {
 
 // 배차 금액 조회
 export const getCalcConsultant = async (consultantDataForm) => {
-    const response = await API.post('/consultant/price/calculate', consultantDataForm);
-
-    return response?.data;
+    try {
+        const response = await API.post('/consultant/price/calculate', consultantDataForm);
+        return response?.data;
+    } catch (error) {
+        const errorMessage = error.errorMessage || "알 수 없는 오류가 발생했습니다.";
+        throw new Error(errorMessage);
+    }
 }
 
 // 특수일(손 없는날) 조회
@@ -125,3 +129,15 @@ export const postSpecialDate = async (specialDate) => {
     const response = await API.post('/consultant/special-day', specialDate);
     return response?.data;
 }
+
+// 이미지 조회
+export const getImage = async (imageName) => {
+    const response = await API.get(`/images/${imageName}`);
+    const base64Image = response?.data;
+
+    if (!base64Image) {
+        throw new Error("이미지를 가져오는 데 실패했습니다.");
+    }
+
+    return `data:image/jpeg;base64,${base64Image}`;
+};

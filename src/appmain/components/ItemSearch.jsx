@@ -3,7 +3,7 @@ import {Form, Input} from "antd";
 
 const ItemSearch = ({
                         searchTerm, suggestions, collapseItems, items, setItems,
-                        setSuggestions, setSearchTerm
+                        setSuggestions, setSearchTerm, tabIndex, moveType
                     }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
@@ -65,6 +65,13 @@ const ItemSearch = ({
             const filteredSuggestions = collapseItems.flatMap((category) =>
                 category.subcategories.flatMap((subcategory) =>
                     subcategory.items.filter((item) => {
+                        if (
+                            moveType?.value === '단순운송' || moveType?.value === '일반이사'  &&
+                            ['박스(필요)', '바구니(필요)'].some((exclude) => item.itemName.includes(exclude))
+                        ) {
+                            return false;
+                        }
+
                         const variations = generateNameVariations(item.itemName);
                         return variations.some((variation) => {
                             const normalizedVariation = variation.toLowerCase();
@@ -429,6 +436,7 @@ const ItemSearch = ({
                     }
                 }}
                 className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                tabIndex={tabIndex}
             />
 
             <div className="mt-1 min-h-[20px] top-full left-0 w-full text-sm pl-3">

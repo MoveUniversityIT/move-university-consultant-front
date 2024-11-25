@@ -5,3 +5,7 @@ export const postLogin = async (loginForm) => {
 
     return response?.data;
 }
+
+export const getCheckEmail = async (email) => {
+    return await API.get(`/user/check-email?email=${email}`)
+}

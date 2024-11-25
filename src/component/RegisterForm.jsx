@@ -1,36 +1,62 @@
-import React, {useState} from 'react';
-import { Button, Form, Input } from 'antd';
-// import { useRegister } from '@hook/useUser'; // 회원가입 훅으로 가정
-import { CalculatorOutlined, LockOutlined, UserOutlined } from '@ant-design/icons';
+import React, {useEffect, useState} from 'react';
+import { Button, Form, Input, Spin } from 'antd';
+import { CalculatorOutlined, LockOutlined, UserOutlined, CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import {useCheckEmail} from "@hook/useUser";
 
 const RegisterForm = () => {
-    // const { mutate: registerMutate } = useRegister();
-    const navigate = useNavigate(); // useNavigate 훅 사용
-    const [phoneNumber, setPhoneNumber] = useState("");
-
-    // const onFinish = (values) => {
-    //     registerMutate(values);
-    // };
+    const [form] = Form.useForm();
+    const navigate = useNavigate();
+    const [isDuplicate, setIsDuplicate] = useState(null);
+    const [isValidEmail, setIsValidEmail] = useState(false);
+    const {data: isCheckEmail, isLoading: isEmailLoading, error: isCheckEmailError} = useCheckEmail(form.getFieldValue('email'), isValidEmail);
 
     const formatPhoneNumber = (value) => {
         const numericValue = value.replace(/\D/g, "");
 
-        if (numericValue.length <= 3) return numericValue;
-        if (numericValue.length <= 7)
+        if (numericValue.length <= 2) return numericValue;
+        if (numericValue.length <= 4) return `${numericValue.slice(0, 2)}-${numericValue.slice(2)}`;
+        if (numericValue.length <= 7) {
+            if (numericValue.startsWith("02")) {
+                return `${numericValue.slice(0, 2)}-${numericValue.slice(2)}`;
+            }
             return `${numericValue.slice(0, 3)}-${numericValue.slice(3)}`;
-
+        }
+        if (numericValue.length <= 10) {
+            if (numericValue.startsWith("02")) {
+                return `${numericValue.slice(0, 2)}-${numericValue.slice(2, 6)}-${numericValue.slice(6)}`;
+            }
+            return `${numericValue.slice(0, 3)}-${numericValue.slice(3, 6)}-${numericValue.slice(6)}`;
+        }
         return `${numericValue.slice(0, 3)}-${numericValue.slice(3, 7)}-${numericValue.slice(7, 11)}`;
     };
 
-    const handleChange = (e) => {
+    const handlePhoneNumberChange = (e) => {
         const formattedValue = formatPhoneNumber(e.target.value);
-        setPhoneNumber(formattedValue);
+        form.setFieldValue('phoneNumber', formattedValue);
+    };
+
+    const handleEmailChange = async (e) => {
+        const email = e.target.value;
+        form.setFieldValue('email', email);
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.(com|net|co\.kr|org)$/;
+        setIsValidEmail(emailRegex.test(email));
     };
 
     const goToLogin = () => {
-        navigate('/login'); // 로그인 페이지로 이동
+        navigate('/login');
     };
+
+    const handleSubmit = (values) => {
+        console.log('Submitted:', values);
+        console.log(form.getFieldValue('email'))
+        console.log(isValidEmail)
+    };
+
+    useEffect(() => {
+        setIsDuplicate(!(isCheckEmail?.code === 200));
+    }, [isCheckEmail]);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-100 via-gray-200 to-gray-300">
@@ -43,21 +69,40 @@ const RegisterForm = () => {
                     <p className="text-sm text-gray-600">Sign Up for Consultant Estimator v2</p>
                 </div>
                 <Form
+                    form={form}
                     name="register_form"
-                    // onFinish={onFinish}
                     layout="vertical"
+                    onFinish={handleSubmit}
                 >
                     <Form.Item
                         name="email"
                         rules={[
                             { required: true, message: '이메일을 입력해주세요.' },
-                            { type: 'email', message: '올바른 이메일 형식을 입력해주세요.' },
+                            {
+                                validator: (_, value) => {
+                                    const emailRegex = /^[^\s@]+@[^\s@]+\.(com|net|co\.kr|org)$/;
+                                    if (!value || emailRegex.test(value)) {
+                                        return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error('올바른 이메일 형식을 입력해주세요.'));
+                                },
+                            },
                         ]}
                     >
                         <Input
                             prefix={<UserOutlined className="text-gray-400" />}
                             placeholder="이메일"
                             className="rounded-lg py-2"
+                            onChange={handleEmailChange}
+                            suffix={
+                                isEmailLoading ? (
+                                    <Spin size="small" />
+                                ) : isValidEmail === false ? null : isDuplicate ? (
+                                    <CloseCircleTwoTone twoToneColor="#ff4d4f" />
+                                ) : (
+                                    <CheckCircleTwoTone twoToneColor="#52c41a" />
+                                )
+                            }
                         />
                     </Form.Item>
 
@@ -112,10 +157,10 @@ const RegisterForm = () => {
                         rules={[{ required: true, message: '휴대폰 번호를 입력해주세요.' }]}
                     >
                         <Input
-                            className="w-full"
+                            className="rounded-lg py-2"
                             placeholder="휴대폰 번호"
-                            value={phoneNumber}
-                            onChange={handleChange}
+                            value={form.getFieldValue('phoneNumber')}
+                            onChange={handlePhoneNumberChange}
                             maxLength={13}
                         />
                     </Form.Item>

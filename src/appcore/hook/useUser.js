@@ -1,5 +1,5 @@
-import {useMutation} from "@tanstack/react-query";
-import {postLogin} from "@api/userApi";
+import {useMutation, useQuery} from "@tanstack/react-query";
+import {getCheckEmail, postLogin} from "@api/userApi";
 import {toggleAccessToken, toggleLoginState, toggleRefreshToken, toggleRoles} from "@/features/user/loginSlice";
 import RootStore from "@/appcore/rootStore";
 import {message} from "antd";
@@ -20,3 +20,13 @@ export const useLogin = () => {
         }
     })
 }
+
+export const useCheckEmail = (email, enabled) => {
+    return useQuery({
+        queryKey: ['checkEmail', email],
+        queryFn: ({queryKey}) => getCheckEmail(queryKey[1]),
+        enabled,
+        retry: false,
+    })
+}
+

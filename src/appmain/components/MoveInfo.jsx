@@ -36,6 +36,8 @@ const MoveInfo = ({
                       setIsNewMoveInfo,
                       setDispatchAmount,
                       setIsDispatchAmount,
+                      paymentMethod,
+                      setPaymentMethod,
                       onReady
                   }) => {
     const dispatch = useDispatch();
@@ -48,7 +50,7 @@ const MoveInfo = ({
     const [loadCityCode, setLoadCityCode] = useState(null);
     const [loadAddressList, setLoadAddressList] = useState([]);
     const [loadMethod, setLoadMethod] = useState({key: 1, value: '엘레베이터'});
-    const [loadFloor, setLoadFloor] = useState(null);
+    const [loadFloor, setLoadFloor] = useState(0);
     const [loadArea, setLoadArea] = useState(1);
     const [loadHouseholdMembers, setLoadHouseholdMembers] = useState(0);
     const [loadCustomer, setLoadCustomer] = useState([]);
@@ -108,7 +110,7 @@ const MoveInfo = ({
     const [consultantDataForm, setConsultantDataForm] = useState(null);
     const [isFormValid, setIsFormValid] = useState(false);
 
-    const {data: dispatchAmount, isLoading: isDispatchAmount} = useCalcConsultant(
+    const {data: dispatchAmount, isLoading: isDispatchAmount, error:dispatchError} = useCalcConsultant(
         consultantDataForm,
         isFormValid
     );
@@ -119,11 +121,15 @@ const MoveInfo = ({
     const [specialItems, setSpecialItems] = useState('');
     const [customerName, setCustomerName] = useState('');
     const [customerPhoneNumber, setCustomerPhoneNumber] = useState('');
-    const [paymentMethod, setPaymentMethod] = useState('');
+
 
     // 메모
     const [isMemoModalVisible, setIsMemoModalVisible] = useState(false);
     const [memo, setMemo] = useState("");
+
+    useEffect(() => {
+        dispatchError
+    }, [dispatchError]);
 
     useEffect(() => {
         if (
@@ -230,7 +236,7 @@ const MoveInfo = ({
 
     useEffect(() => {
         if (roadDistanceData) {
-            setDistance(roadDistanceData);
+            setDistance(Math.round(roadDistanceData));
         }
     }, [roadDistanceData]);
 
@@ -250,8 +256,33 @@ const MoveInfo = ({
     };
 
     // 요청시간, 요청일 end
+
+
+
+    const removeTerm = (searchTerm, termsToRemove) => {
+        const regex = new RegExp(`(,\\s*|^\\s*)(${termsToRemove.join('|')})(,\\s*|$)`, 'g');
+        return searchTerm.replace(regex, (_, prefix, term, suffix) => {
+            return prefix === ',' && suffix === ',' ? ',' : ''; // 양쪽이 콤마일 경우 콤마 유지
+        }).trim();
+    };
+
     const handleMoveTypeChange = (value, option) => {
         setMoveType({key: option.key, value});
+
+        // if (value === '단순운송' || value === '일반이사') {
+        //     Object.keys(items).forEach((key) => {
+        //         console.log(items[key]);
+        //         const item = items[key]?.itemName;
+        //         if (['박스(필요)', '바구니(필요)'].some((exclude) => item === exclude)) {
+        //             delete items[key];
+        //         }
+        //     });
+        //     setItems({ ...items });
+        //
+        //     const termsToRemove = ["박스(필요)", "바구니(필요)"];
+        //     console.log(removeTerm(searchTerm, termsToRemove))
+        //     // setSearchTerm(removeTerm(searchTerm, termsToRemove));
+        // }
     };
 
     const updateWorkerCount = (type, value) => {
@@ -267,8 +298,10 @@ const MoveInfo = ({
 
         if (_.isEmpty(loadLocation)) emptyFields.push("상차지");
         if (_.isEmpty(loadMethod)) emptyFields.push("상차 방법");
+        if (_.isNull(loadFloor)) emptyFields.push("상차 층수");
         if (_.isEmpty(unloadLocation)) emptyFields.push("하차지");
         if (_.isEmpty(unloadMethod)) emptyFields.push("하차 방법");
+        if (_.isNull(unloadFloor)) emptyFields.push("하차 층수");
         if (_.isEmpty(items)) emptyFields.push("선택된 아이템");
         if (_.isEmpty(requestDate)) emptyFields.push("요청 날짜");
         if (_.isEmpty(requestTime)) emptyFields.push("요청 시간");
@@ -283,12 +316,10 @@ const MoveInfo = ({
             const hasPackingBox = Object.values(items).some((item) => item.itemName === "박스(필요)");
 
             if (!hasPackingBox) {
-                notification.error({
-                    message: "포장할 박스",
-                    description: `포장이사의 경우 박스(필요) 물품이 존재해야 합니다.`,
-                    placement: "top",
-                    style: {width: "700px", margin: "0 auto"},
-                    duration: 5,
+                message.error({
+                    content: "포장이사의 경우 박스(필요) 물품이 존재해야 합니다.",
+                    key: 'packingBox',
+                    duration: 3,
                 });
 
                 return false;
@@ -345,14 +376,16 @@ const MoveInfo = ({
         setSpecialItems('');
         setCustomerName('');
         setCustomerPhoneNumber('');
-        setPaymentMethod('');
+        setPaymentMethod('현금');
         setMemo('');
 
         setSearchTerm('');
+        setDispatchAmount(null);
+        setConsultantDataForm(null);
+        setIsFormValid(false);
     };
 
     const handleSave = () => {
-        // 상담 예약
         const reservationData = {
             distance,
 
@@ -570,6 +603,7 @@ const MoveInfo = ({
             setConsultantDataForm(formData);
             setIsFormValid(true);
         } else {
+            setDispatchAmount(null);
             setIsFormValid(false);
         }
     }, [
@@ -596,7 +630,30 @@ const MoveInfo = ({
     }, [isDispatchAmount, dispatchAmount]);
 
     return (
-        <Card title="이사 정보" className="shadow-md rounded-md">
+        <Card
+            title="이사 정보"
+            className="shadow-md rounded-md relative"
+            style={{ position: "relative" }}
+        >
+            {dispatchError && (
+                <div
+                    className="absolute mt-1 right-2 top-2 text-red-500 font-bold text-sm flex items-center justify-center"
+                    style={{
+                        color: "red",
+                        fontWeight: "bold",
+                        position: "absolute",
+                        top: "8px",
+                        right: "8px",
+                        backgroundColor: "rgba(255, 235, 235, 0.8)", // 배경 추가(선택 사항)
+                        borderRadius: "4px", // 둥근 테두리
+                        padding: "4px 8px", // 텍스트 주위 여백
+                        lineHeight: "1.5", // 텍스트 세로 정렬 개선
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.1)", // 약간의 그림자 효과(선택 사항)
+                    }}
+                >
+                    {dispatchError?.message}
+                </div>
+            )}
             <Form layout="vertical">
                 <div className="flex gap-1 items-center mb-2">
                     <div className="flex items-center w-2/5">
@@ -623,12 +680,22 @@ const MoveInfo = ({
 
                     <div className="flex items-center w-1.5/5">
                         <label className="w-10 text-gray-700 font-medium">거리:</label>
-                        <Input
-                            value={`${distance} Km`}
-                            disabled
-                            className="flex-1 border border-gray-300 rounded-lg text-right"
-                            suffix={isDistanceData ? <Spin size="small"/> : null}
-                        />
+                        <div className="relative flex-1">
+                            <Input
+                                value={`${distance} Km`}
+                                disabled
+                                className="border border-gray-300 rounded-lg text-right"
+                            />
+                            <div
+                                className="absolute inset-0 flex items-center justify-center"
+                                style={{
+                                    opacity: isDistanceData ? 1 : 0,
+                                    transition: "opacity 0.3s ease",
+                                }}
+                            >
+                                <Spin size="small"/>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -645,6 +712,7 @@ const MoveInfo = ({
                             setShowAddressList={setShowLoadAddressList}
                             onSelectAddress={handleAddressSelect(setLoadLocation, setShowLoadAddressList, 'load')}
                             setSkipAddressChangeEvent={setSkipAddressChangeEvent}
+                            tabIndex={1}
                         />
                     </div>
                 </div>
@@ -679,6 +747,7 @@ const MoveInfo = ({
                     setShowAddressList={setShowUnloadAddressList}
                     onSelectAddress={handleAddressSelect(setUnloadLocation, setShowUnloadAddressList, 'unload')}
                     setSkipAddressChangeEvent={setSkipAddressChangeEvent}
+                    tabIndex={2}
                 />
 
                 <div className="flex items-center gap-4">
@@ -828,6 +897,8 @@ const MoveInfo = ({
                 setItems={setItems}
                 setSuggestions={setSuggestions}
                 setSearchTerm={setSearchTerm}
+                moveType={moveType}
+                tabIndex={3}
             />
             <Form.Item className="relative !mb-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">특이사항:</label>
@@ -836,6 +907,7 @@ const MoveInfo = ({
                     className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     value={specialItems}
                     onChange={(e) => setSpecialItems(e.target.value)}
+                    tabIndex={4}
                 />
             </Form.Item>
             <div className="flex gap-1 items-center">
@@ -849,19 +921,21 @@ const MoveInfo = ({
                     />
                 </Form.Item>
 
-                <PhoneNumberInput phoneNumber={customerPhoneNumber} setPhoneNumber={setCustomerPhoneNumber}/>
+                <PhoneNumberInput label='화주번호' phoneNumber={customerPhoneNumber} setPhoneNumber={setCustomerPhoneNumber}/>
 
                 <Form.Item className="flex-1 !mb-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">결제방법:</label>
                     <Select
-                        placeholder="예: 카드"
+                        placeholder="예: 현금"
                         className="w-full"
                         value={paymentMethod}
-                        onChange={(data) => setPaymentMethod(data)}
+                        onChange={(value) => setPaymentMethod(value)}
                     >
-                        <Option value="테스트">
-                            테스트
-                        </Option>
+                        {["카드", "현금", "세금계산서", "현금영수증"].map((method) => (
+                            <Option key={method} value={method}>
+                                {method}
+                            </Option>
+                        ))}
                     </Select>
                 </Form.Item>
             </div>

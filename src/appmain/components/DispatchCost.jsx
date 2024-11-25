@@ -102,7 +102,7 @@ const unitLabel = {
 // }
 
 
-const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount}) => {
+const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymentMethod}) => {
     const [calcData, setCalcData] = useState({});
     const [estimate, setEstimate] = useState({
         deposit: dispatchAmount?.estimatePrice?.deposit || 0,
@@ -117,6 +117,7 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount}) => {
     const [sliderValue, setSliderValue] = useState(5);
     const [depositPrice, setDepositPrice] = useState(estimate.minDeposit);
     const [estimatePrice, setEstimatePrice] = useState(estimate.minEstimatePrice);
+    const [surtax, setSurtax] = useState(0);
 
     // minDeposit + (slider value - 1) * ((maxDeposit - minDeposit) / (10 -1))
     const handleSliderChange = (value) => {
@@ -163,9 +164,9 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount}) => {
             const tenThousandWon = calcEstimate % 100000; // 10만 단위 잔여값
 
             if (tenThousandWon > 60000 || tenThousandWon <= 10000 || tenThousandWon === 0) {
-                if(60000 < tenThousandWon && tenThousandWon < 100000) {
+                if (60000 < tenThousandWon && tenThousandWon < 100000) {
                     calcEstimate = (calcEstimate - tenThousandWon) + 80000;
-                }else {
+                } else {
                     calcEstimate = (thousandWon - 1) * 100000 + 80000;
                 }
 
@@ -186,6 +187,7 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount}) => {
 
         setEstimatePrice(calcEstimate);
         setDepositPrice(calcEstimate - estimate.totalCalcPrice);
+        setSurtax(Math.round(calcEstimate * 0.1));
     };
 
     const handleCheckboxChange = (itemName, key, checked) => {
@@ -325,12 +327,13 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount}) => {
                             value={sliderValue}
                             onChange={handleSliderChange}
                             className="w-full"
-                            style={{ height: "10px" }}
+                            style={{height: "10px"}}
                         />
 
                         <span className="text-sm font-semibold text-gray-700">{sliderValue}</span>
                     </div>
-                    <p className="mt-4 text-gray-600">견적금액: {estimatePrice}원(계약금: {depositPrice}원)</p>
+                    <p className="mt-4 text-gray-600">견적금액: {estimatePrice}원(계약금: {depositPrice}원)
+                        {paymentMethod !== "현금" ? "(부가세: " + surtax + "원)" : ""}</p>
                 </div>
             </Card>
         </div>

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Input } from 'antd';
+import React, {useState, useEffect} from 'react';
+import {Form, Input} from 'antd';
 
 const AddressInput = ({
                           label,
@@ -11,7 +11,8 @@ const AddressInput = ({
                           showAddressList,
                           onSelectAddress,
                           setShowAddressList,
-                          setSkipAddressChangeEvent
+                          setSkipAddressChangeEvent,
+                          tabIndex
                       }) => {
     const [selectedIndex, setSelectedIndex] = useState(-1);
 
@@ -31,13 +32,13 @@ const AddressInput = ({
                 const addressName = selectedAddress.address_name.trim();
 
                 setCityCode(selectedAddress.address?.b_code || undefined);
-                handleCoordinates({ x: selectedAddress.x, y: selectedAddress.y });
+                handleCoordinates({x: selectedAddress.x, y: selectedAddress.y});
                 onSelectAddress(addressName);
                 setShowAddressList(false);
                 setSkipAddressChangeEvent(true);
                 setSelectedIndex(-1);
             }
-        }else {
+        } else {
             setSkipAddressChangeEvent(false);
         }
     };
@@ -63,6 +64,7 @@ const AddressInput = ({
                         }}
                         onBlur={() => setShowAddressList(false)}
                         className="w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200"
+                        tabIndex={tabIndex}
                     />
 
                     {showAddressList && addressList.length > 0 && (
@@ -75,7 +77,7 @@ const AddressInput = ({
                                     key={index}
                                     onMouseDown={(e) => {
                                         setCityCode(address.address?.b_code || undefined);
-                                        handleCoordinates({ x: address.x, y: address.y });
+                                        handleCoordinates({x: address.x, y: address.y});
                                         onSelectAddress(address.address_name);
                                         setShowAddressList(false);
                                         e.preventDefault();

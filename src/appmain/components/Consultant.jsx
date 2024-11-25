@@ -15,12 +15,12 @@ const Consultant = () => {
     const [isNewMoveInfo, setIsNewMoveInfo] = useState(false);
     const [dispatchAmount, setDispatchAmount] = useState(null);
     const [isDispatchAmount, setIsDispatchAmount] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState('현금');
 
     const dispatch = useDispatch();
 
     // 물품
     const [items, setItems] = useState({});
-
 
     if (isLoading) {
         return (
@@ -82,9 +82,11 @@ const Consultant = () => {
                     setIsNewMoveInfo={setIsNewMoveInfo}
                     setDispatchAmount={setDispatchAmount}
                     setIsDispatchAmount={setIsDispatchAmount}
+                    paymentMethod={paymentMethod}
+                    setPaymentMethod={setPaymentMethod}
                     onReady={() => setIsMoveInfoLoading(false)}
                 />
-                <DispatchCost items={items} setItems={setItems} dispatchAmount={dispatchAmount} isDispatchAmount={isDispatchAmount} />
+                <DispatchCost items={items} setItems={setItems} dispatchAmount={dispatchAmount} isDispatchAmount={isDispatchAmount} paymentMethod={paymentMethod} />
                 <AdditionalFunctions consultantData={consultant} />
             </div>
         </Layout>

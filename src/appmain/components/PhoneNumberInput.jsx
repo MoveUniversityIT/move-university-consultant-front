@@ -1,7 +1,7 @@
 import React from "react";
 import {Form, Input} from "antd";
 
-const PhoneNumberInput = ({phoneNumber, setPhoneNumber}) => {
+const PhoneNumberInput = ({label, phoneNumber, setPhoneNumber}) => {
     const formatShipperNumber = (value) => {
         const numericValue = value.replace(/\D/g, "");
 
@@ -30,7 +30,7 @@ const PhoneNumberInput = ({phoneNumber, setPhoneNumber}) => {
 
     return (
         <Form.Item className="flex-1 !mb-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">화주번호:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{label}:</label>
             <Input
                 className="w-full"
                 placeholder="예: 010-1234-1234"

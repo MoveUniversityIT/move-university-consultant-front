@@ -1,7 +1,7 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
 import {
     getCalcConsultant,
-    getConsultantMetadata,
+    getConsultantMetadata, getImage,
     getItem,
     getKakaoAddress,
     getPendingItem,
@@ -60,10 +60,6 @@ export const useCalcConsultant = (consultantDataForm, enabled) => {
             queryFn: ({queryKey}) => getCalcConsultant(queryKey[1]),
             enabled,
             retry: false,
-            onError: (error) => {
-                const errorMessage = error.errorMessage || "알 수 없는 오류가 발생했습니다.";
-                alert(`API 요청 오류: ${errorMessage}`);
-            },
         }
     );
 };
@@ -159,4 +155,14 @@ export const useRegSpecialDate = () => {
     })
 }
 
-
+export const useImageQuery = (imageName, enabled = true) => {
+    return useQuery({
+        queryKey: ["image", imageName],
+        queryFn: ({queryKey}) => getImage(queryKey[1]),
+        enabled,
+        retry: false,
+        onError: (error) => {
+            console.error("이미지 로드 오류:", error);
+        },
+    });
+};
