@@ -11,6 +11,7 @@ import _ from "lodash";
 import PhoneNumberInput from "@component/PhoneNumberInput";
 import {useSaveReservation} from "@hook/useUser";
 import {useQueryClient} from "@tanstack/react-query";
+import SpecialItemSearch from "@component/SpecialItemSearch";
 
 const {Option} = Select;
 
@@ -83,6 +84,9 @@ const MoveInfo = ({
     // 아이템 목록
     const collapseItems = Object.values(consultantData?.items || {}).flat();
 
+    // 특이사항 목록
+    const collapseSpecialItems = Object.values(consultantData?.specialItems || {}).flat();
+
     const [totalItemCbm, setTotalItemCbm] = useState(0);
 
     const [isCollapsed, setIsCollapsed] = useState(true);
@@ -107,6 +111,7 @@ const MoveInfo = ({
 
     const [specialItems, setSpecialItems] = useState([]);
     const [searchSpecialItemTerm, setSearchSpecialItemTerm] = useState('');
+    const [specialItemSuggestions, setSpecialItemSuggestions] = useState([]);
     const [customerName, setCustomerName] = useState('');
     const [customerPhoneNumber, setCustomerPhoneNumber] = useState('');
 
@@ -421,10 +426,9 @@ const MoveInfo = ({
         reservationMutate(reservationData, {
             onSuccess: (data) => {
                 queryClient.invalidateQueries('reservation');
+                setReservationId(data?.reservationId);
             }
         });
-        // dispatch(addReservation(reservationData));
-        resetState();
     };
 
 
@@ -851,16 +855,16 @@ const MoveInfo = ({
                 moveType={moveType}
                 tabIndex={3}
             />
-            <Form.Item className="relative !mb-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">특이사항:</label>
-                <Input.TextArea
-                    autoSize={{minRows: 2}}
-                    className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    value={searchSpecialItemTerm}
-                    onChange={(e) => setSearchSpecialItemTerm(e.target.value)}
-                    tabIndex={4}
-                />
-            </Form.Item>
+            <SpecialItemSearch
+                searchSpecialItemTerm={searchSpecialItemTerm}
+                setSearchSpecialItemTerm={setSearchSpecialItemTerm}
+                specialItemSuggestions={specialItemSuggestions}
+                setSpecialItemSuggestions={setSpecialItemSuggestions}
+                collapseSpecialItems={collapseSpecialItems}
+                specialItems={specialItems}
+                setSpecialItems={setSpecialItems}
+                tabIndex={4}
+            />
             <div className="flex gap-1 items-center">
                 <Form.Item className="flex-1 !mb-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">화주이름:</label>
@@ -891,21 +895,47 @@ const MoveInfo = ({
                     </Select>
                 </Form.Item>
             </div>
+
             <Form.Item className="relative !mb-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">메모:</label>
-                <Input.TextArea
-                    autoSize={{minRows: 3, maxRows: 3}}
-                    className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    value={memo}
-                    onClick={() => setIsMemoModalVisible(true)}
-                    readOnly
-                />
+                <div className="relative">
+                    {/* TextArea */}
+                    <Input.TextArea
+                        autoSize={{ minRows: 3, maxRows: 3 }}
+                        placeholder="메모를 입력하세요..."
+                        className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10"
+                        onChange={(e) => setMemo(e.target.value)}
+                        value={memo}
+                    />
+                    <button
+                        type="button"
+                        onClick={() => setIsMemoModalVisible(true)}
+                        className="absolute bottom-2 right-5 bg-blue-600 text-white p-2 rounded-full shadow-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 flex items-center justify-center"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M11 4h10M5 12h16M9 20h12"
+                            />
+                        </svg>
+                    </button>
+                </div>
 
+                {/* 모달 */}
                 <Modal
                     title="메모 작성"
                     open={isMemoModalVisible}
                     onCancel={() => setIsMemoModalVisible(false)}
                     width={800}
+                    style={{top: 60}} // 모달 세로 크기 조정
                     footer={[
                         <Button
                             key="ok"
@@ -917,7 +947,7 @@ const MoveInfo = ({
                     ]}
                 >
                     <Input.TextArea
-                        autoSize={{minRows: 10}}
+                        autoSize={{ minRows: 25 }}
                         value={memo}
                         onChange={(e) => setMemo(e.target.value)}
                         placeholder="메모를 입력하세요..."
