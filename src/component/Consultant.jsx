@@ -6,7 +6,7 @@ import AddressInput from "@/component/AddressInput";
 import MethodAndFloorInput from "@/component/MethodAndFloorInput";
 import GenderSelector from "@/component/GenderSelector";
 import dayjs from 'dayjs';
-import DispatchPrice from "@/component/DispatchPrice";
+import AdminDispatchPrice from "@/component/AdminDispatchPrice";
 import LeftSidebar from "@/component/LeftSidebar";
 import {LeftOutlined, PlusOutlined, RightOutlined} from "@ant-design/icons";
 import {v4 as uuidv4} from 'uuid';
@@ -17,6 +17,8 @@ import koKR from 'antd/es/date-picker/locale/ko_KR';
 import ItemForm from "@/component/ItemForm";
 import {Content, Header} from "antd/es/layout/layout";
 import RightSideBar from "@/component/RightSidebar";
+import {useReservation, useSaveReservation} from "@hook/useUser";
+import {Option} from "antd/es/mentions";
 
 const {Title} = Typography;
 
@@ -689,10 +691,10 @@ const Consultant = () => {
                                                     }
                                                 >
                                                     {consultant.vehicles.map((vehicle) => (
-                                                        <Select.Option key={vehicle.vehicleId}
+                                                        <Option key={vehicle.vehicleId}
                                                                        value={vehicle.vehicleName}>
                                                             {vehicle.vehicleName}
-                                                        </Select.Option>
+                                                        </Option>
                                                     ))}
                                                 </Select>
                                             </Form.Item>
@@ -706,10 +708,10 @@ const Consultant = () => {
                                                     onChange={handleMoveTypeChange}
                                                 >
                                                     {consultant.moveTypes.map((moveType) => (
-                                                        <Select.Option key={moveType.moveTypeId}
+                                                        <Option key={moveType.moveTypeId}
                                                                        value={moveType.moveTypeName}>
                                                             {moveType.moveTypeName}
-                                                        </Select.Option>
+                                                        </Option>
                                                     ))}
                                                 </Select>
                                             </Form.Item>
@@ -798,8 +800,8 @@ const Consultant = () => {
 
                             {!isCollapsed && (
                                 <div className="panel-content">
-                                    <DispatchPrice data={calcConsultantData}
-                                                   isLoadingConsultantMutate={isLoadingConsultantMutate}/>
+                                    <AdminDispatchPrice data={calcConsultantData}
+                                                        isLoadingConsultantMutate={isLoadingConsultantMutate}/>
                                 </div>
                             )}
                         </div>

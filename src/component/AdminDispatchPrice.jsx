@@ -46,7 +46,7 @@ const helperLabels = {
     LOAD_UNLOAD: "상차/하차(양쪽)"
 };
 
-const DispatchPrice = ({data, isLoadingConsultantMutate}) => {
+const AdminDispatchPrice = ({data, isLoadingConsultantMutate}) => {
     const [dispatchData, setDispatchData] = useState({});
 
     useEffect(() => {
@@ -199,4 +199,4 @@ const DispatchPrice = ({data, isLoadingConsultantMutate}) => {
     );
 };
 
-export default DispatchPrice;
+export default AdminDispatchPrice;

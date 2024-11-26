@@ -67,7 +67,7 @@ const ItemSearch = ({
                 category.subcategories.flatMap((subcategory) =>
                     subcategory.items.filter((item) => {
                         if (
-                            moveType?.value === '단순운송' || moveType?.value === '일반이사'  &&
+                            (moveType?.value === '단순운송' || moveType?.value === '일반이사')  &&
                             ['박스(필요)', '바구니(필요)'].some((exclude) => item.itemName.includes(exclude))
                         ) {
                             return false;
@@ -131,7 +131,7 @@ const ItemSearch = ({
                             similarityScore(normalizedCurrent, variation)
                         )
                     );
-                    return bScore - aScore; // 높은 유사도 순으로 정렬
+                    return bScore - aScore;
                 }),
                 ...otherMatches.sort((a, b) => (b.sortingIndex || 0) - (a.sortingIndex || 0)),
             ];
@@ -181,12 +181,11 @@ const ItemSearch = ({
                             const normalizedItemName = item.itemName.toLowerCase();
 
                             if (itemName === normalizedItemName) {
-                                // 기존 항목 유지
                                 updatedItems[item.itemName] = {
-                                    ...updatedItems[item.itemName], // 기존 데이터 유지
+                                    ...updatedItems[item.itemName],
                                     itemId: item.itemId,
                                     itemName: item.itemName,
-                                    itemCount: quantity, // 수량 업데이트
+                                    itemCount: quantity,
                                     isDisassembly: item.isDisassembly,
                                     isInstallation: item.isInstallation,
                                 };
@@ -236,10 +235,10 @@ const ItemSearch = ({
         let updatedSearchTerm = `${beforeText} ${newItemName}, ${afterText}`.trim();
 
         updatedSearchTerm = updatedSearchTerm
-            .replace(/,\s*,/g, ', ') // 중복된 쉼표 제거
-            .replace(/\s+,/g, ',') // 쉼표 앞 공백 제거
-            .replace(/,\s+/g, ', ') // 쉼표 뒤 공백 정리
-            .replace(/,\s*$/, ','); // 문자열 끝에 있는 쉼표 정리
+            .replace(/,\s*,/g, ', ')
+            .replace(/\s+,/g, ',')
+            .replace(/,\s+/g, ', ')
+            .replace(/,\s*$/, ',');
 
         // 기존 items 복사
         const updatedItems = {...items};

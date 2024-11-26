@@ -1,5 +1,6 @@
 import React, {useEffect} from 'react';
 import {Form, InputNumber, Select} from "antd";
+import {Option} from "antd/es/mentions";
 
 const MethodAndFloorInput = ({
                                  label,
@@ -7,12 +8,12 @@ const MethodAndFloorInput = ({
                                  floor,
                                  area,
                                  householdMembers,
-                                 customer,
+                                 customers,
                                  setMethod,
                                  setFloor,
                                  setArea,
                                  setHouseHoldMembers,
-                                 setCustomer,
+                                 setCustomers,
                                  consultant,
                                  handleMethodChange,
                                  handleFloorChange
@@ -20,20 +21,20 @@ const MethodAndFloorInput = ({
 
     const handleGenderChange = (gender, count) => {
         if (count > 0) {
-            if (customer.some((item) => item.gender === gender)) {
-                setCustomer((prevList) =>
+            if (customers.some((item) => item.gender === gender)) {
+                setCustomers((prevList) =>
                     prevList.map((item) =>
                         item.gender === gender ? {...item, peopleCount: count} : item
                     )
                 );
             } else {
-                setCustomer((prevList) => [
+                setCustomers((prevList) => [
                     ...prevList,
                     {gender, peopleCount: count},
                 ]);
             }
         } else {
-            setCustomer((prevList) =>
+            setCustomers((prevList) =>
                 prevList.filter((item) => item.gender !== gender)
             );
         }
@@ -50,9 +51,9 @@ const MethodAndFloorInput = ({
                     className="w-full min-w-[100px]"
                 >
                     {consultant?.methods.map((method) => (
-                        <Select.Option key={method.methodId} value={method.methodName}>
+                        <Option key={method.methodId} value={method.methodName}>
                             {method.methodName}
-                        </Select.Option>
+                        </Option>
                     ))}
                 </Select>
             </Form.Item>
@@ -97,7 +98,7 @@ const MethodAndFloorInput = ({
                     placeholder="인원 수"
                     min={0}
                     max={10}
-                    value={customer.find((item) => item.gender === "male")?.peopleCount || 0}
+                    value={customers?.find((item) => item.gender === "male")?.peopleCount || 0}
                     onChange={(value) => handleGenderChange("male", value)}
                 />
             </Form.Item>
@@ -109,7 +110,7 @@ const MethodAndFloorInput = ({
                     placeholder="인원 수"
                     min={0}
                     max={10}
-                    value={customer.find((item) => item.gender === "female")?.peopleCount || 0}
+                    value={customers?.find((item) => item.gender === "female")?.peopleCount || 0}
                     onChange={(value) => handleGenderChange("female", value)}
                 />
             </Form.Item>

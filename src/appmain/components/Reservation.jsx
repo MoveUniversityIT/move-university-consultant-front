@@ -1,11 +1,11 @@
 import React from "react";
-import { Card, List, Button, Modal } from "antd";
-import {useDispatch, useSelector} from "react-redux";
-import {deleteReservation} from "@/features/reservation/reservationSlice";
+import {Button, Card, List, Modal} from "antd";
+import {useDeleteReservation} from "@hook/useUser";
+import {useQueryClient} from "@tanstack/react-query";
 
-const Reservation = ({ onLoad, onNew }) => {
-    const dispatch = useDispatch();
-    const reservations = useSelector((state) => state.reservation.reservations);
+const Reservation = ({ onLoad, onNew, reservations }) => {
+    const queryClient = useQueryClient();
+    const {mutate: reservationMutate} = useDeleteReservation();
 
     const confirmAction = (title, content, onConfirm) => {
         Modal.confirm({
@@ -16,6 +16,14 @@ const Reservation = ({ onLoad, onNew }) => {
             onOk: onConfirm,
         });
     };
+
+    const handleDelete = (reservationId) => {
+        reservationMutate(reservationId, {
+            onSuccess: (data) => {
+                queryClient.invalidateQueries('reservation');
+            }
+        })
+    }
 
     return (
         <Card title="상담 예약" className="shadow-md rounded-md h-full">
@@ -61,7 +69,7 @@ const Reservation = ({ onLoad, onNew }) => {
                                     confirmAction(
                                         "삭제 확인",
                                         "정말로 이 데이터를 삭제하시겠습니까?",
-                                        () => dispatch(deleteReservation(index))
+                                        () => handleDelete(reservation?.reservationId)
                                     )
                                 }
                             >

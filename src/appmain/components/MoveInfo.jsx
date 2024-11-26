@@ -9,8 +9,8 @@ import koKR from "antd/es/date-picker/locale/ko_KR";
 import ItemSearch from "@component/ItemSearch";
 import _ from "lodash";
 import PhoneNumberInput from "@component/PhoneNumberInput";
-import {useDispatch} from "react-redux";
-import {addReservation} from "@/features/reservation/reservationSlice";
+import {useSaveReservation} from "@hook/useUser";
+import {useQueryClient} from "@tanstack/react-query";
 
 const {Option} = Select;
 
@@ -27,8 +27,10 @@ const MoveInfo = ({
                       setPaymentMethod,
                       onReady
                   }) => {
-    const dispatch = useDispatch();
+    const queryClient = useQueryClient();
 
+    const [reservationId, setReservationId] = useState(null);
+    const [client, setClient] = useState({key: 1, value: '거래처1'});
     const [moveType, setMoveType] = useState(null);
     const [vehicleType, setVehicleType] = useState({key: 1, value: '카고'});
     const [vehicleTonnage, setVehicleTonnage] = useState(1);
@@ -40,7 +42,7 @@ const MoveInfo = ({
     const [loadFloor, setLoadFloor] = useState(1);
     const [loadArea, setLoadArea] = useState(1);
     const [loadHouseholdMembers, setLoadHouseholdMembers] = useState(0);
-    const [loadCustomer, setLoadCustomer] = useState([]);
+    const [loadCustomers, setLoadCustomers] = useState([]);
     const [showLoadAddressList, setShowLoadAddressList] = useState(false);
 
     const [unloadLocation, setUnloadLocation] = useState('');
@@ -50,17 +52,15 @@ const MoveInfo = ({
     const [unloadFloor, setUnloadFloor] = useState(1);
     const [unloadArea, setUnloadArea] = useState(1);
     const [unloadHouseholdMembers, setUnloadHouseholdMembers] = useState(0);
-    const [unloadCustomer, setUnloadCustomer] = useState([]);
+    const [unloadCustomers, setUnloadCustomers] = useState([]);
     const [showUnloadAddressList, setShowUnloadAddressList] = useState(false);
 
     const [isTogether, setIsTogether] = useState(false);
 
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchItemTerm, setSearchItemTerm] = useState('');
     const [suggestions, setSuggestions] = useState([]);
 
-
     const [skipAddressChangeEvent, setSkipAddressChangeEvent] = useState(false);
-
 
     const [requestDate, setRequestDate] = useState(dayjs(new Date()));
     const [requestTime, setRequestTime] = useState(dayjs('08:00', 'HH:mm'));
@@ -97,7 +97,7 @@ const MoveInfo = ({
     const [consultantDataForm, setConsultantDataForm] = useState(null);
     const [isFormValid, setIsFormValid] = useState(false);
 
-    const {data: dispatchAmount, isLoading: isDispatchAmount, error:dispatchError} = useCalcConsultant(
+    const {data: dispatchAmount, isLoading: isDispatchAmount, error: dispatchError} = useCalcConsultant(
         consultantDataForm,
         isFormValid
     );
@@ -105,7 +105,8 @@ const MoveInfo = ({
     // const {mutate: consultantMutate} = useCalcConsultant();
     const {isLoading: isDistanceData, data: roadDistanceData} = useRoadDistance(locationInfo);
 
-    const [specialItems, setSpecialItems] = useState('');
+    const [specialItems, setSpecialItems] = useState([]);
+    const [searchSpecialItemTerm, setSearchSpecialItemTerm] = useState('');
     const [customerName, setCustomerName] = useState('');
     const [customerPhoneNumber, setCustomerPhoneNumber] = useState('');
 
@@ -113,6 +114,8 @@ const MoveInfo = ({
     // 메모
     const [isMemoModalVisible, setIsMemoModalVisible] = useState(false);
     const [memo, setMemo] = useState("");
+
+    const {mutate: reservationMutate} = useSaveReservation();
 
     useEffect(() => {
         if (
@@ -240,7 +243,6 @@ const MoveInfo = ({
     // 요청시간, 요청일 end
 
 
-
     const removeTerm = (searchTerm, termsToRemove) => {
         const regex = new RegExp(`(,\\s*|^\\s*)(${termsToRemove.join('|')})(,\\s*|$)`, 'g');
         return searchTerm.replace(regex, (_, prefix, term, suffix) => {
@@ -271,8 +273,8 @@ const MoveInfo = ({
         setHelpers((prevList) =>
             prevList.map((item) =>
                 item.helperType === type
-                    ? { ...item, peopleCount: value }
-                    : { ...item }
+                    ? {...item, peopleCount: value}
+                    : {...item}
             )
         );
     };
@@ -324,6 +326,8 @@ const MoveInfo = ({
     };
 
     const resetState = () => {
+        setReservationId(null);
+        setClient({key: 1, value: '거래처1'});
         setDistance(0);
 
         setLoadLocation('');
@@ -332,7 +336,7 @@ const MoveInfo = ({
         setLoadFloor(1);
         setLoadArea(1);
         setLoadHouseholdMembers(0);
-        setLoadCustomer([]);
+        setLoadCustomers([]);
 
         setUnloadLocation('');
         setUnloadCityCode(null);
@@ -340,7 +344,7 @@ const MoveInfo = ({
         setUnloadFloor(1);
         setUnloadArea(1);
         setUnloadHouseholdMembers(0);
-        setUnloadCustomer([]);
+        setUnloadCustomers([]);
 
         setLocationInfo({startX: null, startY: null, endX: null, endY: null});
 
@@ -357,13 +361,13 @@ const MoveInfo = ({
             {helperType: 'PACKING_CLEANING', peopleCount: 0}
         ]);
         setItems([]);
-        setSpecialItems('');
+        setSpecialItems([]);
         setCustomerName('');
         setCustomerPhoneNumber('');
         setPaymentMethod('현금');
         setMemo('');
 
-        setSearchTerm('');
+        setSearchItemTerm('');
         setDispatchAmount(null);
         setConsultantDataForm(null);
         setIsFormValid(false);
@@ -371,86 +375,100 @@ const MoveInfo = ({
 
     const handleSave = () => {
         const reservationData = {
+            reservationId,
+            client: JSON.stringify(client), // JSON 객체를 문자열로 변환
             distance,
 
             loadLocation,           // 상차지
             loadCityCode,           // 상차지 행정동 코드
-            loadMethod,             // 상차 방법
+            loadMethod: JSON.stringify(loadMethod), // 필요 시 문자열로 변환
             loadFloor,              // 상차 층수
             loadArea,               // 상차 평수
             loadHouseholdMembers,   // 상차 거주 인원
-            loadCustomer,           // 상차 도움
+            loadCustomers: JSON.stringify(loadCustomers), // 필요 시 문자열로 변환
 
             unloadLocation,         // 하차지
             unloadCityCode,         // 하차지 행정동 코드
-            unloadMethod,           // 하차 방법
+            unloadMethod: JSON.stringify(unloadMethod), // 필요 시 문자열로 변환
             unloadFloor,            // 하차 층수
             unloadArea,             // 하차 평수
             unloadHouseholdMembers, // 하차 거주 인원
-            unloadCustomer,
+            unloadCustomers: JSON.stringify(unloadCustomers), // 필요 시 문자열로 변환
 
-            locationInfo,
+            locationInfo: JSON.stringify(locationInfo), // JSON 객체를 문자열로 변환
 
-            moveType,               // 이사 종류
+            moveType: JSON.stringify(moveType),               // 이사 종류
             requestDate: requestDate.format("YYYY-MM-DD"),
             requestTime: requestTime.format("HH:mm"),
             isTogether,
 
-            vehicleType,            // 차량 종류
+            vehicleType: JSON.stringify(vehicleType), // 필요 시 문자열로 변환
             vehicleTonnage,         // 톤수
 
-            helpers,
-            items,
-            specialItems,
+            helpers: JSON.stringify(helpers), // JSON 객체 배열을 문자열로 변환
+
+            searchItemTerm,
+            items: JSON.stringify(items), // 필요 시 문자열로 변환
+
+            searchSpecialItemTerm,
+            specialItems: JSON.stringify(specialItems), // 필요 시 문자열로 변환
             customerName,
             customerPhoneNumber,
             paymentMethod,
             memo,
-
-            searchTerm
         };
 
-        dispatch(addReservation(reservationData));
+        reservationMutate(reservationData, {
+            onSuccess: (data) => {
+                queryClient.invalidateQueries('reservation');
+            }
+        });
+        // dispatch(addReservation(reservationData));
         resetState();
     };
 
+
     useEffect(() => {
         if (reservationData) {
-            setDistance(reservationData.distance);
+            setReservationId(reservationData?.reservationId ?? null)
+            setClient(reservationData?.client ?? {key: 1, value: '거래처1'});
+            setDistance(reservationData?.distance ?? 0);
 
-            setLoadLocation(reservationData.loadLocation);
-            setLoadCityCode(reservationData.loadCityCode);
-            setLoadMethod(reservationData.loadMethod);
-            setLoadFloor(reservationData.loadFloor);
-            setLoadArea(reservationData.loadArea);
-            setLoadHouseholdMembers(reservationData.loadHouseholdMembers);
-            setLoadCustomer(reservationData.loadCustomer);
+            setLoadLocation(reservationData?.loadLocation ?? '');
+            setLoadCityCode(reservationData?.loadCityCode ?? null);
+            setLoadMethod(reservationData?.loadMethod ?? {key: 1, value: '엘레베이터'});
+            setLoadFloor(reservationData?.loadFloor ?? 1);
+            setLoadArea(reservationData?.loadArea ?? 1);
+            setLoadHouseholdMembers(reservationData?.loadHouseholdMembers ?? 0);
+            setLoadCustomers(reservationData?.loadCustomers ?? []);
 
-            setUnloadLocation(reservationData.unloadLocation);
-            setUnloadCityCode(reservationData.unloadCityCode);
-            setUnloadMethod(reservationData.unloadMethod);
-            setUnloadFloor(reservationData.unloadFloor);
-            setUnloadArea(reservationData.unloadArea);
-            setUnloadHouseholdMembers(reservationData.unloadHouseholdMembers);
-            setUnloadCustomer(reservationData.unloadCustomer);
+            setUnloadLocation(reservationData?.unloadLocation ?? '');
+            setUnloadCityCode(reservationData?.unloadCityCode ?? null);
+            setUnloadMethod(reservationData?.unloadMethod ?? {key: 1, value: '엘레베이터'});
+            setUnloadFloor(reservationData?.unloadFloor ?? 1);
+            setUnloadArea(reservationData?.unloadArea ?? 1);
+            setUnloadHouseholdMembers(reservationData?.unloadHouseholdMembers ?? 0);
+            setUnloadCustomers(reservationData?.unloadCustomers ?? []);
 
-            setMoveType(reservationData.moveType);
-            setRequestDate(dayjs(reservationData.requestDate));
-            setRequestTime(dayjs(reservationData.requestTime, "HH:mm"));
-            setIsTogether(reservationData.isTogether);
+            setMoveType(reservationData?.moveType ?? null);
+            setRequestDate(dayjs(reservationData.requestDate) ?? dayjs(new Date()));
+            setRequestTime(dayjs(reservationData.requestTime, "HH:mm") ?? dayjs('08:00', 'HH:mm'));
+            setIsTogether(reservationData?.isTogether ?? false);
 
-            setVehicleType(reservationData.vehicleType);
-            setVehicleTonnage(reservationData.vehicleTonnage);
+            setVehicleType(reservationData?.vehicleType ?? null);
+            setVehicleTonnage(reservationData?.vehicleTonnage ?? {key: 1, value: '카고'});
 
-            setHelpers(reservationData.helpers);
-            setItems(reservationData.items);
-            setSpecialItems(reservationData.specialItems);
-            setCustomerName(reservationData.customerName);
-            setCustomerPhoneNumber(reservationData.customerPhoneNumber);
-            setPaymentMethod(reservationData.paymentMethod);
-            setMemo(reservationData.memo);
+            setHelpers(reservationData?.helpers ?? [{helperType: 'TRANSPORT', peopleCount: 0},
+                {helperType: 'PACKING_CLEANING', peopleCount: 0}]);
+            setItems(reservationData?.items ?? []);
+            setSpecialItems(reservationData?.specialItems ?? []);
+            setCustomerName(reservationData?.customerName ?? '');
+            setCustomerPhoneNumber(reservationData?.customerPhoneNumber ?? '');
+            setPaymentMethod(reservationData?.paymentMethod ?? '현금');
+            setMemo(reservationData?.memo ?? '');
 
-            setSearchTerm(reservationData.searchTerm);
+            setSearchItemTerm(reservationData?.searchItemTerm ?? '');
+            setSearchSpecialItemTerm(reservationData?.searchSpecialItemTerm ?? '');
         }
     }, [reservationData]);
 
@@ -461,66 +479,6 @@ const MoveInfo = ({
         }
     }, [isNewMoveInfo]);
 
-
-    // const fetchConsultant = () => {
-    //     if (!checkRequiredFields()) {
-    //         setIsCollapsed(true);
-    //         return;
-    //     }
-    //
-    //     const consultantDataForm = {
-    //         loadLocationName: loadLocation,
-    //         loadCityCode: loadCityCode.substring(0, 6),
-    //         loadSubCityCode: loadCityCode.substring(6),
-    //         loadMethodId: loadMethod?.key,
-    //         loadMethodName: loadMethod?.value,
-    //         loadFloorNumber: loadFloor,
-    //         loadHelperPeople: loadCustomer,
-    //         unloadLocationName: unloadLocation,
-    //         unloadCityCode: unloadCityCode.substring(0, 6),
-    //         unloadSubCityCode: unloadCityCode.substring(6),
-    //         unloadMethodId: unloadMethod?.key,
-    //         unloadMethodName: unloadMethod?.value,
-    //         unloadFloorNumber: unloadFloor,
-    //         unloadHelperPeople: unloadCustomer,
-    //         moveTypeId: moveType.key,
-    //         moveTypeName: moveType.value,
-    //         vehicleId: vehicleType.key,
-    //         vehicleName: vehicleType.value,
-    //         distance,
-    //         requestDate: requestDate.format('YYYY-MM-DD') || null,
-    //         requestTime: requestTime.format('HH:mm') || null,
-    //         items,
-    //         totalItemCbm,
-    //         employHelperPeople: helpers
-    //     }
-    //
-    //     if (moveType.value !== '포장이사') {
-    //         const packingCleaningHelper = helpers.find(helper => helper.helperType === 'PACKING_CLEANING');
-    //
-    //         const peopleCount = packingCleaningHelper ? packingCleaningHelper.peopleCount : 0;
-    //         if (peopleCount > 0) {
-    //             message.warning("이사종류: 포장이사가 아닌경우 추가 이모 설정은 무시 후 계산됩니다.");
-    //         }
-    //     }
-    //
-    //     if (moveType.value === '단순운송') {
-    //         const transportHelper = helpers.find(helper => helper.helperType === 'TRANSPORT');
-    //         const packingCleaningHelper = helpers.find(helper => helper.helperType === 'PACKING_CLEANING');
-    //         const totalPeople = transportHelper?.peopleCount ?? 0 + packingCleaningHelper?.peopleCount ?? 0;
-    //
-    //         if (totalPeople > 0) {
-    //             message.warning("이사종류: 단순운송인 경우 추가 인부, 추가 이모 설정은 무시 후 계산됩니다.");
-    //         }
-    //     }
-    //
-    //     consultantMutate(consultantDataForm, {
-    //         onSuccess: (data) => {
-    //             setDispatchAmount(data);
-    //         }
-    //     });
-    // };
-
     useEffect(() => {
         if (checkRequiredFields()) {
             const formData = {
@@ -530,14 +488,14 @@ const MoveInfo = ({
                 loadMethodId: loadMethod?.key,
                 loadMethodName: loadMethod?.value,
                 loadFloorNumber: loadFloor,
-                loadHelperPeople: loadCustomer,
+                loadHelperPeople: loadCustomers,
                 unloadLocationName: unloadLocation,
                 unloadCityCode: unloadCityCode.substring(0, 6),
                 unloadSubCityCode: unloadCityCode.substring(6),
                 unloadMethodId: unloadMethod?.key,
                 unloadMethodName: unloadMethod?.value,
                 unloadFloorNumber: unloadFloor,
-                unloadHelperPeople: unloadCustomer,
+                unloadHelperPeople: unloadCustomers,
                 moveTypeId: moveType.key,
                 moveTypeName: moveType.value,
                 vehicleId: vehicleType.key,
@@ -587,6 +545,7 @@ const MoveInfo = ({
             setConsultantDataForm(formData);
             setIsFormValid(true);
         } else {
+            setConsultantDataForm(null);
             setDispatchAmount(null);
             setIsFormValid(false);
         }
@@ -595,12 +554,12 @@ const MoveInfo = ({
         loadCityCode,
         loadMethod,
         loadFloor,
-        loadCustomer,
+        loadCustomers,
         unloadLocation,
         unloadCityCode,
         unloadMethod,
         unloadFloor,
-        unloadCustomer,
+        unloadCustomers,
         moveType,
         vehicleType,
         distance,
@@ -621,7 +580,7 @@ const MoveInfo = ({
         <Card
             title="이사 정보"
             className="shadow-md rounded-md relative"
-            style={{ position: "relative" }}
+            style={{position: "relative"}}
         >
             {dispatchError && (
                 <div
@@ -660,9 +619,13 @@ const MoveInfo = ({
                         <Select
                             placeholder="예: 거래처"
                             className="w-32 border border-gray-300 rounded-lg"
+                            value={client}
+                            onChange={(value, option) => {
+                                setClient({key: option.key, value});
+                            }}
                         >
-                            <Option value="거래처1">거래처1</Option>
-                            <Option value="거래처2">거래처2</Option>
+                            <Option value={1}>거래처1</Option>
+                            <Option value={2}>거래처2</Option>
                         </Select>
                     </div>
 
@@ -712,12 +675,12 @@ const MoveInfo = ({
                         floor={loadFloor}
                         area={loadArea}
                         householdMembers={loadHouseholdMembers}
-                        customer={loadCustomer}
+                        customers={loadCustomers}
                         setMethod={setLoadMethod}
                         setFloor={setLoadFloor}
                         setArea={setLoadArea}
                         setHouseHoldMembers={setLoadHouseholdMembers}
-                        setCustomer={setLoadCustomer}
+                        setCustomers={setLoadCustomers}
                         consultant={consultantData}
                         handleMethodChange={handleMethodChange}
                         handleFloorChange={handleFloorChange}
@@ -745,12 +708,12 @@ const MoveInfo = ({
                         floor={unloadFloor}
                         area={unloadArea}
                         householdMembers={unloadHouseholdMembers}
-                        customer={unloadCustomer}
+                        customers={unloadCustomers}
                         setMethod={setUnloadMethod}
                         setFloor={setUnloadFloor}
                         setArea={setUnloadArea}
                         setHouseHoldMembers={setUnloadHouseholdMembers}
-                        setCustomer={setUnloadCustomer}
+                        setCustomers={setUnloadCustomers}
                         consultant={consultantData}
                         handleMethodChange={handleMethodChange}
                         handleFloorChange={handleFloorChange}
@@ -820,9 +783,9 @@ const MoveInfo = ({
                             className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         >
                             {consultantData.vehicles.map((vehicle) => (
-                                <Select.Option key={vehicle.vehicleId} value={vehicle.vehicleName}>
+                                <Option key={vehicle.vehicleId} value={vehicle.vehicleName}>
                                     {vehicle.vehicleName}
-                                </Select.Option>
+                                </Option>
                             ))}
                         </Select>
                     </Form.Item>
@@ -837,14 +800,14 @@ const MoveInfo = ({
                         listHeight={128}
                         onChange={(value) => setVehicleTonnage(value)}
                     >
-                        <Select.Option value="1">1</Select.Option>
-                        <Select.Option value="1.4">1.4</Select.Option>
-                        <Select.Option value="2.5">2.5</Select.Option>
-                        <Select.Option value="3.5">3.5</Select.Option>
-                        <Select.Option value="5">5</Select.Option>
-                        <Select.Option value="7.5">7.5</Select.Option>
-                        <Select.Option value="10">10</Select.Option>
-                        <Select.Option value="15">15</Select.Option>
+                        <Option value="1">1</Option>
+                        <Option value="1.4">1.4</Option>
+                        <Option value="2.5">2.5</Option>
+                        <Option value="3.5">3.5</Option>
+                        <Option value="5">5</Option>
+                        <Option value="7.5">7.5</Option>
+                        <Option value="10">10</Option>
+                        <Option value="15">15</Option>
                     </Select>
                 </Form.Item>
 
@@ -878,13 +841,13 @@ const MoveInfo = ({
                 </Form.Item>
             </div>
             <ItemSearch
-                searchTerm={searchTerm}
+                searchTerm={searchItemTerm}
                 suggestions={suggestions}
                 collapseItems={collapseItems}
                 items={items}
                 setItems={setItems}
                 setSuggestions={setSuggestions}
-                setSearchTerm={setSearchTerm}
+                setSearchTerm={setSearchItemTerm}
                 moveType={moveType}
                 tabIndex={3}
             />
@@ -893,8 +856,8 @@ const MoveInfo = ({
                 <Input.TextArea
                     autoSize={{minRows: 2}}
                     className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    value={specialItems}
-                    onChange={(e) => setSpecialItems(e.target.value)}
+                    value={searchSpecialItemTerm}
+                    onChange={(e) => setSearchSpecialItemTerm(e.target.value)}
                     tabIndex={4}
                 />
             </Form.Item>
@@ -909,7 +872,8 @@ const MoveInfo = ({
                     />
                 </Form.Item>
 
-                <PhoneNumberInput label='화주번호' phoneNumber={customerPhoneNumber} setPhoneNumber={setCustomerPhoneNumber}/>
+                <PhoneNumberInput label='화주번호' phoneNumber={customerPhoneNumber}
+                                  setPhoneNumber={setCustomerPhoneNumber}/>
 
                 <Form.Item className="flex-1 !mb-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">결제방법:</label>

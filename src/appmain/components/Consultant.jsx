@@ -7,6 +7,7 @@ import AdditionalFunctions from "@component/AdditionalFunctions";
 import {useConsultantMetadata} from "@hook/useConsultant";
 import {useDispatch} from "react-redux";
 import {resetState} from "@/features/user/loginSlice";
+import {useReservation} from "@hook/useUser";
 
 const Consultant = () => {
     const { isLoading, data: consultant, error: consultantMetaError } = useConsultantMetadata();
@@ -18,6 +19,7 @@ const Consultant = () => {
     const [paymentMethod, setPaymentMethod] = useState('현금');
 
     const dispatch = useDispatch();
+    const {data: reservations} = useReservation();
 
     // 물품
     const [items, setItems] = useState({});
@@ -72,6 +74,7 @@ const Consultant = () => {
                 <Reservation
                     onLoad={loadReservation}
                     onNew={resetMoveInfo}
+                    reservations={reservations}
                 />
                 <MoveInfo
                     consultantData={consultant}

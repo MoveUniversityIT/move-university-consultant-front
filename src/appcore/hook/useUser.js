@@ -1,5 +1,12 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
-import {getCheckEmail, postLogin, postRegisterUser} from "@api/userApi";
+import {
+    deleteReservation,
+    getCheckEmail,
+    getReservation,
+    postLogin,
+    postRegisterUser,
+    postReservation
+} from "@api/userApi";
 import {toggleAccessToken, toggleLoginState, toggleRefreshToken, toggleRoles} from "@/features/user/loginSlice";
 import RootStore from "@/appcore/rootStore";
 import {message} from "antd";
@@ -33,6 +40,28 @@ export const useCheckEmail = (email, enabled) => {
 export const useRegisterUser = () => {
     return useMutation({
         mutationFn:(registerForm) => postRegisterUser(registerForm),
+        retry: false,
+    })
+}
+
+export const useReservation = () => {
+    return useQuery({
+        queryKey: ['reservation'],
+        queryFn: ({queryKey}) => getReservation(),
+        retry: false
+    })
+}
+
+export const useSaveReservation = () => {
+    return useMutation( {
+        mutationFn: (moveInfo) => postReservation(moveInfo),
+        retry: false,
+    })
+}
+
+export const useDeleteReservation = () => {
+    return useMutation({
+        mutationFn: (reservationId) => deleteReservation(reservationId),
         retry: false,
     })
 }

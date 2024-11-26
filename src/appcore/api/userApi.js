@@ -15,3 +15,21 @@ export const postRegisterUser = async (registerForm) => {
 
     return response?.data;
 }
+
+export const getReservation = async () => {
+    const response = await API.get('/user/reservation');
+
+    return response?.data;
+}
+
+export const postReservation = async (moveInfo) => {
+    const response = await API.post('/user/reservation', moveInfo)
+
+    return response?.data;
+}
+
+export const deleteReservation = async (reservationId) => {
+    const response = await API.delete(`/user/reservation/${reservationId}/delete`)
+
+    return response?.data;
+}

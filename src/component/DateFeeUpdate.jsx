@@ -4,6 +4,7 @@ import _ from "lodash";
 import {useRegSpecialDate, useUpdateDateRate} from "@hook/useConsultant";
 import koKR from "antd/es/date-picker/locale/ko_KR";
 import dayjs from "dayjs";
+import {Option} from "antd/es/mentions";
 
 const DateFeeUpdate = ({consultant}) => {
     const [moveType, setMoveType] = useState(null);
@@ -85,9 +86,9 @@ const DateFeeUpdate = ({consultant}) => {
                         {consultant.moveTypes
                             .filter((moveType) => moveType.moveTypeName !== '단순운송' && moveType.moveTypeName !== '보관이사')
                             .map((moveType) => (
-                                <Select.Option key={moveType.moveTypeId} value={moveType.moveTypeName}>
+                                <Option key={moveType.moveTypeId} value={moveType.moveTypeName}>
                                     {moveType.moveTypeName}
-                                </Select.Option>
+                                </Option>
                             ))}
                     </Select>
                 </Form.Item>
@@ -100,9 +101,9 @@ const DateFeeUpdate = ({consultant}) => {
                     onChange={handleVehicleCountChange}
                 >
                     {[1, 2, 3].map(count => (
-                        <Select.Option key={count} value={count}>
+                        <Option key={count} value={count}>
                             {count}
-                        </Select.Option>
+                        </Option>
                     ))}
                 </Select>
             </Form.Item>
