@@ -9,7 +9,13 @@ const LoginForm = () => {
     const navigate = useNavigate();
 
     const onFinish = (values) => {
-        loginMutate(values);
+        loginMutate(values, {
+            onSuccess: (data) => {
+                setTimeout({
+
+                },5000);
+            }
+        });
     };
 
     const goToRegister = () => {
