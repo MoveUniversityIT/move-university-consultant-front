@@ -52,22 +52,38 @@ const ItemSearch = ({
             const cleanCandidate = candidate.replace(/\s/g, '').toLowerCase();
 
             let score = 0;
+
+            if (cleanInput === cleanCandidate) return 100;
+
+            if (cleanCandidate.includes(cleanInput) || cleanInput.includes(cleanCandidate)) {
+                score += 50;
+            }
+
             for (const char of cleanInput) {
                 if (cleanCandidate.includes(char)) {
                     score++;
                 }
             }
+
+            const inputWords = input.toLowerCase().split(/[\s()]+/);
+            const candidateWords = candidate.toLowerCase().split(/[\s()]+/);
+            for (let i = 0; i < inputWords.length; i++) {
+                if (candidateWords.includes(inputWords[i])) {
+                    score += 10;
+                }
+            }
+
             return score;
         };
 
         if (start <= end && currentItem) {
-            const normalizedCurrent = currentItem.replace(/\(([^)]*)\)/g, '').trim().toLowerCase();
+            const normalizedCurrent = currentItem.trim().toLowerCase();
 
-            const filteredSuggestions = collapseItems.flatMap((category) =>
+            let filteredSuggestions = collapseItems.flatMap((category) =>
                 category.subcategories.flatMap((subcategory) =>
                     subcategory.items.filter((item) => {
                         if (
-                            (moveType?.value === '단순운송' || moveType?.value === '일반이사')  &&
+                            (moveType?.value === '단순운송' || moveType?.value === '일반이사') &&
                             ['박스(필요)', '바구니(필요)'].some((exclude) => item.itemName.includes(exclude))
                         ) {
                             return false;
@@ -96,6 +112,19 @@ const ItemSearch = ({
                     })
                 )
             );
+
+            // 숫자를 제거하고도 항목 이름과 일치하는 경우 처리
+            if (filteredSuggestions.length === 1) {
+                const singleSuggestion = filteredSuggestions[0];
+                const singleSuggestionName = singleSuggestion.itemName.toLowerCase();
+
+                // 숫자만 제거하여 비교
+                const normalizedWithoutNumbers = normalizedCurrent.replace(/\d+$/, '').trim();
+
+                if (singleSuggestionName === normalizedWithoutNumbers) {
+                    filteredSuggestions = [];
+                }
+            }
 
             const exactMatches = filteredSuggestions.filter((item) =>
                 generateNameVariations(item.itemName).some(
@@ -131,7 +160,7 @@ const ItemSearch = ({
                             similarityScore(normalizedCurrent, variation)
                         )
                     );
-                    return bScore - aScore;
+                    return bScore - aScore; // 높은 점수 순으로 정렬
                 }),
                 ...otherMatches.sort((a, b) => (b.sortingIndex || 0) - (a.sortingIndex || 0)),
             ];
@@ -140,6 +169,7 @@ const ItemSearch = ({
         } else {
             setSuggestions([]);
         }
+
 
         const terms = value
             .split(',')
@@ -181,14 +211,21 @@ const ItemSearch = ({
                             const normalizedItemName = item.itemName.toLowerCase();
 
                             if (itemName === normalizedItemName) {
-                                updatedItems[item.itemName] = {
-                                    ...updatedItems[item.itemName],
-                                    itemId: item.itemId,
-                                    itemName: item.itemName,
-                                    itemCount: quantity,
-                                    isDisassembly: item.isDisassembly,
-                                    isInstallation: item.isInstallation,
-                                };
+                                if (!updatedItems[item.itemName]) {
+                                    updatedItems[item.itemName] = {
+                                        itemId: item.itemId,
+                                        itemName: item.itemName,
+                                        itemCount: quantity,
+                                        isDisassembly: item.isDisassembly,
+                                        isInstallation: item.isInstallation,
+                                        requiredIsDisassembly: 'Y',
+                                    };
+                                } else {
+                                    updatedItems[item.itemName] = {
+                                        ...updatedItems[item.itemName],
+                                        itemCount: quantity,
+                                    };
+                                }
                                 processedItemIds.add(item.itemName.toString());
                                 isRegistered = true;
                                 break;
@@ -209,6 +246,7 @@ const ItemSearch = ({
         setItems(updatedItems);
         setSearchTerm(value);
     };
+
 
     const handleSelectItem = (item) => {
         if (!item) return;

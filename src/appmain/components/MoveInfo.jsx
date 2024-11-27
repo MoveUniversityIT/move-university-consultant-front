@@ -258,20 +258,18 @@ const MoveInfo = ({
     const handleMoveTypeChange = (value, option) => {
         setMoveType({key: option.key, value});
 
-        // if (value === '단순운송' || value === '일반이사') {
-        //     Object.keys(items).forEach((key) => {
-        //         console.log(items[key]);
-        //         const item = items[key]?.itemName;
-        //         if (['박스(필요)', '바구니(필요)'].some((exclude) => item === exclude)) {
-        //             delete items[key];
-        //         }
-        //     });
-        //     setItems({ ...items });
-        //
-        //     const termsToRemove = ["박스(필요)", "바구니(필요)"];
-        //     console.log(removeTerm(searchTerm, termsToRemove))
-        //     // setSearchTerm(removeTerm(searchTerm, termsToRemove));
-        // }
+        if (value === '단순운송' || value === '일반이사') {
+            Object.keys(items).forEach((key) => {
+                const item = items[key]?.itemName;
+                if (['박스(필요)', '바구니(필요)'].some((exclude) => item === exclude)) {
+                    delete items[key];
+                }
+            });
+            setItems({ ...items });
+
+            const termsToRemove = ["박스(필요)", "바구니(필요)"];
+            console.log(removeTerm(searchItemTerm, termsToRemove))
+        }
     };
 
     const updateWorkerCount = (type, value) => {
@@ -373,6 +371,11 @@ const MoveInfo = ({
         setMemo('');
 
         setSearchItemTerm('');
+        setSearchSpecialItemTerm('');
+
+        setSuggestions([]);
+        setSpecialItemSuggestions([]);
+
         setDispatchAmount(null);
         setConsultantDataForm(null);
         setIsFormValid(false);
@@ -508,6 +511,7 @@ const MoveInfo = ({
                 requestDate: requestDate.format("YYYY-MM-DD") || null,
                 requestTime: requestTime.format("HH:mm") || null,
                 items,
+                specialItems,
                 totalItemCbm,
                 employHelperPeople: helpers,
             };
@@ -570,6 +574,7 @@ const MoveInfo = ({
         requestDate,
         requestTime,
         items,
+        specialItems,
         helpers,
     ]);
 
