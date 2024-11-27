@@ -109,7 +109,7 @@ const MoveInfo = ({
     // const {mutate: consultantMutate} = useCalcConsultant();
     const {isLoading: isDistanceData, data: roadDistanceData} = useRoadDistance(locationInfo);
 
-    const [specialItems, setSpecialItems] = useState([]);
+    const [specialItems, setSpecialItems] = useState({});
     const [searchSpecialItemTerm, setSearchSpecialItemTerm] = useState('');
     const [specialItemSuggestions, setSpecialItemSuggestions] = useState([]);
     const [customerName, setCustomerName] = useState('');
@@ -364,7 +364,7 @@ const MoveInfo = ({
             {helperType: 'PACKING_CLEANING', peopleCount: 0}
         ]);
         setItems([]);
-        setSpecialItems([]);
+        setSpecialItems({});
         setCustomerName('');
         setCustomerPhoneNumber('');
         setPaymentMethod('현금');
@@ -379,6 +379,9 @@ const MoveInfo = ({
         setDispatchAmount(null);
         setConsultantDataForm(null);
         setIsFormValid(false);
+
+        setLoadAddressList([]);
+        setUnloadAddressList([]);
     };
 
     const handleSave = () => {
@@ -468,7 +471,7 @@ const MoveInfo = ({
             setHelpers(reservationData?.helpers ?? [{helperType: 'TRANSPORT', peopleCount: 0},
                 {helperType: 'PACKING_CLEANING', peopleCount: 0}]);
             setItems(reservationData?.items ?? []);
-            setSpecialItems(reservationData?.specialItems ?? []);
+            setSpecialItems(reservationData?.specialItems ?? {});
             setCustomerName(reservationData?.customerName ?? '');
             setCustomerPhoneNumber(reservationData?.customerPhoneNumber ?? '');
             setPaymentMethod(reservationData?.paymentMethod ?? '현금');
