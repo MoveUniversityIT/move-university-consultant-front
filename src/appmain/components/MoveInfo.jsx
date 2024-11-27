@@ -1,5 +1,18 @@
 import React, {useEffect, useState} from "react";
-import {Button, Card, Checkbox, Form, Input, InputNumber, message, Modal, Select, Spin, TimePicker} from "antd";
+import {
+    Button,
+    Card,
+    Checkbox,
+    Form,
+    Input,
+    InputNumber,
+    message,
+    Modal,
+    Select,
+    Spin,
+    TimePicker,
+    Tooltip
+} from "antd";
 import dayjs from "dayjs";
 import {useAddressSearch, useCalcConsultant, useRoadDistance} from "@hook/useConsultant";
 import AddressInput from "@/component/AddressInput";
@@ -12,6 +25,7 @@ import PhoneNumberInput from "@component/PhoneNumberInput";
 import {useSaveReservation} from "@hook/useUser";
 import {useQueryClient} from "@tanstack/react-query";
 import SpecialItemSearch from "@component/SpecialItemSearch";
+import {InfoCircleOutlined} from "@ant-design/icons";
 
 const {Option} = Select;
 
@@ -35,6 +49,7 @@ const MoveInfo = ({
     const [moveType, setMoveType] = useState(null);
     const [vehicleType, setVehicleType] = useState({key: 1, value: '카고'});
     const [vehicleTonnage, setVehicleTonnage] = useState(1);
+    const [vehicleCount, setVehicleCount] = useState(null);
 
     const [loadLocation, setLoadLocation] = useState('');
     const [loadCityCode, setLoadCityCode] = useState(null);
@@ -265,7 +280,7 @@ const MoveInfo = ({
                     delete items[key];
                 }
             });
-            setItems({ ...items });
+            setItems({...items});
 
             const termsToRemove = ["박스(필요)", "바구니(필요)"];
             console.log(removeTerm(searchItemTerm, termsToRemove))
@@ -358,6 +373,7 @@ const MoveInfo = ({
 
         setVehicleType({key: 1, value: '카고'});
         setVehicleTonnage(1);
+        setVehicleCount(null);
 
         setHelpers([
             {helperType: 'TRANSPORT', peopleCount: 0},
@@ -389,7 +405,6 @@ const MoveInfo = ({
             reservationId,
             client: JSON.stringify(client), // JSON 객체를 문자열로 변환
             distance,
-
             loadLocation,           // 상차지
             loadCityCode,           // 상차지 행정동 코드
             loadMethod: JSON.stringify(loadMethod), // 필요 시 문자열로 변환
@@ -397,7 +412,6 @@ const MoveInfo = ({
             loadArea,               // 상차 평수
             loadHouseholdMembers,   // 상차 거주 인원
             loadCustomers: JSON.stringify(loadCustomers), // 필요 시 문자열로 변환
-
             unloadLocation,         // 하차지
             unloadCityCode,         // 하차지 행정동 코드
             unloadMethod: JSON.stringify(unloadMethod), // 필요 시 문자열로 변환
@@ -405,22 +419,17 @@ const MoveInfo = ({
             unloadArea,             // 하차 평수
             unloadHouseholdMembers, // 하차 거주 인원
             unloadCustomers: JSON.stringify(unloadCustomers), // 필요 시 문자열로 변환
-
             locationInfo: JSON.stringify(locationInfo), // JSON 객체를 문자열로 변환
-
             moveType: JSON.stringify(moveType),               // 이사 종류
             requestDate: requestDate.format("YYYY-MM-DD"),
             requestTime: requestTime.format("HH:mm"),
             isTogether,
-
             vehicleType: JSON.stringify(vehicleType), // 필요 시 문자열로 변환
             vehicleTonnage,         // 톤수
-
+            vehicleCount,
             helpers: JSON.stringify(helpers), // JSON 객체 배열을 문자열로 변환
-
             searchItemTerm,
             items: JSON.stringify(items), // 필요 시 문자열로 변환
-
             searchSpecialItemTerm,
             specialItems: JSON.stringify(specialItems), // 필요 시 문자열로 변환
             customerName,
@@ -467,6 +476,7 @@ const MoveInfo = ({
 
             setVehicleType(reservationData?.vehicleType ?? null);
             setVehicleTonnage(reservationData?.vehicleTonnage ?? {key: 1, value: '카고'});
+            setVehicleCount(reservationData?.vehicleCount ?? null);
 
             setHelpers(reservationData?.helpers ?? [{helperType: 'TRANSPORT', peopleCount: 0},
                 {helperType: 'PACKING_CLEANING', peopleCount: 0}]);
@@ -510,6 +520,7 @@ const MoveInfo = ({
                 moveTypeName: moveType.value,
                 vehicleId: vehicleType.key,
                 vehicleName: vehicleType.value,
+                vehicleCount,
                 distance,
                 requestDate: requestDate.format("YYYY-MM-DD") || null,
                 requestTime: requestTime.format("HH:mm") || null,
@@ -573,6 +584,7 @@ const MoveInfo = ({
         unloadCustomers,
         moveType,
         vehicleType,
+        vehicleCount,
         distance,
         requestDate,
         requestTime,
@@ -736,7 +748,23 @@ const MoveInfo = ({
             <div className="flex gap-2 items-start mb-1">
                 {consultantData?.moveTypes && (
                     <Form.Item className="flex-1 !mb-1">
-                        <label className="text-sm font-medium text-gray-700 mb-1 block">이사종류:</label>
+                        <div className="flex items-center">
+                            <Tooltip className="mr-1 mb-1"
+                                     title={
+                                         <div className="text-sm">
+                                             <strong>박스(필요), 바구니(필요) 기준:</strong> <br/>
+                                             1대: 15박스, 2대: 27박스, 3대: 39박스, 4대: 51박스 <br/>
+                                             <strong>추가:</strong> 첫 대는 <strong>15박스</strong>, 이후 <strong>+12박스</strong>씩
+                                             추가. <br/>
+                                             <span className="text-red-500">※ 박스 수 차이가 클 경우 금액이 달라질 수 있습니다.</span>
+                                         </div>
+                                     }
+                                     overlayStyle={{maxWidth: "400px"}}
+                            >
+                                <InfoCircleOutlined className="text-orange-400 cursor-pointer"/>
+                            </Tooltip>
+                            <label className="text-sm font-medium text-gray-700 mb-1 block">이사종류:</label>
+                        </div>
                         <Select
                             placeholder="예: 단순운송"
                             value={moveType?.value}
@@ -784,7 +812,7 @@ const MoveInfo = ({
 
             <div className="flex gap-2 items-start mb-1">
                 {consultantData?.vehicles && (
-                    <Form.Item className="flex flex-col !mb-1" style={{flex: "1.5 1 0"}}>
+                    <Form.Item className="flex flex-col !mb-1" style={{flex: "1.2 1 0"}}>
                         <label className="text-sm font-medium text-gray-700 mb-1 block">차량종류:</label>
                         <Select
                             placeholder="카고"
@@ -803,7 +831,7 @@ const MoveInfo = ({
                     </Form.Item>
                 )}
 
-                <Form.Item className="flex flex-col !mb-1" style={{flex: "1.5 1 0"}}>
+                <Form.Item className="flex flex-col !mb-1" style={{flex: "0.7 1 0"}}>
                     <label className="text-sm font-medium text-gray-700 mb-1 block">톤수:</label>
                     <Select
                         placeholder="예: 톤수"
@@ -821,6 +849,31 @@ const MoveInfo = ({
                         <Option value="10">10</Option>
                         <Option value="15">15</Option>
                     </Select>
+                </Form.Item>
+
+                <Form.Item className="flex flex-col !mb-1" style={{flex: "0.7 1 0"}}>
+                    <div className="flex items-center mb-1">
+                        <Tooltip className="mr-1"
+                                 title={
+                                     <>
+                                         <span className="font-bold">빈값:</span> 자동으로 배차 대수가 계산됩니다. <br/>
+                                         <span className="font-bold">입력값:</span> 차량 수를 강제로 지정할 수 있습니다.
+                                     </>
+                                 }
+                                 overlayStyle={{maxWidth: "400px"}}
+                        >
+                            <InfoCircleOutlined className="text-orange-400 cursor-pointer"/>
+                        </Tooltip>
+                        <label className="text-sm font-medium text-gray-700 block">배차 대수:</label>
+                    </div>
+                    <InputNumber
+                        min={0}
+                        max={10}
+                        value={vehicleCount}
+                        onChange={(value) => setVehicleCount(value === 0 ? null : value)}
+                        placeholder="배차 조정"
+                        className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
                 </Form.Item>
 
                 <Form.Item className="flex flex-col !mb-1" style={{flex: "0.7 1 0"}}>
@@ -907,9 +960,8 @@ const MoveInfo = ({
             <Form.Item className="relative !mb-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">메모:</label>
                 <div className="relative">
-                    {/* TextArea */}
                     <Input.TextArea
-                        autoSize={{ minRows: 3, maxRows: 3 }}
+                        autoSize={{minRows: 3, maxRows: 3}}
                         placeholder="메모를 입력하세요..."
                         className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10"
                         onChange={(e) => setMemo(e.target.value)}
@@ -918,7 +970,7 @@ const MoveInfo = ({
                     <button
                         type="button"
                         onClick={() => setIsMemoModalVisible(true)}
-                        className="absolute bottom-2 right-5 bg-blue-600 text-white p-2 rounded-full shadow-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 flex items-center justify-center"
+                        className="absolute bottom-2 right-2 bg-blue-600 text-white p-2 rounded-full shadow-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 flex items-center justify-center"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -931,19 +983,23 @@ const MoveInfo = ({
                             <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
-                                d="M11 4h10M5 12h16M9 20h12"
+                                d="M4 4h16v16H4V4z"
+                            />
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M8 8h8M8 12h4"
                             />
                         </svg>
                     </button>
                 </div>
 
-                {/* 모달 */}
                 <Modal
                     title="메모 작성"
                     open={isMemoModalVisible}
                     onCancel={() => setIsMemoModalVisible(false)}
                     width={800}
-                    style={{top: 60}} // 모달 세로 크기 조정
+                    style={{top: 60}}
                     footer={[
                         <Button
                             key="ok"
@@ -955,7 +1011,7 @@ const MoveInfo = ({
                     ]}
                 >
                     <Input.TextArea
-                        autoSize={{ minRows: 25 }}
+                        autoSize={{minRows: 25}}
                         value={memo}
                         onChange={(e) => setMemo(e.target.value)}
                         placeholder="메모를 입력하세요..."

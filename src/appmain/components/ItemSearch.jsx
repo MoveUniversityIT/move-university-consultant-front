@@ -113,12 +113,10 @@ const ItemSearch = ({
                 )
             );
 
-            // 숫자를 제거하고도 항목 이름과 일치하는 경우 처리
             if (filteredSuggestions.length === 1) {
                 const singleSuggestion = filteredSuggestions[0];
                 const singleSuggestionName = singleSuggestion.itemName.toLowerCase();
 
-                // 숫자만 제거하여 비교
                 const normalizedWithoutNumbers = normalizedCurrent.replace(/\d+$/, '').trim();
 
                 if (singleSuggestionName === normalizedWithoutNumbers) {

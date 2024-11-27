@@ -332,8 +332,19 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
 
                         <span className="text-sm font-semibold text-gray-700">{sliderValue}</span>
                     </div>
-                    <p className="mt-4 text-gray-600">견적금액: {estimatePrice}원(계약금: {depositPrice}원)
-                        {paymentMethod !== "현금" ? "(부가세: " + surtax + "원)" : ""}</p>
+                    <div className="mt-4 text-gray-600">
+                        <div className="text-lg font-semibold">
+                            견적 금액: <span className="text-blue-600">{estimatePrice.toLocaleString()}원</span>
+                        </div>
+                        <div className="mt-1">
+                            계약금: <span className="text-green-600">{depositPrice.toLocaleString()}원</span>
+                        </div>
+                        {paymentMethod !== "현금" && (
+                            <div className="mt-1 text-sm text-gray-500">
+                                부가세 포함: {(estimatePrice + surtax).toLocaleString()}원
+                            </div>
+                        )}
+                    </div>
                 </div>
             </Card>
         </div>

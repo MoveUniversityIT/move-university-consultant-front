@@ -34,57 +34,38 @@ const SpecialItemSearch = ({
         const currentItem = value.slice(start, end).trim();
 
         if (start <= end && currentItem) {
-            // 정규화 함수: 숫자와 괄호 제거
             const normalizeString = (str) => str.replace(/[\d()]/g, "").trim().toLowerCase();
 
             const normalizedCurrent = normalizeString(currentItem);
 
-            // 각 글자의 출현 횟수 비교를 위한 함수
-            const getCharFrequency = (str) => {
-                const frequency = {};
-                for (const char of str) {
-                    frequency[char] = (frequency[char] || 0) + 1;
-                }
-                return frequency;
-            };
+            const keywords = normalizedCurrent.split(/\s+/).filter((keyword) => keyword);
 
-            const currentFrequency = getCharFrequency(normalizedCurrent);
-
-            // 글자 매칭 점수를 계산하는 함수
-            const calculateMatchScore = (targetFrequency, sourceFrequency) => {
-                let score = 0;
-                for (const char in sourceFrequency) {
-                    if (targetFrequency[char]) {
-                        score += Math.min(targetFrequency[char], sourceFrequency[char]);
-                    }
-                }
-                return score;
-            };
-
-            // 특별 아이템 필터링
-            let filteredSpecialSuggestions = collapseSpecialItems.map((specialItem) => {
+            let filteredSpecialSuggestions = collapseSpecialItems.filter((specialItem) => {
                 const normalizedSpecialName = normalizeString(specialItem.specialItemName);
-                const specialFrequency = getCharFrequency(normalizedSpecialName);
-                const matchScore = calculateMatchScore(specialFrequency, currentFrequency);
+
+                return keywords.every((keyword) => normalizedSpecialName.includes(keyword));
+            });
+
+            filteredSpecialSuggestions = filteredSpecialSuggestions.map((specialItem) => {
+                const normalizedSpecialName = normalizeString(specialItem.specialItemName);
+
+                const matchScore = keywords.reduce((score, keyword) => {
+                    if (normalizedSpecialName.includes(keyword)) {
+                        score += keyword.length;
+                    }
+                    return score;
+                }, 0);
 
                 return { ...specialItem, matchScore };
             });
 
-            // 매칭 점수를 기준으로 정렬
-            filteredSpecialSuggestions = filteredSpecialSuggestions
-                .filter((item) => item.matchScore > 0)
-                .sort((a, b) => b.matchScore - a.matchScore);
+            filteredSpecialSuggestions = filteredSpecialSuggestions.sort((a, b) => b.matchScore - a.matchScore);
 
-            // 숫자를 제거하고도 항목 이름과 일치하는 경우 처리
             if (filteredSpecialSuggestions.length > 0) {
                 const singleSuggestion = filteredSpecialSuggestions[0];
                 const singleSuggestionName = singleSuggestion.specialItemName.toLowerCase();
 
-                // 마지막 숫자만 제거하여 비교
                 const normalizedWithoutTrailingNumbers = currentItem.replace(/\d+$/, "").trim().toLowerCase();
-
-                console.log("Normalized Item:", normalizedWithoutTrailingNumbers);
-                console.log("Suggestion Name:", singleSuggestionName);
 
                 if (singleSuggestionName === normalizedWithoutTrailingNumbers) {
                     filteredSpecialSuggestions = [];
@@ -137,7 +118,6 @@ const SpecialItemSearch = ({
                 }
 
                 if (!isRegistered) {
-                    // 미등록 아이템 처리
                     // unregisteredItems.push(term);
                 }
             }
@@ -147,7 +127,6 @@ const SpecialItemSearch = ({
         setSpecialItems(updatedSpecialItems);
         setSearchSpecialItemTerm(value);
     };
-
 
     const handleSelectSpecialItem = (specialItem) => {
         if (!specialItem) return;
