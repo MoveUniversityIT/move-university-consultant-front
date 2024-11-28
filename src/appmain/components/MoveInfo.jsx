@@ -469,6 +469,8 @@ const MoveInfo = ({
             setUnloadHouseholdMembers(reservationData?.unloadHouseholdMembers ?? 0);
             setUnloadCustomers(reservationData?.unloadCustomers ?? []);
 
+            setLocationInfo(reservationData?.locationInfo ?? {endY: null, endX: null, startY: null, startX: null});
+
             setMoveType(reservationData?.moveType ?? null);
             setRequestDate(dayjs(reservationData.requestDate) ?? dayjs(new Date()));
             setRequestTime(dayjs(reservationData.requestTime, "HH:mm") ?? dayjs('08:00', 'HH:mm'));
@@ -528,6 +530,7 @@ const MoveInfo = ({
                 specialItems,
                 totalItemCbm,
                 employHelperPeople: helpers,
+                isTogether
             };
 
             const packingCleaningKey = "packing-cleaning-warning";
@@ -591,6 +594,7 @@ const MoveInfo = ({
         items,
         specialItems,
         helpers,
+        isTogether
     ]);
 
     useEffect(() => {
@@ -615,11 +619,11 @@ const MoveInfo = ({
                         position: "absolute",
                         top: "8px",
                         right: "8px",
-                        backgroundColor: "rgba(255, 235, 235, 0.8)", // 배경 추가(선택 사항)
-                        borderRadius: "4px", // 둥근 테두리
-                        padding: "4px 8px", // 텍스트 주위 여백
-                        lineHeight: "1.5", // 텍스트 세로 정렬 개선
-                        boxShadow: "0 1px 3px rgba(0,0,0,0.1)", // 약간의 그림자 효과(선택 사항)
+                        backgroundColor: "rgba(255, 235, 235, 0.8)",
+                        borderRadius: "4px",
+                        padding: "4px 8px",
+                        lineHeight: "1.5",
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                     }}
                 >
                     {dispatchError?.message}
