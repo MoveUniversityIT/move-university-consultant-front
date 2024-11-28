@@ -130,18 +130,18 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
             transportHelperCount: dispatchAmount?.helpers
                 ? dispatchAmount.helpers.reduce((total, helper) => {
                     if (helper.helperType === "TRANSPORT") {
-                        return (total + (helper.helperCount || 0)).toLocaleString();
+                        return Number(total) + Number(helper.helperCount || 0);
                     }
-                    return total.toLocaleString();
-                }, 0)
+                    return total;
+                }, 0).toLocaleString()
                 : 0,
             cleaningHelperCount: dispatchAmount?.helpers
                 ? dispatchAmount.helpers.reduce((total, helper) => {
                     if (helper.helperType === "PACKING_CLEANING") {
-                        return (total + (helper.helperCount || 0)).toLocaleString();
+                        return Number(total) + Number(helper.helperCount || 0);
                     }
-                    return total.toLocaleString();
-                }, 0)
+                    return total
+                }, 0).toLocaleString()
                 : 0,
             vehicleName: dispatchAmount?.vehicleName,
             vehicleCount: dispatchAmount?.vehicleCount.toLocaleString() ??  0,
@@ -149,10 +149,10 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
             transportHelperPrice: dispatchAmount?.helpers
                 ? dispatchAmount.helpers.reduce((total, helper) => {
                     if (helper.helperType === "TRANSPORT") {
-                        return (total + (helper.totalHelperPrice || 0)).toLocaleString();
+                        return Number(total) + Number(helper.totalHelperPrice || 0);
                     }
-                    return total.toLocaleString();
-                }, 0)
+                    return total;
+                }, 0).toLocaleString()
                 : 0,
             cleaningHelperPrice: dispatchAmount?.helpers
                 ? dispatchAmount.helpers.reduce((total, helper) => {
