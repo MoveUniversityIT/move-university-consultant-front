@@ -45,7 +45,7 @@ const MoveInfo = ({
     const queryClient = useQueryClient();
 
     const [reservationId, setReservationId] = useState(null);
-    const [client, setClient] = useState({key: 1, value: '거래처1'});
+    const [client, setClient] = useState({key: 0, value: '이사대학'});
     const [moveType, setMoveType] = useState(null);
     const [vehicleType, setVehicleType] = useState({key: 1, value: '카고'});
     const [vehicleTonnage, setVehicleTonnage] = useState(1);
@@ -148,7 +148,7 @@ const MoveInfo = ({
         ) {
             setDistance(0);
         }
-    }, [locationInfo,]);
+    }, [locationInfo]);
 
     useEffect(() => {
 
@@ -345,7 +345,7 @@ const MoveInfo = ({
 
     const resetState = () => {
         setReservationId(null);
-        setClient({key: 1, value: '거래처1'});
+        setClient({key: 0, value: '이사대학'});
         setDistance(0);
 
         setLoadLocation('');
@@ -450,7 +450,7 @@ const MoveInfo = ({
     useEffect(() => {
         if (reservationData) {
             setReservationId(reservationData?.reservationId ?? null)
-            setClient(reservationData?.client ?? {key: 1, value: '거래처1'});
+            setClient(reservationData?.client ?? {key: 0, value: '이사대학'});
             setDistance(reservationData?.distance ?? 0);
 
             setLoadLocation(reservationData?.loadLocation ?? '');
@@ -631,7 +631,7 @@ const MoveInfo = ({
                         <label className="w-12 text-gray-700 font-medium">담당자:</label>
                         <Select
                             placeholder="예: 담당자"
-                            className="min-w-32 border border-gray-300 rounded-lg"
+                            className="min-w-24 border border-gray-300 rounded-lg"
                             value={consultantData?.userName}
                         >
                             <Option value={consultantData?.userName}>{consultantData?.userName}</Option>
@@ -642,14 +642,18 @@ const MoveInfo = ({
                         <label className="w-12 text-gray-700 font-medium">거래처:</label>
                         <Select
                             placeholder="예: 거래처"
-                            className="w-32 border border-gray-300 rounded-lg"
+                            className="min-w-32 border border-gray-300 rounded-lg"
                             value={client}
                             onChange={(value, option) => {
                                 setClient({key: option.key, value});
                             }}
                         >
-                            <Option value={1}>거래처1</Option>
-                            <Option value={2}>거래처2</Option>
+                            {["이사대학", "숨고", "위매치", "이사대학_ENG", "이사대학_CHN",
+                                "이사대학_JAP", "아정당", "당근", "개인연락", "재이용",].map((name, index) => (
+                                <Option key={index} value={index}>
+                                    {name}
+                                </Option>
+                            ))}
                         </Select>
                     </div>
 

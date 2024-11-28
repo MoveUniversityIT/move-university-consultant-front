@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Button, Layout, Spin} from "antd";
+import {Layout, Spin} from "antd";
 import Reservation from "@component/Reservation";
 import MoveInfo from "@component/MoveInfo";
 import DispatchCost from "@component/DispatchCost";
@@ -132,7 +132,6 @@ const Consultant = () => {
                             </div>
                         </div>
 
-                        {/* 패널 열고 닫기 핸들 */}
                         <div
                             className={`fixed top-1/2 right-0 transform -translate-y-1/2 z-50 bg-gray-500 text-white px-2 py-4 cursor-pointer rounded-l-lg transition-transform duration-300 ${
                                 isCollapsed ? "translate-x-0" : "translate-x-full"
