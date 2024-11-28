@@ -30,7 +30,7 @@ const labels = {
     totalDifficultyPriceFactor: "상차지 난이도 + 하차지 난이도 추가 요금",
     boxPriceFactor: "박스 추가/할인 요금",
     todayOrTomorrowPriceFactor: "당일, 내일 추가 요금",
-    specialItemTotalCost: "특이 사항 총 비용",
+    specialItemTotalCost: "특이 사항 총 비용(1대당 적용)",
     vehiclePrice: "차량 1대당 가격",
     vehicleRoundingHalfUp: '차량 1대당(반올림) 가격',
 };
