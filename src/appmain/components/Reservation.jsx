@@ -59,7 +59,7 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
                 renderItem={(reservation) => (
                     <List.Item
                         key={reservation.reservationId}
-                        className="w-full bg-white shadow-sm rounded-lg mb-2 p-4 hover:shadow-md transition-shadow flex flex-col !items-start opacity-100 transform duration-300"
+                        className="w-full bg-white shadow-sm rounded-lg mb-2 p-4 hover:shadow-md transition-shadow flex flex-col !items-center opacity-100 transform duration-300"
                     >
                         <div className="flex flex-col gap-1">
                             <p className="text-sm font-semibold text-gray-800">
