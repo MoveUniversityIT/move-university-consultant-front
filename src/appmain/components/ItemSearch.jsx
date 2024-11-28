@@ -180,7 +180,6 @@ const ItemSearch = ({
         const unregisteredItems = [];
 
         Object.keys(updatedItems).forEach((key) => {
-            // 기존 항목을 유지하면서 terms에 없는 경우 처리
             if (!terms.some((term) => term.startsWith(updatedItems[key].itemName))) {
                 delete updatedItems[key];
             } else {

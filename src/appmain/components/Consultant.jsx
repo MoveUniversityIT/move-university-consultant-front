@@ -110,16 +110,10 @@ const Consultant = () => {
                             className={`fixed top-0 right-0 h-full z-50 bg-white shadow-lg transform transition-transform duration-300 ${
                                 isCollapsed ? "translate-x-full" : "translate-x-0"
                             }`}
-                            style={{width: "650px"}}
+                            style={{ width: "650px" }}
                         >
                             <div className="flex justify-between items-center bg-gray-200 p-4">
                                 <h4 className="text-gray-700">배차 금액 상세 정보</h4>
-                                <button
-                                    onClick={() => setIsCollapsed(!isCollapsed)}
-                                    className="text-gray-500"
-                                >
-                                    {isCollapsed ? "열기" : "닫기"}
-                                </button>
                             </div>
 
                             <div className="flex flex-col h-full">
@@ -133,12 +127,13 @@ const Consultant = () => {
                         </div>
 
                         <div
-                            className={`fixed top-1/2 right-0 transform -translate-y-1/2 z-50 bg-gray-500 text-white px-2 py-4 cursor-pointer rounded-l-lg transition-transform duration-300 ${
-                                isCollapsed ? "translate-x-0" : "translate-x-full"
-                            }`}
+                            className={`fixed top-1/2 transform -translate-y-1/2 z-50 bg-gray-500 text-white px-2 py-4 cursor-pointer rounded-l-lg transition-all duration-300`}
+                            style={{
+                                right: isCollapsed ? "0" : "650px",
+                            }}
                             onClick={() => setIsCollapsed(!isCollapsed)}
                         >
-                            {isCollapsed ? "<<" : ""}
+                            {isCollapsed ? "<<" : ">>"}
                         </div>
                     </>
                 )}

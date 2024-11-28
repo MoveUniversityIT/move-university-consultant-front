@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Table, Typography} from 'antd';
-import CustomProgress from "@/component/CustomProgress";
+import {Spin, Table, Typography} from 'antd';
 
 const {Title} = Typography;
 
@@ -31,6 +30,10 @@ const labels = {
     boxPriceFactor: "박스 추가/할인 요금",
     todayOrTomorrowPriceFactor: "당일, 내일 추가 요금",
     specialItemTotalCost: "특이 사항 총 비용(1대당 적용)",
+    togetherPrice: "동승 비용",
+    loadLadderPrice: "상차 사다리 가격",
+    unloadLadderPrice: "하차 사다리 가격",
+    totalLadderPrice: "총 사다리 가격",
     vehiclePrice: "차량 1대당 가격",
     vehicleRoundingHalfUp: '차량 1대당(반올림) 가격',
 };
@@ -48,7 +51,7 @@ const helperLabels = {
     LOAD_UNLOAD: "상차/하차(양쪽)"
 };
 
-const AdminDispatchPrice = ({data, isLoadingConsultantMutate}) => {
+const AdminDispatchPrice = ({data, isLoading}) => {
     const [dispatchData, setDispatchData] = useState({});
 
     useEffect(() => {
@@ -162,41 +165,44 @@ const AdminDispatchPrice = ({data, isLoadingConsultantMutate}) => {
             key: index,
             ...helper
         }))
-        : [{key: 0}]; // 초기 빈 데이터 제공
+        : [{key: 0}];
 
     return (
         <div className="pb-14">
-            {isLoadingConsultantMutate ? (
-                <CustomProgress isLoading={isLoadingConsultantMutate} />
-            ) : (
-                <>
-                    <Title level={3}>배차 금액 총계</Title>
-                    <Table
-                        columns={totalColumns}
-                        dataSource={totalDataSource}
-                        pagination={false}
-                        bordered
-                        style={{marginBottom: '20px'}}
-                    />
+            <div
+                className="absolute inset-0 flex items-center justify-center"
+                style={{
+                    opacity: isLoading ? 1 : 0,
+                    transition: "opacity 0.3s ease",
+                }}
+            >
+                <Spin size="large"/>
+            </div>
+            <Title level={3}>배차 금액 총계</Title>
+            <Table
+                columns={totalColumns}
+                dataSource={totalDataSource}
+                pagination={false}
+                bordered
+                style={{marginBottom: '20px'}}
+            />
 
-                    <Title level={3}>배차 금액 정보</Title>
-                    <Table
-                        columns={mainDataColumns}
-                        dataSource={mainDataSource}
-                        pagination={false}
-                        bordered
-                        style={{marginBottom: '20px'}}
-                    />
+            <Title level={3}>배차 금액 정보</Title>
+            <Table
+                columns={mainDataColumns}
+                dataSource={mainDataSource}
+                pagination={false}
+                bordered
+                style={{marginBottom: '20px'}}
+            />
 
-                    <Title level={4}>상하차 인부 정보</Title>
-                    <Table
-                        columns={helperColumns}
-                        dataSource={helperDataSource}
-                        pagination={false}
-                        bordered
-                    />
-                </>
-            )}
+            <Title level={4}>상하차 인부 정보</Title>
+            <Table
+                columns={helperColumns}
+                dataSource={helperDataSource}
+                pagination={false}
+                bordered
+            />
         </div>
     );
 };

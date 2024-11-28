@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import {Form, InputNumber, Select} from "antd";
-import {Option} from "antd/es/mentions";
+const {Option} = Select;
 
 const MethodAndFloorInput = ({
                                  label,
@@ -15,8 +15,6 @@ const MethodAndFloorInput = ({
                                  setHouseHoldMembers,
                                  setCustomers,
                                  consultant,
-                                 handleMethodChange,
-                                 handleFloorChange
                              }) => {
 
     const handleGenderChange = (gender, count) => {
@@ -39,6 +37,16 @@ const MethodAndFloorInput = ({
             );
         }
     }
+
+    const handleMethodChange = (setMethod) => (value, option) => {
+        if(value === '사다리' && floor <= 1) {
+            setFloor(2);
+        }
+
+        setMethod({key: option.key, value});
+    };
+
+    const handleFloorChange = (setFloor) => (value) => setFloor(value);
 
     return (
         <div className="flex gap-2 items-center">

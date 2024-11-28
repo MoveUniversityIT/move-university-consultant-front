@@ -199,12 +199,7 @@ const MoveInfo = ({
         setShowList(false);
     };
 
-    // 상차 벙법 관련 메서드 구간
-    const handleMethodChange = (setMethod) => (value, option) => {
-        setMethod({key: option.key, value});
-    };
 
-    const handleFloorChange = (setFloor) => (value) => setFloor(value);
 
     useEffect(() => {
         if (locationSearch?.locationType === "load") {
@@ -714,8 +709,6 @@ const MoveInfo = ({
                         setHouseHoldMembers={setLoadHouseholdMembers}
                         setCustomers={setLoadCustomers}
                         consultant={consultantData}
-                        handleMethodChange={handleMethodChange}
-                        handleFloorChange={handleFloorChange}
                     />
                 </div>
 
@@ -747,8 +740,6 @@ const MoveInfo = ({
                         setHouseHoldMembers={setUnloadHouseholdMembers}
                         setCustomers={setUnloadCustomers}
                         consultant={consultantData}
-                        handleMethodChange={handleMethodChange}
-                        handleFloorChange={handleFloorChange}
                     />
                 </div>
             </Form>
@@ -865,7 +856,7 @@ const MoveInfo = ({
                                  title={
                                      <>
                                          <span className="font-bold">빈값:</span> 자동으로 배차 대수가 계산됩니다. <br/>
-                                         <span className="font-bold">입력값:</span> 차량 수를 강제로 지정할 수 있습니다.
+                                         <span className="font-bold">입력값:</span> 배차 대수를 강제로 지정할 수 있습니다.
                                      </>
                                  }
                                  overlayStyle={{maxWidth: "400px"}}

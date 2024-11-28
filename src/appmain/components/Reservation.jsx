@@ -39,16 +39,14 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
         <Card
             title="상담 예약"
             className="shadow-md rounded-md h-full"
-            bodyStyle={{
-                padding: "10px",
+            styles={{
+                body: { padding: '10px' },
             }}
         >
-            {/* 새로 만들기 버튼 */}
             <Button type="primary" block className="mb-4" onClick={onNew}>
                 새로 만들기
             </Button>
 
-            {/* 검색 입력 필드 */}
             <Input
                 placeholder="검색 (이름, 번호, 날짜)"
                 className="mb-4"
@@ -56,13 +54,12 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
                 value={searchTerm}
             />
 
-            {/* 목록 */}
             <List
                 dataSource={filteredReservations}
                 renderItem={(reservation) => (
                     <List.Item
                         key={reservation.reservationId}
-                        className="w-full bg-white shadow-sm rounded-lg mb-2 p-4 hover:shadow-md transition-shadow flex flex-col opacity-100 transform duration-300"
+                        className="w-full bg-white shadow-sm rounded-lg mb-2 p-4 hover:shadow-md transition-shadow flex flex-col !items-start opacity-100 transform duration-300"
                     >
                         <div className="flex flex-col gap-1">
                             <p className="text-sm font-semibold text-gray-800">

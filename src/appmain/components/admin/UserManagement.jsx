@@ -1,10 +1,11 @@
 import {Button, Input, Select, Spin, Table} from "antd";
-import {Option} from "antd/es/mentions";
 import React, {useEffect, useState} from "react";
 import {useUpdateUser, useUserManagement} from "@hook/useAdmin";
 import dayjs from "dayjs";
 import {useQueryClient} from "@tanstack/react-query";
 import {message} from "antd";
+
+const { Option } = Select;
 
 const positionLabel = {
     "CEO": "대표",

@@ -4,8 +4,7 @@ import _ from "lodash";
 import {useRegSpecialDate, useUpdateDateRate} from "@hook/useConsultant";
 import koKR from "antd/es/date-picker/locale/ko_KR";
 import dayjs from "dayjs";
-import {Option} from "antd/es/mentions";
-
+const {Option} = Select;
 const DateFeeUpdate = ({consultant}) => {
     const [moveType, setMoveType] = useState(null);
     const [vehicleCount, setVehicleCount] = useState(null);
