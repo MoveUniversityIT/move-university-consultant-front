@@ -34,22 +34,23 @@ const SpecialItemSearch = ({
         const currentItem = value.slice(start, end).trim();
 
         if (start <= end && currentItem) {
-            const normalizeString = (str) => str.replace(/[\d()]/g, "").trim().toLowerCase();
+            const normalizeString = (str) => str.replace(/[()]/g, "").trim().toLowerCase();
 
             const normalizedCurrent = normalizeString(currentItem);
 
             const keywords = normalizedCurrent.split(/\s+/).filter((keyword) => keyword);
+            const additionalKeywords = normalizedCurrent.match(/[가-힣]+|\d+/g) || [];
+            const allKeywords = [...keywords, ...additionalKeywords];
 
             let filteredSpecialSuggestions = collapseSpecialItems.filter((specialItem) => {
                 const normalizedSpecialName = normalizeString(specialItem.specialItemName);
-
-                return keywords.every((keyword) => normalizedSpecialName.includes(keyword));
+                return allKeywords.some((keyword) => normalizedSpecialName.includes(keyword));
             });
 
             filteredSpecialSuggestions = filteredSpecialSuggestions.map((specialItem) => {
                 const normalizedSpecialName = normalizeString(specialItem.specialItemName);
 
-                const matchScore = keywords.reduce((score, keyword) => {
+                const matchScore = allKeywords.reduce((score, keyword) => {
                     if (normalizedSpecialName.includes(keyword)) {
                         score += keyword.length;
                     }
@@ -90,8 +91,6 @@ const SpecialItemSearch = ({
 
             if (match) {
                 const specialItemName = match[1].trim();
-                const quantity = parseInt(match[2]) || 1;
-
                 let isRegistered = false;
 
                 for (let i = 0; i < collapseSpecialItems.length; i++) {
@@ -103,12 +102,6 @@ const SpecialItemSearch = ({
                             updatedSpecialItems[specialItem.specialItemName] = {
                                 specialItemId: specialItem.specialItemId,
                                 specialItemName: specialItem.specialItemName,
-                                specialItemCount: quantity,
-                            };
-                        } else {
-                            updatedSpecialItems[specialItem.specialItemName] = {
-                                ...updatedSpecialItems[specialItem.specialItemName],
-                                specialItemCount: quantity,
                             };
                         }
                         processedSpecialItemIds.add(specialItem.specialItemName.toString());
@@ -118,8 +111,15 @@ const SpecialItemSearch = ({
                 }
 
                 if (!isRegistered) {
+                    // Handle unregistered items if needed
                     // unregisteredItems.push(term);
                 }
+            }
+        });
+
+        Object.keys(updatedSpecialItems).forEach((key) => {
+            if (!terms.some((term) => normalizeString(term) === normalizeString(key))) {
+                delete updatedSpecialItems[key];
             }
         });
 
@@ -175,8 +175,7 @@ const SpecialItemSearch = ({
             // 새로운 아이템 추가
             updatedSpecialItems[specialItem.specialItemName] = {
                 specialItemId: specialItem.specialItemId,
-                specialItemName: newItemName,
-                specialItemCount: 1,
+                specialItemName: newItemName
             };
         }
 
@@ -253,11 +252,9 @@ const SpecialItemSearch = ({
                     );
 
                     if (!existingItem) {
-                        // 새로운 아이템 추가
                         updatedSpecialItems[firstSuggestion.specialItemName] = {
                             specialItemId: firstSuggestion.specialItemId,
-                            specialItemName: newItemName,
-                            specialItemCount: 1,
+                            specialItemName: newItemName
                         };
                     }
 

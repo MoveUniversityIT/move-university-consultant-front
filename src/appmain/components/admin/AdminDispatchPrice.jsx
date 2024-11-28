@@ -21,6 +21,7 @@ const labels = {
     dokchaCbmPerFee: "독차 + 기본가 + 추가 CBM당 요금",
     loadUnloadDokchaPrice: "총합 독차가 + 상차 + 하차",
     itemAdditionalFee: "비싼 품목 추가 요금(합산)",
+    specialItemCost: "특이 사항 비용",
     datePriceFactor: "요청 날짜 추가 요금",
     timePriceFactor: "요청 시간 추가 요금",
     vehicleTypeFee: "차량 추가 요금",
@@ -29,6 +30,7 @@ const labels = {
     totalDifficultyPriceFactor: "상차지 난이도 + 하차지 난이도 추가 요금",
     boxPriceFactor: "박스 추가/할인 요금",
     todayOrTomorrowPriceFactor: "당일, 내일 추가 요금",
+    specialItemTotalCost: "특이 사항 총 비용",
     vehiclePrice: "차량 1대당 가격",
     vehicleRoundingHalfUp: '차량 1대당(반올림) 가격',
 };
@@ -163,7 +165,7 @@ const AdminDispatchPrice = ({data, isLoadingConsultantMutate}) => {
         : [{key: 0}]; // 초기 빈 데이터 제공
 
     return (
-        <div style={{padding: '20px'}}>
+        <div className="pb-14">
             {isLoadingConsultantMutate ? (
                 <CustomProgress isLoading={isLoadingConsultantMutate} />
             ) : (

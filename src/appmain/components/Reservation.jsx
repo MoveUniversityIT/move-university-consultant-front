@@ -26,12 +26,12 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
         });
     };
 
-    const filteredReservations = reservations.filter((reservation) => {
+    const filteredReservations = reservations?.filter((reservation) => {
         const searchLower = searchTerm.toLowerCase();
         return (
-            reservation.requestDate.toLowerCase().includes(searchLower) ||
-            reservation.customerName.toLowerCase().includes(searchLower) ||
-            reservation.customerPhoneNumber.toLowerCase().includes(searchLower)
+            reservation?.requestDate.toLowerCase().includes(searchLower) ||
+            reservation?.customerName.toLowerCase().includes(searchLower) ||
+            reservation?.customerPhoneNumber.toLowerCase().includes(searchLower)
         );
     });
 

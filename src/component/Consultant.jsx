@@ -6,7 +6,7 @@ import AddressInput from "@/component/AddressInput";
 import MethodAndFloorInput from "@/component/MethodAndFloorInput";
 import GenderSelector from "@/component/GenderSelector";
 import dayjs from 'dayjs';
-import AdminDispatchPrice from "@/component/AdminDispatchPrice";
+import AdminDispatchPrice from "@component/admin/AdminDispatchPrice";
 import LeftSidebar from "@/component/LeftSidebar";
 import {LeftOutlined, PlusOutlined, RightOutlined} from "@ant-design/icons";
 import {v4 as uuidv4} from 'uuid';

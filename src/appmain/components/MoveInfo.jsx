@@ -934,11 +934,14 @@ const MoveInfo = ({
                         placeholder="예: 이름"
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
+                        tabIndex={5}
                     />
                 </Form.Item>
 
                 <PhoneNumberInput label='화주번호' phoneNumber={customerPhoneNumber}
-                                  setPhoneNumber={setCustomerPhoneNumber}/>
+                                  setPhoneNumber={setCustomerPhoneNumber}
+                                  tabIndex={6}
+                />
 
                 <Form.Item className="flex-1 !mb-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">결제방법:</label>
@@ -947,6 +950,7 @@ const MoveInfo = ({
                         className="w-full"
                         value={paymentMethod}
                         onChange={(value) => setPaymentMethod(value)}
+                        tabIndex={7}
                     >
                         {["카드", "현금", "세금계산서", "현금영수증"].map((method) => (
                             <Option key={method} value={method}>
@@ -966,6 +970,7 @@ const MoveInfo = ({
                         className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10"
                         onChange={(e) => setMemo(e.target.value)}
                         value={memo}
+                        tabIndex={8}
                     />
                     <button
                         type="button"

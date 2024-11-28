@@ -380,21 +380,17 @@ const ItemSearch = ({
                         .replace(/,\s+/g, ", ")
                         .replace(/,\s*$/, ",");
 
-                    // 기존 items 복사
                     const updatedItems = {...items};
 
-                    // 이름 정규화
                     const normalizeName = (name) => name.trim().toLowerCase();
 
                     const normalizedNewItemName = normalizeName(newItemName);
 
-                    // 기존 아이템 확인
                     const existingItem = Object.values(updatedItems).find(
                         (existing) => normalizeName(existing.itemName) === normalizedNewItemName
                     );
 
                     if (!existingItem) {
-                        // 새로운 아이템 추가
                         updatedItems[firstSuggestion.itemName] = {
                             itemId: firstSuggestion.itemId,
                             itemName: newItemName,

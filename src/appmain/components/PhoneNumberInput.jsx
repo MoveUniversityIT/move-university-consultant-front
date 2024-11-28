@@ -1,7 +1,7 @@
 import React from "react";
 import {Form, Input} from "antd";
 
-const PhoneNumberInput = ({label, phoneNumber, setPhoneNumber}) => {
+const PhoneNumberInput = ({label, phoneNumber, setPhoneNumber, tabIndex}) => {
     const formatShipperNumber = (value) => {
         const numericValue = value.replace(/\D/g, "");
 
@@ -37,6 +37,7 @@ const PhoneNumberInput = ({label, phoneNumber, setPhoneNumber}) => {
                 value={phoneNumber}
                 onChange={handleChange}
                 maxLength={13}
+                tabIndex={tabIndex}
             />
         </Form.Item>
     );

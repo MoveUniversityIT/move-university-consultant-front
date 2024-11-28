@@ -1,8 +1,14 @@
 import React, {useEffect, useState} from "react";
 import {Button, Card, message, Modal, Input} from "antd";
 import {useImageQuery} from "@hook/useConsultant";
+import {useDispatch} from "react-redux";
+import {resetState} from "@/features/user/loginSlice";
+import {useNavigate} from "react-router-dom";
 
 const AdditionalFunctions = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isInputModalVisible, setIsInputModalVisible] = useState(false);
     const [imageSrc, setImageSrc] = useState(null);
@@ -92,12 +98,30 @@ const AdditionalFunctions = () => {
         link.click();
     };
 
+    const handleLogout = () => {
+        dispatch(resetState());
+        message.info("로그아웃 되었습니다.");
+        navigate("/login");
+    };
+
     useEffect(() => {
         setImageSrc(imageUrl);
     }, [imageUrl]);
 
     return (
-        <Card title="추가 기능" className="shadow-md rounded-md h-full">
+        <Card title={
+            <div className="flex justify-between items-center">
+                <span>추가 기능</span>
+                <Button
+                    className="px-4 py-2 bg-red-500 text-white rounded hover:!bg-red-300"
+                    onClick={handleLogout}
+                >
+                    로그아웃
+                </Button>
+            </div>
+        }
+              className="shadow-md rounded-md h-full"
+        >
             <div className="grid grid-cols-1 gap-4">
                 <Button type="default" onClick={handlePaymentText}>
                     계약금 문자
