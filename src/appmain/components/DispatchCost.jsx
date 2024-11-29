@@ -133,7 +133,7 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
                         return Number(total) + Number(helper.helperCount || 0);
                     }
                     return total;
-                }, 0).toLocaleString()
+                }, 0)?.toLocaleString()
                 : 0,
             cleaningHelperCount: dispatchAmount?.helpers
                 ? dispatchAmount.helpers.reduce((total, helper) => {
@@ -141,29 +141,29 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
                         return Number(total) + Number(helper.helperCount || 0);
                     }
                     return total
-                }, 0).toLocaleString()
+                }, 0)?.toLocaleString()
                 : 0,
             vehicleName: dispatchAmount?.vehicleName,
-            vehicleCount: dispatchAmount?.vehicleCount.toLocaleString() ??  0,
-            vehicleRoundingHalfUp: dispatchAmount?.vehicleRoundingHalfUp.toLocaleString() ?? 0,
+            vehicleCount: dispatchAmount?.vehicleCount?.toLocaleString() ??  0,
+            vehicleRoundingHalfUp: dispatchAmount?.vehicleRoundingHalfUp?.toLocaleString() ?? 0,
             transportHelperPrice: dispatchAmount?.helpers
                 ? dispatchAmount.helpers.reduce((total, helper) => {
                     if (helper.helperType === "TRANSPORT") {
                         return Number(total) + Number(helper.totalHelperPrice || 0);
                     }
                     return total;
-                }, 0).toLocaleString()
+                }, 0)?.toLocaleString()
                 : 0,
             cleaningHelperPrice: dispatchAmount?.helpers
                 ? dispatchAmount.helpers.reduce((total, helper) => {
                     if (helper.helperType === "PACKING_CLEANING") {
-                        return (total + (helper.totalHelperPrice || 0)).toLocaleString();
+                        return Number(total) + Number(helper.totalHelperPrice || 0);
                     }
-                    return total.toLocaleString();
-                }, 0)
+                    return total;
+                }, 0)?.toLocaleString()
                 : 0,
-            totalCalcPrice: dispatchAmount?.totalCalcPrice.toLocaleString() ?? 0,
-            totalLadderPrice: dispatchAmount?.totalLadderPrice.toLocaleString() ?? 0
+            totalCalcPrice: dispatchAmount?.totalCalcPrice?.toLocaleString() ?? 0,
+            totalLadderPrice: dispatchAmount?.totalLadderPrice?.toLocaleString() ?? 0
         })
 
         setEstimate({
@@ -259,14 +259,14 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
                     </div>
                     <div className="mt-4 text-gray-600">
                         <div className="text-lg font-semibold">
-                            견적 금액: <span className="text-blue-600">{estimatePrice.toLocaleString()}원</span>
+                            견적 금액: <span className="text-blue-600">{estimatePrice?.toLocaleString()}원</span>
                         </div>
                         <div className="mt-1">
-                            계약금: <span className="text-green-600">{depositPrice.toLocaleString()}원</span>
+                            계약금: <span className="text-green-600">{depositPrice?.toLocaleString()}원</span>
                         </div>
                         {paymentMethod !== "현금" && (
                             <div className="mt-1 text-sm text-gray-500">
-                                부가세 포함: {(estimatePrice + surtax).toLocaleString()}원
+                                부가세 포함: {(estimatePrice + surtax)?.toLocaleString()}원
                             </div>
                         )}
                     </div>
