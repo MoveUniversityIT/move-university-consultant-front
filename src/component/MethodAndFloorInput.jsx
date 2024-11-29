@@ -46,7 +46,29 @@ const MethodAndFloorInput = ({
         setMethod({key: option.key, value});
     };
 
-    const handleFloorChange = (setFloor) => (value) => setFloor(value);
+    const handleFloorChange = (setFloor) => (value) => {
+        if (value === undefined || value === null || value === '') {
+            setFloor(0);
+        } else {
+            setFloor(value);
+        }
+    }
+
+    const handleAreaChange = (setArea) => (value) => {
+        if (value === undefined || value === null || value === '') {
+            setArea(0);
+        } else {
+            setArea(value);
+        }
+    }
+
+    const handleHouseholdMembers = (setHouseHoldMembers) => (value) => {
+        if (value === undefined || value === null || value === '') {
+            setHouseHoldMembers(0);
+        } else {
+            setHouseHoldMembers(value);
+        }
+    }
 
     return (
         <div className="flex gap-2 items-center">
@@ -84,7 +106,7 @@ const MethodAndFloorInput = ({
                     placeholder="평수"
                     min={1}
                     value={area}
-                    onChange={setArea}
+                    onChange={handleAreaChange(setArea)}
                 />
             </Form.Item>
 
@@ -95,7 +117,7 @@ const MethodAndFloorInput = ({
                     placeholder="인원 수"
                     min={0}
                     value={householdMembers}
-                    onChange={setHouseHoldMembers}
+                    onChange={handleHouseholdMembers(setHouseHoldMembers)}
                 />
             </Form.Item>
 
