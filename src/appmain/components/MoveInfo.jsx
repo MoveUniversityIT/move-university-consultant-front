@@ -276,9 +276,6 @@ const MoveInfo = ({
                 }
             });
             setItems({...items});
-
-            const termsToRemove = ["박스(필요)", "바구니(필요)"];
-            console.log(removeTerm(searchItemTerm, termsToRemove))
         }
     };
 
@@ -435,9 +432,20 @@ const MoveInfo = ({
 
         reservationMutate(reservationData, {
             onSuccess: (data) => {
+                const successMessage = data?.reservationId ? "정상적으로 저장되었습니다." : "정상적으로 처리되지 않았습니다.";
+                message.success({
+                    content: successMessage,
+                    key: 'reservation',
+                    duration: 1,
+                });
+
                 queryClient.invalidateQueries('reservation');
                 setReservationId(data?.reservationId);
-            }
+            },
+            onError: (error) => {
+                const errorMessage = error?.errorMessage || "상담 저장 중 에러가 발생했습니다";
+                alert(errorMessage);
+            },
         });
     };
 
@@ -603,8 +611,29 @@ const MoveInfo = ({
         <Card
             title="이사 정보"
             className="shadow-md rounded-md relative"
-            style={{position: "relative"}}
         >
+            <div
+                className={`absolute mt-1 ml-20 top-2 font-bold text-sm flex items-center justify-center ${
+                    reservationId ? "text-orange-500" : "text-blue-500"
+                }`}
+                style={{
+                    color: reservationId ? "orange" : "blue",
+                    fontWeight: "bold",
+                    position: "absolute",
+                    top: "8px",
+                    left: "8px",
+                    backgroundColor: reservationId
+                        ? "rgba(255, 230, 204, 0.8)"
+                        : "rgba(235, 245, 255, 0.8)",
+                    borderRadius: "4px",
+                    padding: "4px 8px",
+                    lineHeight: "1.5",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                }}
+            >
+                {reservationId ? "수정" : "신규"}
+            </div>
+
             {dispatchError && (
                 <div
                     className="absolute mt-1 right-2 top-2 text-red-500 font-bold text-sm flex items-center justify-center"
@@ -649,7 +678,7 @@ const MoveInfo = ({
                         >
                             {["이사대학", "숨고", "위매치", "이사대학_ENG", "이사대학_CHN",
                                 "이사대학_JAP", "아정당", "당근", "개인연락", "재이용",].map((name, index) => (
-                                <Option key={index} value={index}>
+                                <Option key={index} value={name}>
                                     {name}
                                 </Option>
                             ))}

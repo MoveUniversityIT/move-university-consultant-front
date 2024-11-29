@@ -105,25 +105,17 @@ const ItemSearch = ({
                             const currentFreq = getCharFrequency(normalizedCurrent);
                             const variationFreq = getCharFrequency(normalizedVariation);
 
-                            return Object.keys(currentFreq).every(
-                                (char) => variationFreq[char] >= currentFreq[char]
+                            return (
+                                Object.keys(currentFreq).every(
+                                    (char) => variationFreq[char] >= currentFreq[char]
+                                ) || normalizedVariation === normalizedCurrent // 완전 일치 조건 추가
                             );
                         });
                     })
                 )
             );
 
-            if (filteredSuggestions.length === 1) {
-                const singleSuggestion = filteredSuggestions[0];
-                const singleSuggestionName = singleSuggestion.itemName.toLowerCase();
-
-                const normalizedWithoutNumbers = normalizedCurrent.replace(/\d+$/, '').trim();
-
-                if (singleSuggestionName === normalizedWithoutNumbers) {
-                    filteredSuggestions = [];
-                }
-            }
-
+            // 완전 일치 항목이 무조건 포함되도록 수정
             const exactMatches = filteredSuggestions.filter((item) =>
                 generateNameVariations(item.itemName).some(
                     (variation) => variation.replace(/\(([^)]*)\)/g, '').trim() === normalizedCurrent
@@ -158,7 +150,7 @@ const ItemSearch = ({
                             similarityScore(normalizedCurrent, variation)
                         )
                     );
-                    return bScore - aScore; // 높은 점수 순으로 정렬
+                    return bScore - aScore;
                 }),
                 ...otherMatches.sort((a, b) => (b.sortingIndex || 0) - (a.sortingIndex || 0)),
             ];
@@ -167,7 +159,6 @@ const ItemSearch = ({
         } else {
             setSuggestions([]);
         }
-
 
         const terms = value
             .split(',')
