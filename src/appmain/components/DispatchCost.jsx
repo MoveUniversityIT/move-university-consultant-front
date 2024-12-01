@@ -252,7 +252,7 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
                         <div className="mt-1">
                             계약금: <span className="text-green-600">{depositPrice?.toLocaleString()}원</span>
                         </div>
-                        {paymentMethod !== "현금" && (
+                        {paymentMethod?.value !== "현금" && (
                             <div className="mt-1 text-sm text-gray-500">
                                 부가세 포함: {(estimatePrice + surtax)?.toLocaleString()}원
                             </div>
