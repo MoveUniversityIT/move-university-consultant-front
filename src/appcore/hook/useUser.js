@@ -1,13 +1,19 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
 import {
-    deleteReservation,
+    deleteReservation, fetchIntermediaryrByName, fetchManagerByName,
     getCheckEmail,
     getReservation,
     postLogin,
     postRegisterUser,
-    postReservation
+    postReservation, postSaveGongcha
 } from "@api/userApi";
-import {toggleAccessToken, toggleLoginState, toggleRefreshToken, toggleRoles} from "@/features/user/loginSlice";
+import {
+    toggleAccessToken,
+    toggleLoginState,
+    toggleRefreshToken,
+    toggleRoles,
+    toggleUserId, toggleUserName
+} from "@/features/user/loginSlice";
 import RootStore from "@/appcore/rootStore";
 import {message} from "antd";
 
@@ -16,9 +22,11 @@ export const useLogin = () => {
         mutationFn:(loginForm) => postLogin(loginForm),
         retry: false,
         onSuccess: (data) => {
-            RootStore.dispatch(toggleRoles(data.roles));
-            RootStore.dispatch(toggleAccessToken(data.accessToken));
-            RootStore.dispatch(toggleRefreshToken(data.refreshToken));
+            RootStore.dispatch(toggleRoles(data?.roles));
+            RootStore.dispatch(toggleAccessToken(data?.accessToken));
+            RootStore.dispatch(toggleRefreshToken(data?.refreshToken));
+            RootStore.dispatch(toggleUserId(data?.userId));
+            RootStore.dispatch(toggleUserName(data?.userName));
             RootStore.dispatch(toggleLoginState(true));
         },
         onError: (error) => {
@@ -44,9 +52,9 @@ export const useRegisterUser = () => {
     })
 }
 
-export const useReservation = () => {
+export const useReservation = (userId) => {
     return useQuery({
-        queryKey: ['reservation'],
+        queryKey: ['reservation', userId],
         queryFn: ({queryKey}) => getReservation(),
         retry: false
     })
@@ -62,6 +70,33 @@ export const useSaveReservation = () => {
 export const useDeleteReservation = () => {
     return useMutation({
         mutationFn: (reservationId) => deleteReservation(reservationId),
+        retry: false,
+    })
+}
+
+// 공차 담당자 조회
+export const useSupabaseManager = (managerName) => {
+    return useQuery({
+        queryKey: ['manager', managerName],
+        queryFn: ({queryKey}) => fetchManagerByName(queryKey[1]?.userName),
+        enabled: !!managerName?.userId,
+        retry: false,
+    })
+}
+
+// 공차 거래처 조회
+export const useSupabaseIntermediary = (intermediaryName) => {
+    return useQuery({
+        queryKey: ['intermediary', intermediaryName],
+        queryFn: ({queryKey}) => fetchIntermediaryrByName(queryKey[1]),
+        enabled: !!intermediaryName,
+        retry: false,
+    })
+}
+
+export const useSupabaseSaveGongcha = () => {
+    return useMutation( {
+        mutationFn: (isaData) => postSaveGongcha(isaData),
         retry: false,
     })
 }

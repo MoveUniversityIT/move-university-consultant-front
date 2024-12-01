@@ -69,8 +69,10 @@ API.interceptors.response.use(
                         },
                     });
 
-                    const newAccessToken = response.data.accessToken;
+                    const newAccessToken = response?.data?.accessToken;
+                    const newRefreshToken = response?.data?.refreshToken;
                     RootStore.dispatch(toggleAccessToken(newAccessToken));
+                    RootStore.dispatch(toggleRefreshToken(newRefreshToken));
 
                     isRefreshing = false;
                     processQueue(null, newAccessToken);

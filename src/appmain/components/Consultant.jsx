@@ -10,15 +10,18 @@ import {resetState} from "@/features/user/loginSlice";
 import {useReservation} from "@hook/useUser";
 import AdminDispatchPrice from "@component/admin/AdminDispatchPrice";
 import {hasAccess} from "@/appcore/utils/utils";
+import {useQueryClient} from "@tanstack/react-query";
 
 const Consultant = () => {
-    const {isLoading, data: consultant, error: consultantMetaError} = useConsultantMetadata();
+    const queryClient = useQueryClient();
+    const userId = useSelector((state) => state.login.userId);
+    const {isLoading, data: consultant, error: consultantMetaError} = useConsultantMetadata(userId);
     const [isMoveInfoLoading, setIsMoveInfoLoading] = useState(true);
     const [reservationData, setReservationData] = useState(null);
     const [isNewMoveInfo, setIsNewMoveInfo] = useState(false);
     const [dispatchAmount, setDispatchAmount] = useState(null);
     const [isDispatchAmount, setIsDispatchAmount] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState('현금');
+    const [paymentMethod, setPaymentMethod] = useState({key: 1, value: '현금'});
 
     const [isCollapsed, setIsCollapsed] = useState(true);
     const roles = useSelector((state) => state.login.roles);
@@ -26,10 +29,25 @@ const Consultant = () => {
     const hasAdminAccess = hasAccess(roles, ["ROLE_ADMIN"]);
 
     const dispatch = useDispatch();
-    const {data: reservations} = useReservation();
+    const {data: reservations} = useReservation(userId);
 
     // 물품
     const [items, setItems] = useState({});
+
+    const [estimate, setEstimate] = useState({
+        deposit: dispatchAmount?.estimatePrice?.deposit || 0,
+        minDeposit: dispatchAmount?.estimatePrice?.minDeposit || 0,
+        maxDeposit: dispatchAmount?.estimatePrice?.maxDeposit || 0,
+        estimatePrice: dispatchAmount?.estimatePrice?.estimatePrice || 0,
+        minEstimatePrice: dispatchAmount?.estimatePrice?.minEstimatePrice || 0,
+        maxEstimatePrice: dispatchAmount?.estimatePrice?.maxEstimatePrice || 0,
+        totalCalcPrice: dispatchAmount?.totalCalcPrice || 0,
+    });
+
+    const [sliderValue, setSliderValue] = useState(5);
+    const [depositPrice, setDepositPrice] = useState(estimate.minDeposit);
+    const [estimatePrice, setEstimatePrice] = useState(estimate.minEstimatePrice);
+    const [surtax, setSurtax] = useState(0);
 
     if (isLoading) {
         return (
@@ -95,12 +113,24 @@ const Consultant = () => {
                     paymentMethod={paymentMethod}
                     setPaymentMethod={setPaymentMethod}
                     onReady={() => setIsMoveInfoLoading(false)}
+                    estimatePrice={estimatePrice}
+                    depositPrice={depositPrice}
                 />
                 <DispatchCost items={items}
                               setItems={setItems}
                               dispatchAmount={dispatchAmount}
                               isDispatchAmount={isDispatchAmount}
                               paymentMethod={paymentMethod}
+                              estimate={estimate}
+                              setEstimate={setEstimate}
+                              sliderValue={sliderValue}
+                              setSliderValue={setSliderValue}
+                              depositPrice={depositPrice}
+                              setDepositPrice={setDepositPrice}
+                              estimatePrice={estimatePrice}
+                              setEstimatePrice={setEstimatePrice}
+                              surtax={surtax}
+                              setSurtax={setSurtax}
                 />
                 <AdditionalFunctions consultantData={consultant}/>
 

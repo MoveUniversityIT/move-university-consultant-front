@@ -22,12 +22,17 @@ import koKR from "antd/es/date-picker/locale/ko_KR";
 import ItemSearch from "@component/ItemSearch";
 import _ from "lodash";
 import PhoneNumberInput from "@component/PhoneNumberInput";
-import {useSaveReservation} from "@hook/useUser";
+import {useSaveReservation, useSupabaseIntermediary, useSupabaseManager, useSupabaseSaveGongcha} from "@hook/useUser";
 import {useQueryClient} from "@tanstack/react-query";
 import SpecialItemSearch from "@component/SpecialItemSearch";
 import {InfoCircleOutlined} from "@ant-design/icons";
+import {useSelector} from "react-redux";
 
 const {Option} = Select;
+
+const gongchaMethods = ["사다리", "엘레베이터", "계단", "1층"];
+const gongchaMoveTypes = ["단순운송", "일반이사", "반포장이사", "포장이사", "이모까지", "익스프레스", "보관이사"];
+const gongchaPaymentTypes = ["현금", "카드", "현금영수증", "세금계산서"];
 
 const MoveInfo = ({
                       consultantData,
@@ -40,10 +45,14 @@ const MoveInfo = ({
                       setIsDispatchAmount,
                       paymentMethod,
                       setPaymentMethod,
-                      onReady
+                      onReady,
+                      estimatePrice,
+                      depositPrice
                   }) => {
     const queryClient = useQueryClient();
 
+    const userId = useSelector((state) => state.login.userId);
+    const userName = useSelector((state) => state.login.userName);
     const [reservationId, setReservationId] = useState(null);
     const [client, setClient] = useState({key: 0, value: '이사대학'});
     const [moveType, setMoveType] = useState(null);
@@ -137,6 +146,14 @@ const MoveInfo = ({
 
     const {mutate: reservationMutate} = useSaveReservation();
 
+    // 공차 담당자 조회(UUID)
+    const {data: supaManagerName} = useSupabaseManager({userId, userName});
+    // 공차 거래처 조회
+    const {data: supaIntermediaryName} = useSupabaseIntermediary(client?.value);
+
+    const {mutate: saveGongchaMutate } = useSupabaseSaveGongcha();
+
+
     useEffect(() => {
         if (
             locationInfo.startX &&
@@ -198,7 +215,6 @@ const MoveInfo = ({
         setLocationSearch({address, locationType});
         setShowList(false);
     };
-
 
 
     useEffect(() => {
@@ -375,7 +391,7 @@ const MoveInfo = ({
         setSpecialItems({});
         setCustomerName('');
         setCustomerPhoneNumber('');
-        setPaymentMethod('현금');
+        setPaymentMethod({key: 1, value: '현금'});
         setMemo('');
 
         setSearchItemTerm('');
@@ -426,7 +442,7 @@ const MoveInfo = ({
             specialItems: JSON.stringify(specialItems), // 필요 시 문자열로 변환
             customerName,
             customerPhoneNumber,
-            paymentMethod,
+            paymentMethod: JSON.stringify(paymentMethod),
             memo,
         };
 
@@ -449,6 +465,114 @@ const MoveInfo = ({
         });
     };
 
+    const getCustomerHelperText = (customers) => {
+        let customer_helper = "";
+
+        const maleData = customers.find(item => item.gender === 'male');
+        const femaleData = customers.find(item => item.gender === 'female');
+
+        customer_helper += maleData ? "남" + maleData.peopleCount : "";
+        customer_helper += femaleData ? " 여" + femaleData.peopleCount : "";
+
+        return customer_helper;
+    }
+
+    const handleSaveGongcha = () => {
+        let carry_type_start = gongchaMethods.indexOf(loadMethod?.value);
+        let customer_helper_start = getCustomerHelperText(loadCustomers);
+        let carry_type_end = gongchaMethods.indexOf(unloadMethod?.value);
+        let customer_helper_end = getCustomerHelperText(unloadCustomers);
+        let isa_type = gongchaMoveTypes.indexOf(moveType?.value);
+        let payment_type = gongchaPaymentTypes.indexOf(paymentMethod?.value);
+
+        if (carry_type_start < 0) {
+            carry_type_start = 3;
+        }
+
+        // 총 배차가격
+        const totalCalcPrice = dispatchAmount?.totalCalcPrice ?? 0;
+
+        // 한대 차량가격
+        const vehicleRoundingHalfUp = dispatchAmount?.vehicleRoundingHalfUp ?? 0;
+
+        // 추가 인부가격
+        const transportHelperPrice = dispatchAmount?.helpers
+            ? dispatchAmount.helpers.reduce((total, helper) => {
+                if (helper.helperType === "TRANSPORT") {
+                    return Number(total) + Number(helper.totalHelperPrice || 0);
+                }
+                return total;
+            }, 0)?.toLocaleString()
+            : 0;
+
+        // 추가 이모가격
+        const cleaningHelperPrice = dispatchAmount?.helpers
+            ? dispatchAmount.helpers.reduce((total, helper) => {
+                if (helper.helperType === "PACKING_CLEANING") {
+                    return Number(total) + Number(helper.totalHelperPrice || 0);
+                }
+                return total;
+            }, 0)?.toLocaleString()
+            : 0
+
+        const dispatch_memo = `총 배차가격: ${totalCalcPrice?.toLocaleString()}, 한대 차량가격: ${vehicleRoundingHalfUp.toLocaleString()}, 추가 인부 가격: ${transportHelperPrice}, 추가 이모 가격: ${cleaningHelperPrice}`;
+
+        const gongchaData = {
+            manager: supaManagerName[0]?.id,
+            intermediary: supaIntermediaryName[0]?.id,
+            start_addr: loadLocation,
+            carry_type_start,
+            floor_start: loadFloor,
+            area_in_pyeong_start: loadArea,
+            customer_help_start: customer_helper_start,
+            end_addr: unloadLocation,
+            carry_type_end,
+            floor_end: unloadFloor,
+            area_in_pyeong_end: unloadArea,
+            customer_help_end: customer_helper_end,
+            isa_type,
+            request_date: requestDate.format("YYYY-MM-DD") || null,
+            request_time: requestDate.format("HH:mm") || null,
+            is_ride_sharing: isTogether,
+            required_car_type: vehicleType?.value,
+            required_car_ton: vehicleTonnage?.toString(),
+            number_of_car_actual: dispatchAmount?.vehicleCount,
+            goods_name: searchItemTerm,
+            memo_dispatch: searchSpecialItemTerm,
+            mng_name: customerName,
+            start_mng_mobile: customerPhoneNumber,
+            payment_type,
+            memo,
+            dispatch_memo,
+            cash_pay: totalCalcPrice,
+            deposit: depositPrice,
+            cash_bill: estimatePrice
+        }
+
+        // console.log(gongchaData);
+
+        // saveGongchaMutate(gongchaData, {
+        //     onSuccess: (data) => {
+        //         const successMessage = "공차 저장이 정상적으로 처리되었습니다.";
+        //         message.success({
+        //             content: successMessage,
+        //             key: 'saveGongcha',
+        //             duration: 1,
+        //         });
+        //
+        //         queryClient.invalidateQueries('reservation');
+        //         setReservationId(data?.reservationId);
+        //     },
+        //     onError: (error) => {
+        //         const errorMessage = error?.errorMessage || "공차 저장 중 에러가 발생했습니다";
+        //         message.error({
+        //             content: errorMessage,
+        //             key: 'errorSaveGongcha',
+        //             duration: 1,
+        //         });
+        //     },
+        // })
+    }
 
     useEffect(() => {
         if (reservationData) {
@@ -489,7 +613,7 @@ const MoveInfo = ({
             setSpecialItems(reservationData?.specialItems ?? {});
             setCustomerName(reservationData?.customerName ?? '');
             setCustomerPhoneNumber(reservationData?.customerPhoneNumber ?? '');
-            setPaymentMethod(reservationData?.paymentMethod ?? '현금');
+            setPaymentMethod(reservationData?.paymentMethod ?? {key: 1, value: '현금'});
             setMemo(reservationData?.memo ?? '');
 
             setSearchItemTerm(reservationData?.searchItemTerm ?? '');
@@ -607,6 +731,16 @@ const MoveInfo = ({
         }
     }, [isDispatchAmount, dispatchAmount]);
 
+    const confirmAction = (title, content, onConfirm) => {
+        Modal.confirm({
+            title,
+            content,
+            okText: "확인",
+            cancelText: "취소",
+            onOk: onConfirm,
+        });
+    };
+
     return (
         <Card
             title="이사 정보"
@@ -660,9 +794,9 @@ const MoveInfo = ({
                         <Select
                             placeholder="예: 담당자"
                             className="min-w-24 border border-gray-300 rounded-lg"
-                            value={consultantData?.userName}
+                            value={userName}
                         >
-                            <Option value={consultantData?.userName}>{consultantData?.userName}</Option>
+                            <Option value={userName}>{userName}</Option>
                         </Select>
                     </div>
 
@@ -977,11 +1111,13 @@ const MoveInfo = ({
                         placeholder="예: 현금"
                         className="w-full"
                         value={paymentMethod}
-                        onChange={(value) => setPaymentMethod(value)}
+                        onChange={(value, option) => {
+                            setPaymentMethod({key: option.key, value});
+                        }}
                         tabIndex={7}
                     >
-                        {["카드", "현금", "세금계산서", "현금영수증"].map((method) => (
-                            <Option key={method} value={method}>
+                        {["카드", "현금", "세금계산서", "현금영수증"].map((method, index) => (
+                            <Option key={index} value={method}>
                                 {method}
                             </Option>
                         ))}
@@ -1056,7 +1192,15 @@ const MoveInfo = ({
             <div className="flex justify-between items-center">
                 <div className="flex space-x-2">
                     <Button
-                        className="px-4 py-2 bg-gray-300 text-gray-800 border border-gray-400 rounded hover:bg-gray-400">
+                        className="px-4 py-2 bg-gray-300 text-gray-800 border border-gray-400 rounded hover:bg-gray-400"
+                        onClick={() =>
+                            confirmAction(
+                                "공차 복사 확인",
+                                "정말로 이 데이터를 공차에 복사하시겠습니까?",
+                                handleSaveGongcha
+                            )
+                        }
+                    >
                         공차복사
                     </Button>
                     <Button

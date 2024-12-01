@@ -2,6 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 
 const initialState= {
+    userId: null,
+    userName: '',
     loginState: false,
     accessToken: '',
     refreshToken: '',
@@ -12,6 +14,12 @@ const loginSlice = createSlice({
     name: 'login',
     initialState,
     reducers: {
+        toggleUserId: (state, action) => {
+            state.userId = action.payload
+        },
+        toggleUserName: (state, action) => {
+            state.userName = action.payload
+        },
         toggleLoginState: (state, action) => {
             state.loginState = action.payload;
         },
@@ -28,5 +36,5 @@ const loginSlice = createSlice({
     }
 });
 
-export const { toggleLoginState, toggleAccessToken, toggleRefreshToken, toggleRoles, resetState } = loginSlice.actions;
+export const { toggleUserId, toggleUserName, toggleLoginState, toggleAccessToken, toggleRefreshToken, toggleRoles, resetState } = loginSlice.actions;
 export default loginSlice.reducer;

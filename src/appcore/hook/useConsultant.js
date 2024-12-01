@@ -13,11 +13,12 @@ import {
 } from "@api/consultantApi";
 
 // 상담 봇 메타 데이터 조회
-export const useConsultantMetadata = () => {
+export const useConsultantMetadata = (userId) => {
     return useQuery({
-        queryKey: ['consultantMetadata'],
+        queryKey: ['consultantMetadata', userId],
         queryFn: getConsultantMetadata,
         retry: false,
+        enabled: !!userId,
         refetchInterval: 1000 * 60 * 10,
     })
 }

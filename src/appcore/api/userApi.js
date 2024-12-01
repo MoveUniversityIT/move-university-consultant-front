@@ -1,4 +1,5 @@
 import API from "@api/API";
+import {supabase} from "@/appcore/supabase/supabaseClient";
 
 export const postLogin = async (loginForm) => {
     const response = await API.post('/user/login', loginForm)
@@ -33,3 +34,40 @@ export const deleteReservation = async (reservationId) => {
 
     return response?.data;
 }
+
+export const fetchManagerByName = async (name) => {
+    const { data, error } = await supabase
+        .from('manager')
+        .select('*')
+        .match({ name: name });
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    return data;
+};
+
+export const fetchIntermediaryrByName = async (name) => {
+    const { data, error } = await supabase
+        .from('intermediary')
+        .select('*')
+        .match({ name: name });
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    return data;
+};
+
+export const postSaveGongcha = async (isaData) => {
+    const {data, error} = await supabase.from("isa").insert(isaData);
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    return data;
+}
+

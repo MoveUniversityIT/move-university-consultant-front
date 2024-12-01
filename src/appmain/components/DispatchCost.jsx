@@ -26,22 +26,10 @@ const unitLabel = {
     totalLadderPrice: "원"
 };
 
-const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymentMethod}) => {
+const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymentMethod,
+                      estimate, setEstimate, sliderValue, setSliderValue, depositPrice,
+                      setDepositPrice, estimatePrice, setEstimatePrice, surtax, setSurtax}) => {
     const [calcData, setCalcData] = useState({});
-    const [estimate, setEstimate] = useState({
-        deposit: dispatchAmount?.estimatePrice?.deposit || 0,
-        minDeposit: dispatchAmount?.estimatePrice?.minDeposit || 0,
-        maxDeposit: dispatchAmount?.estimatePrice?.maxDeposit || 0,
-        estimatePrice: dispatchAmount?.estimatePrice?.estimatePrice || 0,
-        minEstimatePrice: dispatchAmount?.estimatePrice?.minEstimatePrice || 0,
-        maxEstimatePrice: dispatchAmount?.estimatePrice?.maxEstimatePrice || 0,
-        totalCalcPrice: dispatchAmount?.totalCalcPrice || 0,
-    });
-
-    const [sliderValue, setSliderValue] = useState(5);
-    const [depositPrice, setDepositPrice] = useState(estimate.minDeposit);
-    const [estimatePrice, setEstimatePrice] = useState(estimate.minEstimatePrice);
-    const [surtax, setSurtax] = useState(0);
 
     // minDeposit + (slider value - 1) * ((maxDeposit - minDeposit) / (10 -1))
     const handleSliderChange = (value) => {

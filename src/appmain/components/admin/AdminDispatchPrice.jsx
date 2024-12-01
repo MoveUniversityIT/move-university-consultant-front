@@ -93,8 +93,8 @@ const AdminDispatchPrice = ({data, isLoading}) => {
         label: totalLabels[key],
         value: dispatchData[key] !== undefined
             ? key === 'totalItemCbm' ?
-                `${dispatchData[key].toLocaleString()}`
-                : `${dispatchData[key].toLocaleString()} 원`
+                `${dispatchData[key]?.toLocaleString()}`
+                : `${dispatchData[key]?.toLocaleString()} 원`
             : null
     }));
 
@@ -120,8 +120,8 @@ const AdminDispatchPrice = ({data, isLoading}) => {
         value: dispatchData[key] !== undefined
             ? typeof dispatchData[key] === 'number'
                 ? percentFields.includes(key)
-                    ? `${dispatchData[key].toLocaleString()}%`
-                    : `${dispatchData[key].toLocaleString()}`
+                    ? `${dispatchData[key]?.toLocaleString()}%`
+                    : `${dispatchData[key]?.toLocaleString()}`
                 : dispatchData[key]
             : null
     }));
@@ -150,13 +150,13 @@ const AdminDispatchPrice = ({data, isLoading}) => {
             title: helperLabels['helperPrice'],
             dataIndex: 'helperPrice',
             key: 'helperPrice',
-            render: (price) => price ? `${price.toLocaleString()} 원` : <span style={{color: '#ccc'}}>데이터 없음</span>
+            render: (price) => price ? `${price?.toLocaleString()} 원` : <span style={{color: '#ccc'}}>데이터 없음</span>
         },
         {
             title: helperLabels['totalHelperPrice'],
             dataIndex: 'totalHelperPrice',
             key: 'totalHelperPrice',
-            render: (price) => price ? `${price.toLocaleString()} 원` : <span style={{color: '#ccc'}}>데이터 없음</span>
+            render: (price) => price ? `${price?.toLocaleString()} 원` : <span style={{color: '#ccc'}}>데이터 없음</span>
         }
     ];
 
