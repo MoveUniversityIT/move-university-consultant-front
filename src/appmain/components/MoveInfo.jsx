@@ -532,7 +532,7 @@ const MoveInfo = ({
             customer_help_end: customer_helper_end,
             isa_type,
             request_date: requestDate.format("YYYY-MM-DD") || null,
-            request_time: requestDate.format("HH:mm") || null,
+            request_time: requestTime.format("HH:mm") || null,
             is_ride_sharing: isTogether,
             required_car_type: vehicleType?.value,
             required_car_ton: vehicleTonnage?.toString(),
@@ -549,29 +549,27 @@ const MoveInfo = ({
             cash_bill: estimatePrice
         }
 
-        // console.log(gongchaData);
+        saveGongchaMutate(gongchaData, {
+            onSuccess: (data) => {
+                const successMessage = "공차 저장이 정상적으로 처리되었습니다.";
+                message.success({
+                    content: successMessage,
+                    key: 'saveGongcha',
+                    duration: 2,
+                });
 
-        // saveGongchaMutate(gongchaData, {
-        //     onSuccess: (data) => {
-        //         const successMessage = "공차 저장이 정상적으로 처리되었습니다.";
-        //         message.success({
-        //             content: successMessage,
-        //             key: 'saveGongcha',
-        //             duration: 1,
-        //         });
-        //
-        //         queryClient.invalidateQueries('reservation');
-        //         setReservationId(data?.reservationId);
-        //     },
-        //     onError: (error) => {
-        //         const errorMessage = error?.errorMessage || "공차 저장 중 에러가 발생했습니다";
-        //         message.error({
-        //             content: errorMessage,
-        //             key: 'errorSaveGongcha',
-        //             duration: 1,
-        //         });
-        //     },
-        // })
+                queryClient.invalidateQueries('reservation');
+                setReservationId(data?.reservationId);
+            },
+            onError: (error) => {
+                const errorMessage = error?.errorMessage || "공차 저장 중 에러가 발생했습니다";
+                message.error({
+                    content: errorMessage,
+                    key: 'errorSaveGongcha',
+                    duration: 2,
+                });
+            },
+        })
     }
 
     useEffect(() => {
