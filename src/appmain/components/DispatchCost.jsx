@@ -11,7 +11,7 @@ const dataLabel = {
     transportHelperPrice: "추가 인부 가격",
     cleaningHelperPrice: "추가 이모 가격",
     totalCalcPrice: "총 배차 가격",
-    totalLadderPrice: "사다리 가격(별도)"
+    totalLadderPrice: "사다리 기본가(별도)"
 }
 
 const unitLabel = {

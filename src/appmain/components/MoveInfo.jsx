@@ -139,7 +139,6 @@ const MoveInfo = ({
     const [customerName, setCustomerName] = useState('');
     const [customerPhoneNumber, setCustomerPhoneNumber] = useState('');
 
-
     // 메모
     const [isMemoModalVisible, setIsMemoModalVisible] = useState(false);
     const [memo, setMemo] = useState("");
@@ -484,6 +483,8 @@ const MoveInfo = ({
         let customer_helper_end = getCustomerHelperText(unloadCustomers);
         let isa_type = gongchaMoveTypes.indexOf(moveType?.value);
         let payment_type = gongchaPaymentTypes.indexOf(paymentMethod?.value);
+        let transportHelperCount = 0;
+        let cleaningHelperCount = 0;
 
         if (carry_type_start < 0) {
             carry_type_start = 3;
@@ -498,8 +499,9 @@ const MoveInfo = ({
         // 추가 인부가격
         const transportHelperPrice = dispatchAmount?.helpers
             ? dispatchAmount.helpers.reduce((total, helper) => {
-                if (helper.helperType === "TRANSPORT") {
-                    return Number(total) + Number(helper.totalHelperPrice || 0);
+                if (helper?.helperType === "TRANSPORT") {
+                    transportHelperCount += helper?.helperCount;
+                    return Number(total) + Number(helper?.totalHelperPrice || 0);
                 }
                 return total;
             }, 0)?.toLocaleString()
@@ -508,12 +510,15 @@ const MoveInfo = ({
         // 추가 이모가격
         const cleaningHelperPrice = dispatchAmount?.helpers
             ? dispatchAmount.helpers.reduce((total, helper) => {
-                if (helper.helperType === "PACKING_CLEANING") {
-                    return Number(total) + Number(helper.totalHelperPrice || 0);
+                if (helper?.helperType === "PACKING_CLEANING") {
+                    cleaningHelperCount += helper?.helperCount;
+                    return Number(total) + Number(helper?.totalHelperPrice || 0);
                 }
                 return total;
             }, 0)?.toLocaleString()
             : 0
+
+        const head_count = dispatchAmount?.vehicleCount + transportHelperCount + cleaningHelperCount;
 
         const dispatch_memo = `총 배차가격: ${totalCalcPrice?.toLocaleString()}, 한대 차량가격: ${vehicleRoundingHalfUp.toLocaleString()}, 추가 인부 가격: ${transportHelperPrice}, 추가 이모 가격: ${cleaningHelperPrice}`;
 
@@ -537,6 +542,7 @@ const MoveInfo = ({
             required_car_type: vehicleType?.value,
             required_car_ton: vehicleTonnage?.toString(),
             number_of_car_actual: dispatchAmount?.vehicleCount,
+            head_count: head_count,
             goods_name: searchItemTerm,
             memo_dispatch: searchSpecialItemTerm,
             mng_name: customerName,
@@ -544,9 +550,10 @@ const MoveInfo = ({
             payment_type,
             memo,
             dispatch_memo,
-            cash_pay: totalCalcPrice,
+            cash_pay1: totalCalcPrice,
             deposit: depositPrice,
-            cash_bill: estimatePrice
+            cash_bill: estimatePrice,
+            status: 1
         }
 
         saveGongchaMutate(gongchaData, {
