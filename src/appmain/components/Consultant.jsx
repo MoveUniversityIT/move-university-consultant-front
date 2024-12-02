@@ -59,10 +59,7 @@ const Consultant = () => {
     }
 
     const loadReservation = (reservation) => {
-        setReservationData(null);
-        setTimeout(() => {
-            setReservationData(reservation);
-        }, 0);
+        setReservationData({...reservation});
     };
 
     const resetMoveInfo = () => {
@@ -115,6 +112,9 @@ const Consultant = () => {
                     onReady={() => setIsMoveInfoLoading(false)}
                     estimatePrice={estimatePrice}
                     depositPrice={depositPrice}
+                    sliderValue={sliderValue}
+                    setSliderValue={setSliderValue}
+                    setReservationData={setReservationData}
                 />
                 <DispatchCost items={items}
                               setItems={setItems}
@@ -131,6 +131,7 @@ const Consultant = () => {
                               setEstimatePrice={setEstimatePrice}
                               surtax={surtax}
                               setSurtax={setSurtax}
+                              estimateLever={reservationData?.estimateLever}
                 />
                 <AdditionalFunctions consultantData={consultant}/>
 
@@ -140,7 +141,7 @@ const Consultant = () => {
                             className={`fixed top-0 right-0 h-full z-50 bg-white shadow-lg transform transition-transform duration-300 ${
                                 isCollapsed ? "translate-x-full" : "translate-x-0"
                             }`}
-                            style={{ width: "650px" }}
+                            style={{width: "650px"}}
                         >
                             <div className="flex justify-between items-center bg-gray-200 p-4">
                                 <h4 className="text-gray-700">배차 금액 상세 정보</h4>

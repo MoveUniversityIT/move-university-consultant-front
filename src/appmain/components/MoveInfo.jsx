@@ -47,7 +47,9 @@ const MoveInfo = ({
                       setPaymentMethod,
                       onReady,
                       estimatePrice,
-                      depositPrice
+                      depositPrice,
+                      sliderValue,
+                      setSliderValue
                   }) => {
     const queryClient = useQueryClient();
 
@@ -150,7 +152,7 @@ const MoveInfo = ({
     // 공차 거래처 조회
     const {data: supaIntermediaryName} = useSupabaseIntermediary(client?.value);
 
-    const {mutate: saveGongchaMutate } = useSupabaseSaveGongcha();
+    const {mutate: saveGongchaMutate} = useSupabaseSaveGongcha();
 
 
     useEffect(() => {
@@ -405,6 +407,7 @@ const MoveInfo = ({
 
         setLoadAddressList([]);
         setUnloadAddressList([]);
+        setSliderValue(5);
     };
 
     const handleSave = () => {
@@ -443,6 +446,7 @@ const MoveInfo = ({
             customerPhoneNumber,
             paymentMethod: JSON.stringify(paymentMethod),
             memo,
+            estimateLever: sliderValue      // 견적 금액 레버
         };
 
         reservationMutate(reservationData, {
@@ -623,6 +627,7 @@ const MoveInfo = ({
 
             setSearchItemTerm(reservationData?.searchItemTerm ?? '');
             setSearchSpecialItemTerm(reservationData?.searchSpecialItemTerm ?? '');
+            setSliderValue(reservationData?.estimateLever ?? 5);
         }
     }, [reservationData]);
 

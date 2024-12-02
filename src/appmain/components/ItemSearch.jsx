@@ -10,7 +10,7 @@ const ItemSearch = ({
     const searchTermRef = useRef(null);
     const dropdownRef = useRef();
     const [skipChangeEvent, setSkipChangeEvent] = useState(false);
-    const [unregisterWord, setUnregisterWord] = useState("");
+    const [unregisterWord, setUnregisterWord] = useState([]);
 
     const handleInputChange = (e) => {
         const value = e.target.value;
@@ -219,13 +219,14 @@ const ItemSearch = ({
                                 break;
                             }
                         }
-
                         if (isRegistered) break;
                     }
 
-                    if (!isRegistered) {
-                        unregisteredItems.push(term);
-                    }
+                    if (isRegistered) break;
+                }
+
+                if (!isRegistered && !unregisteredItems.includes(term)) {
+                    unregisteredItems.push(term);
                 }
             }
         });
@@ -233,6 +234,8 @@ const ItemSearch = ({
         setSelectedIndex(0);
         setItems(updatedItems);
         setSearchTerm(value);
+
+        setUnregisterWord([...unregisteredItems]);
     };
 
 
@@ -304,6 +307,10 @@ const ItemSearch = ({
         setSearchTerm(updatedSearchTerm);
         setSkipChangeEvent(true);
         setSelectedIndex(0);
+        setUnregisterWord((prev) => {
+            if (prev.length === 0) return prev;
+            return prev.slice(0, -1);
+        });
 
         textAreaElement.focus();
     };
@@ -404,6 +411,10 @@ const ItemSearch = ({
                     setSuggestions([]);
                     setSearchTerm(updatedSearchTerm);
                     setSelectedIndex(0);
+                    setUnregisterWord((prev) => {
+                        if (prev.length === 0) return prev;
+                        return prev.slice(0, -1);
+                    });
                     setSkipChangeEvent(true);
 
                     setTimeout(() => {
@@ -462,8 +473,8 @@ const ItemSearch = ({
             />
 
             <div className="mt-1 min-h-[20px] top-full left-0 w-full text-sm pl-3">
-                {isDropdownVisible && suggestions.length === 0 && (
-                    <span className="text-red-500 font-bold">{unregisterWord}</span>
+                {unregisterWord.length !== 0 && (
+                    <span className="text-red-500 font-bold">{unregisterWord.join(', ')}</span>
                 )}
             </div>
 

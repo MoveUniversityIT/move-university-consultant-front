@@ -56,6 +56,48 @@ export const getKakaoAddress = (searchInfo) => {
     });
 };
 
+// 카카오 주소 검색(난이도 설정)
+export const getDifficultyKakaoAddress = (searchInfo) => {
+    return new Promise((resolve, reject) => {
+        const initialAddress = searchInfo;
+        let initialResult = null;
+
+        const searchAddress = (address, originalAddress = initialAddress) => {
+            geocoder.addressSearch(address, (result, status) => {
+                if (status === window.kakao.maps.services.Status.OK && result.length > 0) {
+                    if (!initialResult) {
+                        initialResult = result;
+                    }
+
+                    const addressData = result[0];
+                    const bCode = addressData?.address?.b_code;
+                    if (bCode) {
+                        if (initialResult[0].address === null) {
+                            initialResult[0].address = {};
+                        }
+
+                        initialResult[0].address["address_name"] = originalAddress;
+                        initialResult[0].address["b_code"] = bCode;
+
+                        resolve(initialResult);
+                    } else {
+                        const upperAddress = addressData?.address_name?.substring(0, addressData?.address_name.lastIndexOf(' '));
+                        if (upperAddress !== address) {
+                            searchAddress(upperAddress, originalAddress);
+                        } else {
+                            reject(new Error('주소 검색 실패 및 상위 주소 없음'));
+                        }
+                    }
+                } else {
+                    reject(new Error('주소 검색 실패'));
+                }
+            });
+        };
+
+        searchAddress(initialAddress);
+    });
+};
+
 // 도로 거리 계산 함수
 export const getRoadDistance = async (location) => {
     const {startX, startY, endX, endY} = location;

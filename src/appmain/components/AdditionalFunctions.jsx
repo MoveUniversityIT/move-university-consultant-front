@@ -37,8 +37,8 @@ const AdditionalFunctions = () => {
         const formatAmount = (amount) => {
             const [man, cheon] = amount.split(".");
             const manText = man ? `${parseInt(man, 10)}만` : "";
-            const cheonText = cheon ? `${parseInt(cheon, 10)}천원` : "";
-            return `${manText}${cheonText}`;
+            const cheonText = cheon ? `${parseInt(cheon, 10)}천` : "";
+            return `${manText}${cheonText}원`;
         };
 
         const totalAmountFormatted = formatAmount(totalAmount);
@@ -163,7 +163,7 @@ const AdditionalFunctions = () => {
                     <div>
                         <p className="mb-2 text-lg font-semibold text-gray-700">총액을 입력하세요:</p>
                         <Input
-                            placeholder="예: 100"
+                            placeholder="예: 100 또는 99.5"
                             value={totalAmount}
                             onChange={(e) => setTotalAmount(e.target.value)}
                             type="number"
@@ -174,7 +174,7 @@ const AdditionalFunctions = () => {
                     <div>
                         <p className="mb-2 text-lg font-semibold text-gray-700">계약금을 입력하세요:</p>
                         <Input
-                            placeholder="예: 50"
+                            placeholder="예: 50 또는 49.5"
                             value={contractDeposit}
                             onChange={(e) => setContractDeposit(e.target.value)}
                             type="number"

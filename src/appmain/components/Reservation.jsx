@@ -1,12 +1,60 @@
-import React, {useState} from "react";
-import {Button, Card, Input, List, Modal} from "antd";
-import {useDeleteReservation} from "@hook/useUser";
-import {useQueryClient} from "@tanstack/react-query";
+import React, {useState, useEffect, useRef} from "react";
+import { Button, Card, Input, List, Modal, Pagination } from "antd";
+import { useDeleteReservation } from "@hook/useUser";
+import { useQueryClient } from "@tanstack/react-query";
 
-const Reservation = ({onLoad, onNew, reservations}) => {
+const Reservation = ({ onLoad, onNew, reservations }) => {
     const queryClient = useQueryClient();
-    const {mutate: reservationMutate} = useDeleteReservation();
+    const { mutate: reservationMutate } = useDeleteReservation();
     const [searchTerm, setSearchTerm] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(1); // 초기값 설정
+    const containerRef = useRef(null); // 컴포넌트의 크기를 감지하기 위한 ref
+    const pageRef = useRef(null); // 페이징 크기를 감지하기 위한 ref
+    const [maxPages, setMaxPages] = useState(1); // 최대 페이지 표시 수
+
+
+    // 세로 크기를 기준으로 itemsPerPage 계산
+    useEffect(() => {
+        const updateItemsPerPage = () => {
+            const containerHeight = containerRef.current.offsetHeight;
+            const itemHeight = 120;
+            const calculatedItems = Math.floor(containerHeight / itemHeight);
+            setItemsPerPage(Math.max(1, calculatedItems));
+        };
+
+        updateItemsPerPage();
+        window.addEventListener("resize", updateItemsPerPage);
+
+        return () => window.removeEventListener("resize", updateItemsPerPage);
+    }, []);
+
+    useEffect(() => {
+        const updateMaxPages = () => {
+            if (pageRef.current) {
+                const containerWidth = pageRef.current.offsetWidth;
+                if (containerWidth < 400) {
+                    setMaxPages(2);
+                } else if (containerWidth < 600) {
+                    setMaxPages(3);
+                } else {
+                    setMaxPages(4);
+                }
+            }
+        };
+
+        const resizeObserver = new ResizeObserver(updateMaxPages);
+        if (pageRef.current) {
+            resizeObserver.observe(pageRef.current);
+        }
+
+        // Clean up
+        return () => {
+            if (pageRef.current) {
+                resizeObserver.unobserve(pageRef.current);
+            }
+        };
+    }, []);
 
     const confirmAction = (title, content, onConfirm) => {
         Modal.confirm({
@@ -26,7 +74,7 @@ const Reservation = ({onLoad, onNew, reservations}) => {
         });
     };
 
-    const filteredReservations = reservations?.filter((reservation) => {
+    const filteredReservations = (reservations ?? []).filter((reservation) => {
         const searchLower = searchTerm.toLowerCase();
         return (
             reservation?.requestDate.toLowerCase().includes(searchLower) ||
@@ -35,28 +83,34 @@ const Reservation = ({onLoad, onNew, reservations}) => {
         );
     });
 
+    const paginatedReservations = filteredReservations?.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
     return (
         <Card
             title="상담 예약"
-            className="shadow-md rounded-md h-full"
-            styles={{
-                body: {padding: '10px'},
-            }}
+            className="shadow-md rounded-md h-full flex flex-col justify-between w-full overflow-hidden"
+            bodyStyle={{display: "flex", flexDirection: "column", height: "100%"}}
         >
-            <Button type="primary" block className="mb-4" onClick={onNew}>
-                새로 만들기
-            </Button>
+            <div>
+                <Button type="primary" block className="mb-4" onClick={onNew}>
+                    새로 만들기
+                </Button>
 
-            <Input
-                placeholder="검색 (이름, 번호, 날짜)"
-                className="mb-4"
-                onChange={(e) => setSearchTerm(e.target.value)}
-                value={searchTerm}
-            />
+                <Input
+                    placeholder="검색 (이름, 번호, 날짜)"
+                    className="mb-4"
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    value={searchTerm}
+                />
+            </div>
 
-            <div className="overflow-y-auto" style={{height: "772px"}}>
+            {/* 리스트 */}
+            <div ref={containerRef} className="flex-1 overflow-y-hidden mb-4">
                 <List
-                    dataSource={filteredReservations}
+                    dataSource={paginatedReservations}
                     renderItem={(reservation) => (
                         <List.Item
                             key={reservation.reservationId}
@@ -105,6 +159,32 @@ const Reservation = ({onLoad, onNew, reservations}) => {
                             </div>
                         </List.Item>
                     )}
+                />
+            </div>
+
+            {/* Pagination */}
+            <div ref={pageRef} className="w-full flex justify-center mb-4">
+                <Pagination
+                    current={currentPage}
+                    pageSize={itemsPerPage}
+                    total={filteredReservations?.length ?? 0}
+                    onChange={(page) => setCurrentPage(page)}
+                    showSizeChanger={false}
+                    responsive={true}
+                    showLessItems
+                    className="text-center"
+                    itemRender={(page, type, originalElement) => {
+                        if (type === "prev" || type === "next") {
+                            return originalElement;
+                        }
+                        if (type === "page" && Math.abs(page - currentPage) >= maxPages) {
+                            return null;
+                        }
+                        if (type === "jump-prev" || type === "jump-next") {
+                            return null;
+                        }
+                        return originalElement;
+                    }}
                 />
             </div>
         </Card>

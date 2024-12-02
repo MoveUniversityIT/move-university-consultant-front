@@ -28,7 +28,7 @@ const unitLabel = {
 
 const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymentMethod,
                       estimate, setEstimate, sliderValue, setSliderValue, depositPrice,
-                      setDepositPrice, estimatePrice, setEstimatePrice, surtax, setSurtax}) => {
+                      setDepositPrice, estimatePrice, setEstimatePrice, surtax, setSurtax, estimateLever}) => {
     const [calcData, setCalcData] = useState({});
 
     // minDeposit + (slider value - 1) * ((maxDeposit - minDeposit) / (10 -1))
@@ -166,8 +166,8 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
     }, [dispatchAmount]);
 
     useEffect(() => {
-        handleSliderChange(5);
-    }, [estimate]);
+        handleSliderChange(estimateLever ?? 5);
+    }, [estimate, estimateLever]);
 
     // 사다리가격도 별도 고지
     return (

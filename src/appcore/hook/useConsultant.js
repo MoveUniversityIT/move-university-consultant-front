@@ -1,7 +1,7 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
 import {
     getCalcConsultant,
-    getConsultantMetadata, getImage,
+    getConsultantMetadata, getDifficultyKakaoAddress, getImage,
     getItem,
     getKakaoAddress,
     getPendingItem,
@@ -23,12 +23,22 @@ export const useConsultantMetadata = (userId) => {
     })
 }
 
-// 주소 검색 함수 (Kakao API를 사용하는 부분)
+// 카카오 주소 검색 함수 (Kakao API를 사용하는 부분)
 export const useAddressSearch = (locationSearch) => {
     return useQuery({
         queryKey: ['addressSearch', locationSearch],
         queryFn: ({queryKey}) => getKakaoAddress(queryKey[1]),
         enabled: !!locationSearch?.address,
+        retry: false,
+    })
+}
+
+// 카카오 주소 난이도 검색 함수 (Kakao API를 사용하는 부분)
+export const useDifficultyAddressSearch = (locationSearch) => {
+    return useQuery({
+        queryKey: ['difficultyAddressSearch', locationSearch],
+        queryFn: ({queryKey}) => getDifficultyKakaoAddress(queryKey[1]),
+        enabled: !!locationSearch,
         retry: false,
     })
 }
