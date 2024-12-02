@@ -166,8 +166,8 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
     }, [dispatchAmount]);
 
     useEffect(() => {
-        handleSliderChange(estimateLever ?? 5);
-    }, [estimate, estimateLever]);
+        handleSliderChange(5);
+    }, [estimate]);
 
     // 사다리가격도 별도 고지
     return (
