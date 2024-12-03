@@ -1,5 +1,6 @@
 import React, {useRef, useState} from "react";
 import {Form, Input} from "antd";
+import _ from "lodash";
 
 const ItemSearch = ({
                         searchTerm, suggestions, collapseItems, items, setItems,
@@ -178,13 +179,24 @@ const ItemSearch = ({
             }
         });
 
-        const itemPattern = /^(.+?)(?:\(([^)]*)\))?(\d*)$/;
+        const itemPattern = /^(.+?)(?:\(([^)]*)\))?(?:\[(분|조|분조)?\])?(\d*)$/;
         terms.forEach((term) => {
             const match = term.match(itemPattern);
 
             if (match) {
-                const itemName = `${match[1].trim()}${match[2] ? `(${match[2]})` : ''}`;
-                const quantity = parseInt(match[3]) || 1;
+                const rawItemName = match[1].trim();
+                const parenthetical = match[2] ? `(${match[2]})` : '';
+                const itemName = `${rawItemName}${parenthetical}`;
+                let tag = match[3] || '';
+                const quantity = parseInt(match[4], 10) || 1;
+
+                const isValidTag = ['분', '조', '분조'].includes(tag) || _.isEmpty(tag);
+
+                if (!isValidTag) {
+                    tag = ''; // 태그가 유효하지 않으면 무효화
+                }
+
+                const formattedName = `${itemName}${tag ? `[${tag}]` : ''}${quantity === 1 ? "" : quantity}`;
 
                 let isRegistered = false;
 
@@ -197,8 +209,10 @@ const ItemSearch = ({
                         for (let k = 0; k < subcategory.items.length; k++) {
                             const item = subcategory.items[k];
                             const normalizedItemName = item.itemName.toLowerCase();
+                            if (itemName === normalizedItemName && isValidTag) {
+                                const requiredIsDisassembly = item.isDisassembly === 'Y' && (tag === '분' || tag === '분조') ? 'Y' : 'N';
+                                const requiredIsInstallation = item.isInstallation === 'Y' && (tag === '조' || tag === '분조') ? 'Y' : 'N';
 
-                            if (itemName === normalizedItemName) {
                                 if (!updatedItems[item.itemName]) {
                                     updatedItems[item.itemName] = {
                                         itemId: item.itemId,
@@ -206,12 +220,15 @@ const ItemSearch = ({
                                         itemCount: quantity,
                                         isDisassembly: item.isDisassembly,
                                         isInstallation: item.isInstallation,
-                                        requiredIsDisassembly: 'Y',
+                                        requiredIsDisassembly,
+                                        requiredIsInstallation
                                     };
                                 } else {
                                     updatedItems[item.itemName] = {
                                         ...updatedItems[item.itemName],
                                         itemCount: quantity,
+                                        requiredIsDisassembly,
+                                        requiredIsInstallation
                                     };
                                 }
                                 processedItemIds.add(item.itemName.toString());
@@ -225,9 +242,37 @@ const ItemSearch = ({
                     if (isRegistered) break;
                 }
 
-                if (!isRegistered && !unregisteredItems.includes(term)) {
-                    unregisteredItems.push(term);
+                if (_.isEmpty(tag)) {
+                    if (updatedItems[itemName]) {
+                        updatedItems[itemName].requiredIsDisassembly = 'N';
+                        updatedItems[itemName].requiredIsInstallation = 'N';
+                    }
                 }
+
+                if (!isRegistered || !isValidTag) {
+                    if (!unregisteredItems.includes(term)) {
+                        unregisteredItems.push(term);
+                    }
+
+                    const cleanItemName = (name) => {
+                        if (/\(.+\)$/.test(name)) {
+                            return name.replace(/\).*/, ')');
+                        }
+                        return name.replace(/[^a-zA-Z가-힣()]+$/, '').trim();
+                    };
+
+                    const replaceItemName  = cleanItemName(itemName);
+
+                    if (updatedItems[replaceItemName]) {
+
+                        delete updatedItems[replaceItemName];
+                    }
+                }
+
+                const updatedSearchTerm = terms.map((t) =>
+                    t === term ? formattedName : t
+                ).join(', ');
+                setSearchTerm(updatedSearchTerm);
             }
         });
 
@@ -258,7 +303,13 @@ const ItemSearch = ({
 
         const beforeText = searchTerm.slice(0, start).trim();
         const afterText = searchTerm.slice(end).trim();
-        const newItemName = item.itemName.trim(); // 공백 제거
+
+        let tag = "";
+        if(item.isDisassembly === 'Y') {
+            tag = '[분]';
+        }
+
+        const newItemName = `${item.itemName.trim()}${tag}`;
 
         // 새로운 검색어 생성
         let updatedSearchTerm = `${beforeText} ${newItemName}, ${afterText}`.trim();
@@ -275,18 +326,21 @@ const ItemSearch = ({
         // 선택된 아이템 이름 정규화
         const normalizeName = (name) => name.trim().toLowerCase();
 
-        const normalizedNewItemName = normalizeName(newItemName);
+        const normalizedBaseItemName = normalizeName(item.itemName);
 
         // 선택된 아이템만 처리
         const existingItem = Object.values(updatedItems).find(
-            (existing) => normalizeName(existing.itemName) === normalizedNewItemName
+            (existing) => normalizeName(existing.itemName) === normalizedBaseItemName
         );
 
-        if (!existingItem) {
-            // 새로운 아이템 추가
+        if (existingItem) {
+            existingItem.itemCount = 1;
+            existingItem.requiredIsDisassembly = item.isDisassembly === "Y" ? "Y" : "N";
+        } else {
+            // 새로운 항목 추가
             updatedItems[item.itemName] = {
                 itemId: item.itemId,
-                itemName: newItemName,
+                itemName: item.itemName.trim(), // 태그 없이 저장
                 itemCount: 1,
                 isDisassembly: item.isDisassembly,
                 isInstallation: item.isInstallation,
@@ -367,7 +421,14 @@ const ItemSearch = ({
 
                     const beforeText = searchTerm.slice(0, start).trim();
                     const afterText = searchTerm.slice(end).trim();
-                    const newItemName = firstSuggestion.itemName.trim();
+                    const baseItemName = firstSuggestion.itemName.trim();
+
+                    let tag = "";
+                    if(firstSuggestion.isDisassembly === 'Y') {
+                        tag = '[분]';
+                    }
+
+                    const newItemName = `${baseItemName}${tag}`;
 
                     let updatedSearchTerm = `${beforeText} ${newItemName}, ${afterText}`.trim();
 
@@ -381,16 +442,18 @@ const ItemSearch = ({
 
                     const normalizeName = (name) => name.trim().toLowerCase();
 
-                    const normalizedNewItemName = normalizeName(newItemName);
+                    const normalizedBaseItemName = normalizeName(baseItemName);
 
                     const existingItem = Object.values(updatedItems).find(
-                        (existing) => normalizeName(existing.itemName) === normalizedNewItemName
+                        (existing) => normalizeName(existing.itemName) === normalizedBaseItemName
                     );
 
-                    if (!existingItem) {
+                    if (existingItem) {
+                        existingItem.requiredIsDisassembly = firstSuggestion.isDisassembly === "Y" ? "Y" : "N";
+                    } else {
                         updatedItems[firstSuggestion.itemName] = {
                             itemId: firstSuggestion.itemId,
-                            itemName: newItemName,
+                            itemName: baseItemName,
                             itemCount: 1,
                             isDisassembly: firstSuggestion.isDisassembly,
                             isInstallation: firstSuggestion.isInstallation,

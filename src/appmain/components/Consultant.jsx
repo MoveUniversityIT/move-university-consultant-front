@@ -22,6 +22,7 @@ const Consultant = () => {
     const [dispatchAmount, setDispatchAmount] = useState(null);
     const [isDispatchAmount, setIsDispatchAmount] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState({key: 1, value: '현금'});
+    const [searchItemTerm, setSearchItemTerm] = useState('');
 
     const [isCollapsed, setIsCollapsed] = useState(true);
     const roles = useSelector((state) => state.login.roles);
@@ -115,6 +116,8 @@ const Consultant = () => {
                     sliderValue={sliderValue}
                     setSliderValue={setSliderValue}
                     setReservationData={setReservationData}
+                    searchItemTerm={searchItemTerm}
+                    setSearchItemTerm={setSearchItemTerm}
                 />
                 <DispatchCost items={items}
                               setItems={setItems}
@@ -132,6 +135,8 @@ const Consultant = () => {
                               surtax={surtax}
                               setSurtax={setSurtax}
                               estimateLever={reservationData?.estimateLever}
+                              searchItemTerm={searchItemTerm}
+                              setSearchItemTerm={setSearchItemTerm}
                 />
                 <AdditionalFunctions consultantData={consultant}/>
 

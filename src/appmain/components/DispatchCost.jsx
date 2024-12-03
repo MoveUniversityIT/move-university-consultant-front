@@ -28,7 +28,8 @@ const unitLabel = {
 
 const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymentMethod,
                       estimate, setEstimate, sliderValue, setSliderValue, depositPrice,
-                      setDepositPrice, estimatePrice, setEstimatePrice, surtax, setSurtax, estimateLever}) => {
+                      setDepositPrice, estimatePrice, setEstimatePrice, surtax, setSurtax, estimateLever,
+                      searchItemTerm, setSearchItemTerm}) => {
     const [calcData, setCalcData] = useState({});
 
     // minDeposit + (slider value - 1) * ((maxDeposit - minDeposit) / (10 -1))
@@ -103,14 +104,51 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
     };
 
     const handleCheckboxChange = (itemName, key, checked) => {
-        setItems(prevItems => ({
-            ...prevItems,
-            [itemName]: {
+        setItems((prevItems) => {
+            const updatedItem = {
                 ...prevItems[itemName],
                 [key]: checked ? "Y" : "N",
+            };
+
+            // 태그 계산
+            const isDisassembly = updatedItem.requiredIsDisassembly === "Y";
+            const isInstallation = updatedItem.requiredIsInstallation === "Y";
+            let tag = "";
+
+            if (isDisassembly && isInstallation) {
+                tag = "[분조]";
+            } else if (isDisassembly) {
+                tag = "[분]";
+            } else if (isInstallation) {
+                tag = "[조]";
             }
-        }));
+
+            setSearchItemTerm((prevSearchItemTerm) => {
+                const terms = prevSearchItemTerm.split(',').map((term) => term.trim());
+                const baseName = itemName.replace(/\[.*\]/g, '');
+                const updatedItemName = tag ? `${baseName}${tag}` : baseName;
+
+                const updatedTerms = terms.map((term) => {
+                    if (term.startsWith(baseName)) {
+                        return updatedItemName;
+                    }
+                    return term;
+                });
+
+                if (!updatedTerms.includes(updatedItemName)) {
+                    updatedTerms.push(updatedItemName);
+                }
+
+                return updatedTerms.join(', ');
+            });
+
+            return {
+                ...prevItems,
+                [itemName]: updatedItem,
+            };
+        });
     };
+
 
     useEffect(() => {
         setCalcData({

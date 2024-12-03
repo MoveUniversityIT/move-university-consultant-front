@@ -49,7 +49,9 @@ const MoveInfo = ({
                       estimatePrice,
                       depositPrice,
                       sliderValue,
-                      setSliderValue
+                      setSliderValue,
+                      searchItemTerm,
+                      setSearchItemTerm
                   }) => {
     const queryClient = useQueryClient();
 
@@ -84,7 +86,6 @@ const MoveInfo = ({
 
     const [isTogether, setIsTogether] = useState(false);
 
-    const [searchItemTerm, setSearchItemTerm] = useState('');
     const [suggestions, setSuggestions] = useState([]);
 
     const [skipAddressChangeEvent, setSkipAddressChangeEvent] = useState(false);
@@ -273,8 +274,6 @@ const MoveInfo = ({
     };
 
     // 요청시간, 요청일 end
-
-
     const removeTerm = (searchTerm, termsToRemove) => {
         const regex = new RegExp(`(,\\s*|^\\s*)(${termsToRemove.join('|')})(,\\s*|$)`, 'g');
         return searchTerm.replace(regex, (_, prefix, term, suffix) => {
@@ -283,16 +282,29 @@ const MoveInfo = ({
     };
 
     const handleMoveTypeChange = (value, option) => {
-        setMoveType({key: option.key, value});
+        setMoveType({ key: option.key, value });
 
         if (value === '단순운송' || value === '일반이사') {
-            Object.keys(items).forEach((key) => {
-                const item = items[key]?.itemName;
+            const updatedItems = { ...items };
+            const excludedItemNames = [];
+
+            Object.keys(updatedItems).forEach((key) => {
+                const item = updatedItems[key]?.itemName;
                 if (['박스(필요)', '바구니(필요)'].some((exclude) => item === exclude)) {
-                    delete items[key];
+                    excludedItemNames.push(item);
+                    delete updatedItems[key];
                 }
             });
-            setItems({...items});
+
+            setSearchItemTerm((prevSearchItemTerm) => {
+                const terms = prevSearchItemTerm.split(',').map((term) => term.trim());
+                const filteredTerms = terms.filter((term) => {
+                    return !excludedItemNames.some((excludedItem) => term.startsWith(excludedItem));
+                });
+                return filteredTerms.join(', ').trim();
+            });
+
+            setItems(updatedItems);
         }
     };
 

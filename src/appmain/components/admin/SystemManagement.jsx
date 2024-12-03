@@ -1,21 +1,29 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import UploadExcel from "@/component/UploadExcel";
 import DownloadExcel from "@/component/DownloadExcel";
 import {useQueryClient} from "@tanstack/react-query";
 import {useDifficultyAddressSearch} from "@hook/useConsultant";
-import {Button, Input, InputNumber, Table} from "antd";
+import {Button, Input, InputNumber, message, Table} from "antd";
+import {useDifficultyLevel, useDifficultyLevelList, useUpdateDifficultyLevel} from "@hook/useAdmin";
 
 const SystemManagement = () => {
     const queryClient = useQueryClient();
     const [location, setLocation] = useState("");
     const [showList, setShowList] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(0);
+    const searchTermRef = useRef(null);
+    const [addressName, setAddressName] = useState('');
     const [administrativeCode, setAdministrativeCode] = useState('0');
     const [skipAddressChangeEvent, setSkipAddressChangeEvent] = useState(false);
+    const [currentPageable, setCurrentPageable] = useState({page: 1, size: 3});
+    const [pageSize] = useState(3);
 
     const [difficulty, setDifficulty] = useState(0);
     const [addressList, setAddressList] = useState([]);
-    const {data: locationList} = useDifficultyAddressSearch(location);
+    const {data: locationListData} = useDifficultyAddressSearch(location);
+    // const {data: difficultyListData } = useDifficultyLevelList(currentPageable)
+    const {data: difficultyData, error: difficultyError} = useDifficultyLevel(administrativeCode);
+    const {mutate: difficultyLevelMutate} = useUpdateDifficultyLevel();
 
     const handleExcepUpload = () => {
         queryClient.invalidateQueries('consultantMetadata');
@@ -23,13 +31,13 @@ const SystemManagement = () => {
 
     const handleLocationChange = (e) => {
         const address = e.target.value;
-        setLocation(address);
 
         if (skipAddressChangeEvent) {
             setSkipAddressChangeEvent(false);
             return;
         }
 
+        setLocation(address);
         setSelectedIndex(0);
         setShowList(true);
     };
@@ -42,32 +50,91 @@ const SystemManagement = () => {
                     return Math.min(prevIndex + 1, addressList.length - 1);
                 });
             } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
                 setSelectedIndex((prevIndex) => Math.max(prevIndex - 1, 0));
             } else if (e.key === 'Enter' && selectedIndex >= 0) {
-                const selectedAddress = addressList[selectedIndex];
-                const addressName = selectedAddress.address_name.trim();
+                e.preventDefault();
 
-                setAdministrativeCode(selectedAddress.address?.b_code || undefined);
+                const selectedAddress = addressList[selectedIndex];
+                const bCode = selectedAddress?.address?.b_code.toString();
+                const addressName = selectedAddress?.address?.address_name.trim();
+
+                setAddressName(addressName);
+                setLocation(addressName);
+                setAdministrativeCode(bCode || undefined);
                 setShowList(false);
                 setSkipAddressChangeEvent(true);
-                setSelectedIndex(-1);
+                setSelectedIndex(0);
             }
         } else {
             setSkipAddressChangeEvent(false);
         }
     };
 
-    const regionList = [
-        {cityCode: '1', address: '서울', difficulty: 5},
-        {cityCode: '2', address: '부산', difficulty: 3},
-        {cityCode: '3', address: '대구', difficulty: 4},
-    ];
+    const handleSelectAddress = (address) => {
+        if(!location) return;
+
+        const bCode = address?.address?.b_code.toString();
+        const addressName = address?.address?.address_name.trim();
+
+        setAdministrativeCode(bCode || undefined);
+        setAddressName(addressName);
+        setLocation(addressName);
+    }
+
+    const handleUpdateDifficultyLevel = () => {
+        const difficultyData = {
+            bCode: administrativeCode,
+            difficultyLevel: difficulty
+        }
+
+        difficultyLevelMutate(difficultyData, {
+            onSuccess: (data) => {
+                const successMessage = data?.message || "난이도 설정이 정상적으로 처리되었습니다.";
+                message.success({
+                    content: successMessage,
+                    key: 'saveDifficultyLevel',
+                    duration: 2,
+                });
+
+                queryClient.invalidateQueries('difficultyLevel');
+            },
+            onError: (error) => {
+                const errorMessage = error?.errorMessage || "난이도 설정 중 에러가 발생했습니다";
+                message.error({
+                    content: errorMessage,
+                    key: 'errorDifficultyLevel',
+                    duration: 2,
+                });
+            }
+        })
+    }
+
+    // const handlePageChange = async (page) => {
+    //     setCurrentPageable({page, size: pageSize});
+    // };
+
+    // const paginationConfig = {
+    //     current: currentPageable.page,
+    //     pageSize: currentPageable.pageSize,
+    //     total: difficultyListData?.totalElements || 1,
+    //     onChange: handlePageChange,
+    // };
 
     useEffect(() => {
-        if(locationList)
-            setAddressList(locationList);
+        if(locationListData) {
+            setAddressList(locationListData);
+        }
 
-    }, [locationList]);
+    }, [locationListData]);
+
+    useEffect(() => {
+        setDifficulty(difficultyData?.difficultyLevel || 0);
+    }, [difficultyData])
+
+    // useEffect(() => {
+    //     console.log(difficultyListData);
+    // }, [difficultyListData])
 
     return (
         <div className="w-full h-full flex flex-col bg-white rounded-lg shadow-md p-6">
@@ -76,19 +143,58 @@ const SystemManagement = () => {
             {/* 지역 설정 섹션 */}
             <div className="flex flex-row w-full mx-auto bg-white rounded-lg shadow-md p-6 gap-6 mb-8">
                 {/* 왼쪽: 지역 설정 섹션 */}
-                <div className="flex flex-col flex-[1] bg-gray-50 p-4 rounded-lg shadow-sm">
-                    <div className="flex items-center mb-4">
+                <div className="flex flex-col flex-[1] bg-gray-50 p-4 rounded-lg shadow-sm relative">
+                    <div className="flex items-center mb-4 relative">
                         <h3 className="text-md font-semibold text-gray-700 mr-2">지역 난이도</h3>
                         <span className="bg-blue-200 text-blue-600 text-xs px-2 py-1 rounded">설정</span>
+                        {difficultyError && (
+                            <div
+                                className="absolute right-0 flex items-center text-red-500 font-bold text-sm bg-red-100 px-3 py-1 rounded shadow-md mt-1"
+                                style={{
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                }}
+                            >
+                                {difficultyError?.errorMessage}
+                            </div>
+                        )}
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col gap-4">
+                        {/* 난이도 및 행정동 코드 표현 */}
+                        <div className="flex flex-row gap-6 mt-4">
+                            {/* 지역 이름 */}
+                            <div
+                                className="flex-1 px-4 py-3 rounded-lg border bg-gray-100 border-gray-300 text-black shadow-sm">
+                                <h4 className="text-sm font-semibold text-gray-600 mb-2">지역 이름</h4>
+                                <p className="text-base font-bold">{addressName || "선택된 지역 없음"}</p>
+                            </div>
+                            {/* 행정동 코드 */}
+                            <div
+                                className="flex-1 px-4 py-3 rounded-lg border bg-gray-100 border-gray-300 text-black shadow-sm">
+                                <h4 className="text-sm font-semibold text-gray-600 mb-2">행정동 코드</h4>
+                                <p className="text-base font-bold">{administrativeCode || "선택된 행정동 없음"}</p>
+                            </div>
+                            {/* 난이도 */}
+                            <div
+                                className="flex-1 px-4 py-3 rounded-lg border bg-gray-100 border-gray-300 text-black shadow-sm">
+                                <h4 className="text-sm font-semibold text-gray-600 mb-2">난이도</h4>
+                                <p className="text-base font-bold">{difficulty || "0"}</p>
+                            </div>
+                        </div>
                         {/* 주소 입력 */}
-                        <div className="relative flex-[2]">
+                        <div className="relative">
                             <Input
+                                ref={searchTermRef}
                                 placeholder="주소를 입력하세요"
                                 className="w-full border border-blue-300 focus:ring-2 focus:ring-blue-500"
+                                value={location}
                                 onChange={handleLocationChange}
                                 onKeyDown={handleKeyDown}
+                                onKeyPress={(e) => {
+                                    if (e.key === "Enter") {
+                                        e.preventDefault();
+                                    }
+                                }}
                             />
                             {showList && addressList.length > 0 && (
                                 <ul
@@ -99,9 +205,9 @@ const SystemManagement = () => {
                                         <li
                                             key={index}
                                             onMouseDown={(e) => {
-                                                setAdministrativeCode(address.address?.b_code || undefined);
-                                                setShowList(false);
                                                 e.preventDefault();
+                                                handleSelectAddress(address);
+                                                setShowList(false);
                                             }}
                                             className={`px-4 py-1 cursor-pointer ${
                                                 selectedIndex === index ? 'bg-blue-100' : 'bg-white'
@@ -113,67 +219,55 @@ const SystemManagement = () => {
                                 </ul>
                             )}
                         </div>
-                        {/* 난이도 및 행정동 코드 표현 */}
-                        <div className="flex-[2] flex gap-4 items-center justify-center">
-                            {/* 행정동 코드 */}
-                            <div className="px-4 py-2 rounded-lg border bg-gray-100 border-gray-300 text-black">
-                                <span className="text-sm font-medium">행정동 코드:</span>
-                                <span className="ml-2 font-semibold">{administrativeCode}</span>
-                            </div>
-                            {/* 난이도 */}
-                            <div className="px-4 py-2 rounded-lg border bg-gray-100 border-gray-300 text-black">
-                                <span className="text-sm font-medium">난이도:</span>
-                                <span className="ml-2 font-semibold">{difficulty}</span>
-                            </div>
+                        {/* 난이도 조정 */}
+                        <div className="flex flex-wrap items-center gap-4">
+                            <InputNumber
+                                className="w-32 border border-blue-300 focus:ring-2 focus:ring-blue-500"
+                                min={0}
+                                max={9999}
+                                value={difficulty}
+                                onChange={(value) => setDifficulty(value ?? 0)}
+                            />
+                            <Button type="primary" className="bg-blue-600 hover:bg-blue-500" onClick={handleUpdateDifficultyLevel}>
+                                수정
+                            </Button>
                         </div>
-                    </div>
-                    {/* 난이도 조정 */}
-                    <div className="flex flex-wrap items-center gap-4 mt-6">
-                        <InputNumber
-                            className="w-32 border border-blue-300 focus:ring-2 focus:ring-blue-500"
-                            min={0}
-                            max={8}
-                            value={difficulty}
-                            onChange={(value) => setDifficulty(value ?? 0)}
-                        />
-                        <Button type="primary" className="bg-blue-600 hover:bg-blue-500">
-                            수정
-                        </Button>
                     </div>
                 </div>
 
-                {/* 오른쪽: 지역 리스트 섹션 */}
-                <div className="flex flex-col flex-[1] bg-gray-50 p-4 rounded-lg shadow-sm">
-                    <h3 className="text-md font-semibold text-gray-700 mb-4">지역 난이도 리스트</h3>
-                    <Table
-                        dataSource={regionList}
-                        columns={[
-                            {
-                                title: '행정동 코드',
-                                dataIndex: 'cityCode',
-                                key: 'cityCode',
-                                width: '20%',
-                            },
-                            {
-                                title: '주소',
-                                dataIndex: 'address',
-                                key: 'address',
-                                width: '50%',
-                            },
-                            {
-                                title: '난이도',
-                                dataIndex: 'difficulty',
-                                key: 'difficulty',
-                                width: '30%',
-                                render: (text) => (
-                                    <span className="font-semibold text-gray-600">{text}</span>
-                                ),
-                            },
-                        ]}
-                        pagination={false}
-                    />
-                </div>
+                {/*/!* 오른쪽: 지역 리스트 섹션 *!/*/}
+                {/*<div className="flex flex-col flex-[1] bg-gray-50 p-4 rounded-lg shadow-sm">*/}
+                {/*<h3 className="text-md font-semibold text-gray-700 mb-4">지역 난이도 리스트</h3>*/}
+                {/*    <Table*/}
+                {/*        dataSource={difficultyListData?.content || []}*/}
+                {/*        columns={[*/}
+                {/*            {*/}
+                {/*                title: '순번',*/}
+                {/*                dataIndex: 'id',*/}
+                {/*                key: 'id',*/}
+                {/*                width: '20%',*/}
+                {/*            },*/}
+                {/*            {*/}
+                {/*                title: '행정동 코드',*/}
+                {/*                dataIndex: 'difficultyBCode',*/}
+                {/*                key: 'difficultyBCode',*/}
+                {/*                width: '50%',*/}
+                {/*            },*/}
+                {/*            {*/}
+                {/*                title: '난이도',*/}
+                {/*                dataIndex: 'difficultyLevel',*/}
+                {/*                key: 'difficultyLevel',*/}
+                {/*                width: '30%',*/}
+                {/*                render: (text) => (*/}
+                {/*                    <span className="font-semibold text-gray-600">{text}</span>*/}
+                {/*                ),*/}
+                {/*            },*/}
+                {/*        ]}*/}
+                {/*        pagination={paginationConfig}*/}
+                {/*    />*/}
+                {/*</div>*/}
             </div>
+
 
             {/* 아이템 물품 및 특수일 섹션 */}
             <div className="flex flex-row justify-between rounded-lg shadow-md gap-8">

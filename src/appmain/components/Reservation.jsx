@@ -83,16 +83,24 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
         );
     });
 
-    const paginatedReservations = filteredReservations?.slice(
+// 페이지네이션은 필터링된 데이터(filteredReservations)에만 적용
+    const paginatedReservations = filteredReservations.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
+
+// 검색어가 변경될 때 페이지를 첫 페이지로 초기화
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
 
     return (
         <Card
             title="상담 예약"
             className="shadow-md rounded-md h-full flex flex-col justify-between w-full overflow-hidden"
-            bodyStyle={{display: "flex", flexDirection: "column", height: "100%"}}
+            styles={{
+                body: {display: "flex", flexDirection: "column", height: "100%"},
+            }}
         >
             <div>
                 <Button type="primary" block className="mb-4" onClick={onNew}>
