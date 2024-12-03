@@ -91,7 +91,7 @@ const Consultant = () => {
                 className="h-full grid gap-2 p-2 mx-auto overflow-x-auto"
                 style={{
                     marginRight: isCollapsed ? "0" : "650px",
-                    gridTemplateColumns: "minmax(240px, 1fr) minmax(550px, 2fr) minmax(400px, 3fr) minmax(190px, 1.5fr)",
+                    gridTemplateColumns: "minmax(240px, 1fr) minmax(550px, 2.5fr) minmax(400px, 2.5fr) minmax(190px, 1.5fr)",
                 }}
             >
                 <Reservation
