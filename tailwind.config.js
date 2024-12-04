@@ -6,6 +6,10 @@ module.exports = {
     ],
     theme: {
         extend: {
+            backgroundImage: {
+                'mv-logo': "url('/public/logo.png')",
+                'watermark': "url('/public/watermark.png')",
+            },
             colors: {
                 "no-hands-day": "#FF4500",
             },

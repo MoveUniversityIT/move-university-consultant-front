@@ -112,12 +112,6 @@ const AdditionalFunctions = () => {
         <Card title={
             <div className="flex justify-between items-center">
                 <span>추가 기능</span>
-                <Button
-                    className="px-4 py-2 bg-red-500 text-white rounded hover:!bg-red-300"
-                    onClick={handleLogout}
-                >
-                    로그아웃
-                </Button>
             </div>
         }
               className="shadow-md rounded-md h-full"

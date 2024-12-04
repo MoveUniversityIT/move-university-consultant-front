@@ -7,6 +7,7 @@ import koKR from 'antd/es/date-picker/locale/ko_KR';
 const CustomDatePicker = ({dateCheckList, requestDate, handleDateChange}) => {
     const {mutate: dateMutate} = useSpecialDay();
     const [noHandsDaysByYear, setNoHandsDaysByYear] = useState({});
+    const [prevYear, setPrevYear] = useState(dayjs(new Date(), 'YYYY').year());
 
     const isNoHandsDay = (date) => {
         const year = dayjs(date, 'YYYY').year();
@@ -16,18 +17,29 @@ const CustomDatePicker = ({dateCheckList, requestDate, handleDateChange}) => {
     };
 
     const fetchNoHandsDaysForYear = (year) => {
-        if (noHandsDaysByYear[year]) return;
-
         dateMutate(year, {
             onSuccess: (data) => {
-                const noHandsDays = data.NO_HANDS_DAY.map(date => dayjs(date, "YYYY-MM-DD"))
+                const noHandsDays = data.NO_HANDS_DAY.reduce((acc, date) => {
+                    const day = dayjs(date, "YYYY-MM-DD");
+                    const yearKey = day.year();
+                    const numericYear = Number(year);
+
+                    if (!acc[yearKey]) {
+                        acc[yearKey] = [];
+                    }
+
+                    acc[yearKey].push(day);
+
+                    return acc;
+                }, {});
+
                 setNoHandsDaysByYear(prev => ({
                     ...prev,
-                    [year]: noHandsDays
+                    ...noHandsDays,
                 }));
 
                 const today = dayjs();
-                if (noHandsDays.some(d => d.isSame(today, 'day'))) {
+                if (noHandsDays[year].some(d => d.isSame(today, 'day'))) {
                     handleDateChange(true)(today);
                 }
             }
@@ -45,13 +57,26 @@ const CustomDatePicker = ({dateCheckList, requestDate, handleDateChange}) => {
 
     const handlePanelChange = (value) => {
         const selectedYear = value.format("YYYY");
-        fetchNoHandsDaysForYear(selectedYear);
+
+        if(selectedYear !== prevYear) {
+            setPrevYear(selectedYear);
+            fetchNoHandsDaysForYear(selectedYear);
+        }
     };
 
 
     const dateCellRender = (current) => {
         const year = current.format("YYYY");
-        const isNoHandsDay = noHandsDaysByYear[year]?.some(noHandsDay => noHandsDay.isSame(current, "day"));
+
+        const yearsToCheck = [
+            `${parseInt(year, 10) - 1}`,
+            year,
+            `${parseInt(year, 10) + 1}`
+        ];
+
+        const isNoHandsDay = yearsToCheck.some((checkYear) =>
+            noHandsDaysByYear[checkYear]?.some((noHandsDay) => noHandsDay.isSame(current, "day"))
+        );
 
         return (
             <div className="ant-picker-cell-inner relative">
@@ -65,11 +90,11 @@ const CustomDatePicker = ({dateCheckList, requestDate, handleDateChange}) => {
         );
     };
 
-    const Legend = ({ isVisible }) => (
+    const Legend = ({isVisible}) => (
         <div
             className={`flex items-center ${!isVisible ? "invisible" : ""}`}
         >
-            <div className="w-2 h-2 bg-no-hands-day mr-2 rounded-full" />
+            <div className="w-2 h-2 bg-no-hands-day mr-2 rounded-full"/>
             <p className="text-gray-700">손 없는 날</p>
         </div>
     );

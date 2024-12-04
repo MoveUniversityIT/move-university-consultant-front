@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import ProtectedRoute from "@/appcore/routes/ProtectedRoute";
 import RegisterForm from "@/component/RegisterForm";
 import AdminDashboard from "@component/admin/AdminDashboard";
+import TestPointTransfer from "@component/TestPointTransfer";
 
 const Router = () => {
     const isLogin = useSelector((state) => state.login.loginState);
@@ -35,6 +36,10 @@ const Router = () => {
             {
                 path: "/register",
                 element: <RegisterForm />,
+            },
+            {
+                path: "test",
+                element: <TestPointTransfer />
             },
             {
                 path: "*",

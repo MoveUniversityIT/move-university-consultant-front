@@ -11,7 +11,7 @@ const envKeys = Object.keys(process.env).reduce((prev, next) => {
 module.exports = {
     entry: path.resolve(__dirname, 'src/index.js'),
     output: {
-        filename: 'move_university_consultant.[contenthash].js', // contenthash를 추가하여 캐싱 최적화
+        filename: 'move_university_consultant.[contenthash].js',
         path: path.resolve(__dirname, 'dist'),
         clean: true,
     },
@@ -25,7 +25,7 @@ module.exports = {
                     options: {
                         presets: ['@babel/preset-env', '@babel/preset-react'],
                     },
-                },
+                }
             },
             {
                 test: /\.css$/i,
@@ -83,7 +83,7 @@ module.exports = {
         }),
         new webpack.DefinePlugin(envKeys),
         new MiniCssExtractPlugin({
-            filename: '[name].[contenthash].css', // contenthash를 추가하여 캐싱 최적화
+            filename: '[name].[contenthash].css',
         })
     ],
     optimization: {

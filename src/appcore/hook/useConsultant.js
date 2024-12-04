@@ -81,6 +81,7 @@ export const useSpecialDay = () => {
         mutationFn: (year) => getSpecialDay(year),
         retry: false,
         onError: (error) => {
+            console.log("error테스트", error);
             const errorMessage = error.errorMessage || "특수일(손없는 날) 데이터를 가져오는데 실패했습니다.";
             alert(`API 요청 오류: ${errorMessage}`)
         },
