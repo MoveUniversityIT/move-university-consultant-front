@@ -39,7 +39,11 @@ const Router = () => {
             },
             {
                 path: "test",
-                element: <TestPointTransfer />
+                element: (
+                    <ProtectedRoute requiredRoles={["ROLE_ADMIN"]}>
+                        <TestPointTransfer />
+                    </ProtectedRoute>
+                )
             },
             {
                 path: "*",
