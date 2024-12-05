@@ -122,17 +122,24 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
                     renderItem={(reservation) => (
                         <List.Item
                             key={reservation.reservationId}
-                            className="w-full bg-white shadow-sm rounded-lg mb-2 p-4 hover:shadow-md transition-shadow flex flex-col !items-center opacity-100 transform duration-300"
+                            className="w-full bg-white rounded-lg mb-2 p-4 border border-gray-200 hover:border-blue-500 hover:bg-blue-50 hover:shadow-xl transition-all duration-300 flex flex-col items-center transform"
+                            style={{
+                                borderBlockEnd: "none",
+                                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                            }}
                         >
                             <div className="flex flex-col gap-1">
-                                <p className="text-sm font-semibold text-gray-800">
-                                    {reservation.requestDate}
+                                <p className="text-sm text-gray-600 flex">
+                                    <span className="font-semibold w-14 text-center">요청일:</span>
+                                    <span className="ml-2">{reservation.requestDate}</span>
                                 </p>
-                                <p className="text-sm text-gray-600">
-                                    <strong>화주이름:</strong> {reservation.customerName}
+                                <p className="text-sm text-gray-600 flex">
+                                    <span className="font-semibold w-14 text-center">화주이름:</span>
+                                    <span className="ml-2">{reservation.customerName}</span>
                                 </p>
-                                <p className="text-sm text-gray-600">
-                                    <strong>화주번호:</strong> {reservation.customerPhoneNumber}
+                                <p className="text-sm text-gray-600 flex">
+                                    <span className="font-semibold w-14 text-center">화주번호:</span>
+                                    <span className="ml-2">{reservation.customerPhoneNumber}</span>
                                 </p>
                             </div>
 
@@ -140,7 +147,7 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
                             <div className="flex justify-end gap-2 border-t pt-2 mt-1">
                                 <Button
                                     size="small"
-                                    className="bg-blue-500 text-white rounded-md hover:bg-blue-600 px-4 py-1 text-xs"
+                                    className="bg-blue-500 text-white rounded-md border border-blue-500 hover:bg-blue-600 hover:border-blue-600 px-4 py-1 text-xs shadow-sm transition-all duration-200"
                                     onClick={() =>
                                         confirmAction(
                                             "불러오기 확인",
@@ -153,7 +160,7 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
                                 </Button>
                                 <Button
                                     size="small"
-                                    className="bg-red-500 text-white rounded-md hover:bg-red-600 px-4 py-1 text-xs"
+                                    className="bg-red-500 text-white rounded-md border border-red-500 hover:bg-red-600 hover:border-red-600 px-4 py-1 text-xs shadow-sm transition-all duration-200"
                                     onClick={() =>
                                         confirmAction(
                                             "삭제 확인",
