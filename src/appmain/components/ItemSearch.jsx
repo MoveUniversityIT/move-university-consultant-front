@@ -13,7 +13,6 @@ const ItemSearch = ({
     const dropdownRef = useRef();
     const [skipChangeEvent, setSkipChangeEvent] = useState(false);
 
-
     const handleInputChange = (e) => {
         const value = e.target.value;
         const cursorPosition = e.target.selectionStart;
@@ -194,7 +193,7 @@ const ItemSearch = ({
                 const isValidTag = ['분', '조', '분조'].includes(tag) || _.isEmpty(tag);
 
                 if (!isValidTag) {
-                    tag = ''; // 태그가 유효하지 않으면 무효화
+                    tag = '';
                 }
 
                 const formattedName = `${itemName}${tag ? `[${tag}]` : ''}${quantity === 1 ? "" : quantity}`;
@@ -340,7 +339,7 @@ const ItemSearch = ({
             // 새로운 항목 추가
             updatedItems[item.itemName] = {
                 itemId: item.itemId,
-                itemName: item.itemName.trim(), // 태그 없이 저장
+                itemName: item.itemName.trim(),
                 itemCount: 1,
                 isDisassembly: item.isDisassembly,
                 isInstallation: item.isInstallation,
@@ -490,28 +489,6 @@ const ItemSearch = ({
         }
     };
 
-    const renderHighlightedText = () => {
-        const terms = searchTerm.split(',').map((term) => term);
-
-        return terms.map((term, index) => {
-            const isUnregistered = unregisterWord.includes(term.trim());
-            const hasSpace = /\s/.test(term);
-
-            return (
-                <span
-                    key={index}
-                    style={{
-                        color: isUnregistered ? 'red' : 'black',
-                        whiteSpace: 'pre-wrap',
-                    }}
-                >
-                {term}
-                    {index < terms.length - 1 && (hasSpace ? ', ' : ',').trim()}
-            </span>
-            );
-        });
-    };
-
     const adjustScrollPosition = (index) => {
         if (dropdownRef.current) {
             const dropdownElement = dropdownRef.current;
@@ -539,20 +516,6 @@ const ItemSearch = ({
     return (
         <Form.Item className="relative !mb-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">물품명:</label>
-            <div
-                className="absolute mt-6 inset-0 pointer-events-none z-10"
-                style={{
-                    height: "54px",
-                    minHeight: "54px",
-                    padding: '5px 11.7px',
-                    whiteSpace: 'pre-wrap',
-                    wordWrap: 'break-word',
-                    lineHeight: '1.5714285714285714',
-                    color: 'transparent',
-                }}
-            >
-                {renderHighlightedText()}
-            </div>
             <Input.TextArea
                 ref={searchTermRef}
                 placeholder="물품 이름을 입력하고 콤마(,)로 구분하세요"
@@ -571,6 +534,12 @@ const ItemSearch = ({
                 className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 tabIndex={tabIndex}
             />
+
+            <div className="mt-1 min-h-[20px] top-full left-0 w-full text-sm pl-3">
+                {unregisterWord.length !== 0 && (
+                    <span className="text-red-500 font-bold">{unregisterWord.join(', ')}</span>
+                )}
+            </div>
 
             {isDropdownVisible && suggestions.length > 0 && (
                 <div
