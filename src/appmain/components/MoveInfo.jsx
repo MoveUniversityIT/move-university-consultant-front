@@ -1219,31 +1219,24 @@ const MoveInfo = ({
             <div className="flex justify-between items-center">
                 <div className="flex space-x-2">
                     <Button
-                        className="px-4 py-2 bg-gray-300 text-gray-800 border border-gray-400 rounded hover:bg-gray-400"
+                        className="px-5 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
                         onClick={() =>
                             confirmAction(
-                                "공차 복사 확인",
-                                "정말로 이 데이터를 공차에 복사하시겠습니까?",
+                                "공차등록 확인",
+                                "정말로 이 데이터를 공차에 등록하시겠습니까?",
                                 handleSaveGongcha
                             )
                         }
                     >
-                        공차복사
+                        공차등록
                     </Button>
                     <Button
-                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                        className="px-5 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-200"
                         onClick={handleSave}
                     >
                         저장
                     </Button>
                 </div>
-
-                {/*<div>*/}
-                {/*<Button onClick={fetchConsultant}*/}
-                {/*        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">*/}
-                {/*    배차 금액 조회*/}
-                {/*</Button>*/}
-                {/*</div>*/}
             </div>
         </Card>
     );

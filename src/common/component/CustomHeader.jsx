@@ -37,7 +37,7 @@ const CustomHeader = () => {
                     <a href="https://isa-gongcha-v3.vercel.app/work" target="_blank"
                        className="flex items-center space-x-2 text-gray-800 hover:text-blue-600 text-sm whitespace-nowrap">
                         <FaTruck className="w-5 h-5"/>
-                        <span>이사 공차</span>
+                        <span>이사공차</span>
                     </a>
                     <a href="https://www.moveuniversity.co.kr/main" target="_blank"
                        className="flex items-center space-x-2 text-gray-800 hover:text-green-600 text-sm whitespace-nowrap">
