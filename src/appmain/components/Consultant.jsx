@@ -25,6 +25,7 @@ const Consultant = () => {
     const [isDispatchAmount, setIsDispatchAmount] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState({key: 1, value: '현금'});
     const [searchItemTerm, setSearchItemTerm] = useState('');
+    const [unregisterWord, setUnregisterWord] = useState([]);
 
     const [isCollapsed, setIsCollapsed] = useState(true);
     const roles = useSelector((state) => state.login.roles);
@@ -123,6 +124,8 @@ const Consultant = () => {
                         setReservationData={setReservationData}
                         searchItemTerm={searchItemTerm}
                         setSearchItemTerm={setSearchItemTerm}
+                        unregisterWord={unregisterWord}
+                        setUnregisterWord={setUnregisterWord}
                     />
                     <DispatchCost items={items}
                                   setItems={setItems}

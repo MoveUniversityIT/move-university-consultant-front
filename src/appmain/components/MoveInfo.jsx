@@ -51,7 +51,9 @@ const MoveInfo = ({
                       sliderValue,
                       setSliderValue,
                       searchItemTerm,
-                      setSearchItemTerm
+                      setSearchItemTerm,
+                      unregisterWord,
+                      setUnregisterWord
                   }) => {
     const queryClient = useQueryClient();
 
@@ -282,10 +284,10 @@ const MoveInfo = ({
     };
 
     const handleMoveTypeChange = (value, option) => {
-        setMoveType({ key: option.key, value });
+        setMoveType({key: option.key, value});
 
         if (value === '단순운송' || value === '일반이사') {
-            const updatedItems = { ...items };
+            const updatedItems = {...items};
             const excludedItemNames = [];
 
             Object.keys(updatedItems).forEach((key) => {
@@ -408,6 +410,7 @@ const MoveInfo = ({
         setMemo('');
 
         setSearchItemTerm('');
+        setUnregisterWord([]);
         setSearchSpecialItemTerm('');
 
         setSuggestions([]);
@@ -1098,6 +1101,8 @@ const MoveInfo = ({
                 setSuggestions={setSuggestions}
                 setSearchTerm={setSearchItemTerm}
                 moveType={moveType}
+                unregisterWord={unregisterWord}
+                setUnregisterWord={setUnregisterWord}
                 tabIndex={3}
             />
             <SpecialItemSearch
