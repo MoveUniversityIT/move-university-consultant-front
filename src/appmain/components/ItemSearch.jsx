@@ -109,7 +109,7 @@ const ItemSearch = ({
                             return (
                                 Object.keys(currentFreq).every(
                                     (char) => variationFreq[char] >= currentFreq[char]
-                                ) || normalizedVariation === normalizedCurrent // 완전 일치 조건 추가
+                                ) || normalizedVariation === normalizedCurrent
                             );
                         });
                     })
@@ -179,7 +179,7 @@ const ItemSearch = ({
             }
         });
 
-        const itemPattern = /^(.+?)(?:\(([^)]*)\))?(?:\[(분|조|분조)?\])?(\d*)$/;
+        const itemPattern = /^(.+?)(?:\(([^)]*)\))?(?:\[?(분|조|분조)?\]?)?(\d*)$/;
         terms.forEach((term) => {
             const match = term.match(itemPattern);
 
