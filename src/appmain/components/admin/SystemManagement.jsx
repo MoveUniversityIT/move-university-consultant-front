@@ -5,6 +5,7 @@ import {useQueryClient} from "@tanstack/react-query";
 import {useDifficultyAddressSearch} from "@hook/useConsultant";
 import {Button, Input, InputNumber, message, Table} from "antd";
 import {useDifficultyLevel, useDifficultyLevelList, useUpdateDifficultyLevel} from "@hook/useAdmin";
+import _ from "lodash";
 
 const SystemManagement = () => {
     const queryClient = useQueryClient();
@@ -23,6 +24,7 @@ const SystemManagement = () => {
     const {data: locationListData} = useDifficultyAddressSearch(location);
     // const {data: difficultyListData } = useDifficultyLevelList(currentPageable)
     const {data: difficultyData, error: difficultyError} = useDifficultyLevel(administrativeCode);
+    const [bCodeError, setBCodeError] = useState(null);
     const {mutate: difficultyLevelMutate} = useUpdateDifficultyLevel();
 
     const handleExcepUpload = () => {
@@ -56,12 +58,20 @@ const SystemManagement = () => {
                 e.preventDefault();
 
                 const selectedAddress = addressList[selectedIndex];
-                const bCode = selectedAddress?.address?.b_code.toString();
-                const addressName = selectedAddress?.address?.address_name.trim();
 
+                const bCode = selectedAddress?.address?.b_code.toString();
+                const addressName = selectedAddress?.address_name.trim();
+
+                if(_.isEmpty(selectedAddress?.address?.b_code)) {
+                    setBCodeError('카카오 API에서 행정동 코드를 찾을 수 없는 주소입니다.')
+                }else {
+                    setBCodeError(null)
+                }
+
+                setAddressList([]);
+                setAdministrativeCode(bCode || undefined);
                 setAddressName(addressName);
                 setLocation(addressName);
-                setAdministrativeCode(bCode || undefined);
                 setShowList(false);
                 setSkipAddressChangeEvent(true);
                 setSelectedIndex(0);
@@ -124,6 +134,8 @@ const SystemManagement = () => {
     useEffect(() => {
         if(locationListData) {
             setAddressList(locationListData);
+        }else {
+            setAddressList([]);
         }
 
     }, [locationListData]);
@@ -156,6 +168,17 @@ const SystemManagement = () => {
                                 }}
                             >
                                 {difficultyError?.errorMessage}
+                            </div>
+                        )}
+                        {!difficultyError && bCodeError !== null && (
+                            <div
+                                className="absolute right-0 flex items-center text-red-500 font-bold text-sm bg-red-100 px-3 py-1 rounded shadow-md mt-1"
+                                style={{
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                }}
+                            >
+                                {bCodeError}
                             </div>
                         )}
                     </div>
