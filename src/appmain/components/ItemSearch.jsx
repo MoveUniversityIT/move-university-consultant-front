@@ -179,7 +179,7 @@ const ItemSearch = ({
             }
         });
 
-        const itemPattern = /^(.+?)(?:\(([^)]*)\))?(?:\[?(분|조|분조)?\]?)?(\d*)$/;
+        const itemPattern = /^(.+?)(?:\(([^)]*)\))?(?:\[(분|조|분조)\])?(\d*)$/;
         terms.forEach((term) => {
             const match = term.match(itemPattern);
 
