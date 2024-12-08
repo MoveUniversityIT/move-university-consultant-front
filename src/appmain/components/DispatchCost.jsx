@@ -103,7 +103,7 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
         setSurtax(Math.round(calcEstimate * 0.1));
     };
 
-    const handleCheckboxChange = (itemName, key, checked) => {
+    const handleCheckboxChange = (itemName, itemCount, key, checked) => {
         setItems((prevItems) => {
             const updatedItem = {
                 ...prevItems[itemName],
@@ -126,7 +126,8 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
             setSearchItemTerm((prevSearchItemTerm) => {
                 const terms = prevSearchItemTerm.split(',').map((term) => term.trim());
                 const baseName = itemName.replace(/\[.*\]/g, '');
-                const updatedItemName = tag ? `${baseName}${tag}` : baseName;
+                const newItemCount = itemCount > 1 ? itemCount : '';
+                const updatedItemName = tag ? `${baseName}${tag}${newItemCount}` : `${baseName}${newItemCount}`;
 
                 const updatedTerms = terms.map((term) => {
                     if (term.startsWith(baseName)) {
@@ -149,6 +150,12 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
         });
     };
 
+    const handleCheckSave = (key, value) => {
+        setMoveTypeCheckBoxes({
+            ...moveTypeCheckBoxes,
+            [key]: value
+        });
+    };
 
     useEffect(() => {
         setCalcData({
@@ -170,7 +177,7 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
                 }, 0)?.toLocaleString()
                 : 0,
             vehicleName: dispatchAmount?.vehicleName,
-            vehicleCount: dispatchAmount?.vehicleCount?.toLocaleString() ??  0,
+            vehicleCount: dispatchAmount?.vehicleCount?.toLocaleString() ?? 0,
             vehicleRoundingHalfUp: dispatchAmount?.vehicleRoundingHalfUp?.toLocaleString() ?? 0,
             transportHelperPrice: dispatchAmount?.helpers
                 ? dispatchAmount.helpers.reduce((total, helper) => {
@@ -246,7 +253,7 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
                                             <Checkbox
                                                 className="text-sm"
                                                 checked={item?.requiredIsDisassembly === "Y"}
-                                                onChange={(e) => handleCheckboxChange(item.itemName, 'requiredIsDisassembly', e.target.checked)}
+                                                onChange={(e) => handleCheckboxChange(item.itemName, item.itemCount, 'requiredIsDisassembly', e.target.checked)}
                                             >
                                                 분해
                                             </Checkbox>
@@ -255,7 +262,7 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
                                             <Checkbox
                                                 className="text-sm"
                                                 checked={item?.requiredIsInstallation === "Y"}
-                                                onChange={(e) => handleCheckboxChange(item.itemName, 'requiredIsInstallation', e.target.checked)}
+                                                onChange={(e) => handleCheckboxChange(item.itemName, item.itemCount, 'requiredIsInstallation', e.target.checked)}
                                             >
                                                 설치
                                             </Checkbox>
@@ -297,6 +304,24 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
                         )}
                     </div>
                 </div>
+                <Divider/>
+                {/*<div className="grid grid-cols-3 gap-4 p-4 border rounded-md bg-gray-50">*/}
+                {/*    <Checkbox onChange={(e) => handleCheckSave(1, e.target.checked)} className="text-gray-700">*/}
+                {/*        단순운송*/}
+                {/*    </Checkbox>*/}
+                {/*    <Checkbox onChange={(e) => handleCheckSave(2, e.target.checked)} className="text-gray-700">*/}
+                {/*        일반이사*/}
+                {/*    </Checkbox>*/}
+                {/*    <Checkbox onChange={(e) => handleCheckSave(3, e.target.checked)} className="text-gray-700">*/}
+                {/*        반포장이사*/}
+                {/*    </Checkbox>*/}
+                {/*    <Checkbox onChange={(e) => handleCheckSave(4, e.target.checked)} className="text-gray-700">*/}
+                {/*        포장이사*/}
+                {/*    </Checkbox>*/}
+                {/*    <Checkbox onChange={(e) => handleCheckSave(5, e.target.checked)} className="text-gray-700">*/}
+                {/*        보관이사*/}
+                {/*    </Checkbox>*/}
+                {/*</div>*/}
             </Card>
         </div>
     );
