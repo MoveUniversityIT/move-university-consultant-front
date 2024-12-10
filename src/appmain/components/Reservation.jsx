@@ -14,20 +14,30 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
     const [maxPages, setMaxPages] = useState(1); // 최대 페이지 표시 수
 
 
-    // 세로 크기를 기준으로 itemsPerPage 계산
     useEffect(() => {
         const updateItemsPerPage = () => {
-            const containerHeight = containerRef.current.offsetHeight;
-            const itemHeight = 120;
-            const calculatedItems = Math.floor(containerHeight / itemHeight);
-            setItemsPerPage(Math.max(1, calculatedItems));
+            if (containerRef.current) {
+                const containerHeight = containerRef.current.offsetHeight;
+                const itemHeight = 120;
+                const calculatedItems = Math.floor(containerHeight / itemHeight);
+                setItemsPerPage(Math.max(1, calculatedItems));
+            }
         };
 
-        updateItemsPerPage();
-        window.addEventListener("resize", updateItemsPerPage);
+        const resizeObserver = new ResizeObserver(updateItemsPerPage);
+        if (containerRef.current) {
+            resizeObserver.observe(containerRef.current);
+        }
 
-        return () => window.removeEventListener("resize", updateItemsPerPage);
+        setTimeout(updateItemsPerPage, 0);
+
+        return () => {
+            if (containerRef.current) {
+                resizeObserver.unobserve(containerRef.current);
+            }
+        };
     }, []);
+
 
     useEffect(() => {
         const updateMaxPages = () => {
