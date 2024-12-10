@@ -23,18 +23,10 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
             setItemsPerPage(Math.max(1, calculatedItems));
         };
 
-        const resizeObserver = new ResizeObserver(updateItemsPerPage);
-        if (containerRef.current) {
-            resizeObserver.observe(containerRef.current);
-        }
-
         updateItemsPerPage();
+        window.addEventListener("resize", updateItemsPerPage);
 
-        return () => {
-            if (containerRef.current) {
-                resizeObserver.unobserve(containerRef.current);
-            }
-        };
+        return () => window.removeEventListener("resize", updateItemsPerPage);
     }, []);
 
     useEffect(() => {
