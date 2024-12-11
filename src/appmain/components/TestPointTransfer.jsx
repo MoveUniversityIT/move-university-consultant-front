@@ -20,7 +20,6 @@ const TestPointTransfer = () => {
         const stompClient = new Client({
             webSocketFactory: () => socket,
             onConnect: () => {
-                console.log("WebSocket 연결됨");
                 stompClient.subscribe("/topic/points", (message) => {
                     setMessages((prev) => [...prev, message.body]);
 
@@ -60,7 +59,6 @@ const TestPointTransfer = () => {
             alert("모든 필드를 올바르게 입력해주세요.");
             return;
         }
-        console.log(senderId, receiverId)
         mutation.mutate({senderId, receiverId, amount});
     };
 

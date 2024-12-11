@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Button, Layout, Spin} from "antd";
+import {Spin} from "antd";
 import Reservation from "@component/Reservation";
 import MoveInfo from "@component/MoveInfo";
 import DispatchCost from "@component/DispatchCost";
@@ -10,12 +10,8 @@ import {resetState} from "@/features/user/loginSlice";
 import {useReservation} from "@hook/useUser";
 import AdminDispatchPrice from "@component/admin/AdminDispatchPrice";
 import {hasAccess} from "@/appcore/utils/utils";
-import {useQueryClient} from "@tanstack/react-query";
-import {Header} from "antd/es/layout/layout";
-import CustomHeader from "@/common/component/CustomHeader";
 
 const Consultant = () => {
-    const queryClient = useQueryClient();
     const userId = useSelector((state) => state.login.userId);
     const {isLoading, data: consultant, error: consultantMetaError} = useConsultantMetadata(userId);
     const [isMoveInfoLoading, setIsMoveInfoLoading] = useState(true);
@@ -39,6 +35,7 @@ const Consultant = () => {
     const [items, setItems] = useState({});
 
     const [estimate, setEstimate] = useState({
+        baseCost: dispatchAmount?.estimatePrice?.baseCost || 0,
         deposit: dispatchAmount?.estimatePrice?.deposit || 0,
         minDeposit: dispatchAmount?.estimatePrice?.minDeposit || 0,
         maxDeposit: dispatchAmount?.estimatePrice?.maxDeposit || 0,
@@ -52,6 +49,9 @@ const Consultant = () => {
     const [depositPrice, setDepositPrice] = useState(estimate.minDeposit);
     const [estimatePrice, setEstimatePrice] = useState(estimate.minEstimatePrice);
     const [surtax, setSurtax] = useState(0);
+    const [consultantDataForm, setConsultantDataForm] = useState(null);
+    const [dispatchCosts, setDispatchCosts] = useState({})
+    const [moveTypeCheckBoxes, setMoveTypeCheckBoxes] = useState({});
 
     if (isLoading) {
         return (
@@ -82,108 +82,104 @@ const Consultant = () => {
     }
 
     return (
-        <Layout className="bg-gray-100 overflow-x-auto h-screen">
-            {/* 상단 고정 네비게이션 */}
-            <CustomHeader />
-            <div className="pt-14 relative">
-                {(isMoveInfoLoading || isLoading) && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-50">
-                        <Spin size="large"/>
-                        <p className="text-lg text-gray-700 mt-4">데이터를 불러오는 중입니다...</p>
-                    </div>
+        <div className="pt-14 relative">
+            <div
+                className="h-full grid gap-2 p-2 mx-auto overflow-x-auto"
+                style={{
+                    marginRight: isCollapsed ? "0" : "650px",
+                    gridTemplateColumns: "minmax(240px, 1fr) minmax(550px, 2.5fr) minmax(400px, 2.5fr) minmax(190px, 1.5fr)",
+                }}
+            >
+                <Reservation
+                    onLoad={loadReservation}
+                    onNew={resetMoveInfo}
+                    reservations={reservations}
+                />
+                <MoveInfo
+                    consultantData={consultant}
+                    items={items}
+                    setItems={setItems}
+                    reservationData={reservationData}
+                    isNewMoveInfo={isNewMoveInfo}
+                    setIsNewMoveInfo={setIsNewMoveInfo}
+                    setDispatchAmount={setDispatchAmount}
+                    setIsDispatchAmount={setIsDispatchAmount}
+                    paymentMethod={paymentMethod}
+                    setPaymentMethod={setPaymentMethod}
+                    onReady={() => setIsMoveInfoLoading(false)}
+                    estimatePrice={estimatePrice}
+                    depositPrice={depositPrice}
+                    sliderValue={sliderValue}
+                    setSliderValue={setSliderValue}
+                    setReservationData={setReservationData}
+                    searchItemTerm={searchItemTerm}
+                    setSearchItemTerm={setSearchItemTerm}
+                    unregisterWord={unregisterWord}
+                    setUnregisterWord={setUnregisterWord}
+                    consultantDataForm={consultantDataForm}
+                    setConsultantDataForm={setConsultantDataForm}
+                    setDispatchCosts={setDispatchCosts}
+                    moveTypeCheckBoxes={moveTypeCheckBoxes}
+                />
+                <DispatchCost items={items}
+                              setItems={setItems}
+                              dispatchAmount={dispatchAmount}
+                              isDispatchAmount={isDispatchAmount}
+                              paymentMethod={paymentMethod}
+                              estimate={estimate}
+                              setEstimate={setEstimate}
+                              sliderValue={sliderValue}
+                              setSliderValue={setSliderValue}
+                              depositPrice={depositPrice}
+                              setDepositPrice={setDepositPrice}
+                              estimatePrice={estimatePrice}
+                              setEstimatePrice={setEstimatePrice}
+                              surtax={surtax}
+                              setSurtax={setSurtax}
+                              estimateLever={reservationData?.estimateLever}
+                              searchItemTerm={searchItemTerm}
+                              setSearchItemTerm={setSearchItemTerm}
+                              dispatchCosts={dispatchCosts}
+                              moveTypeCheckBoxes={moveTypeCheckBoxes}
+                              setMoveTypeCheckBoxes={setMoveTypeCheckBoxes}
+                />
+                <AdditionalFunctions consultantData={consultant}/>
+
+                {hasAdminAccess && (
+                    <>
+                        <div
+                            className={`fixed top-0 right-0 h-full z-50 bg-white shadow-lg transform transition-transform duration-300 ${
+                                isCollapsed ? "translate-x-full" : "translate-x-0"
+                            }`}
+                            style={{width: "650px"}}
+                        >
+                            <div className="flex justify-between items-center bg-gray-200 p-4">
+                                <h4 className="text-gray-700">배차 금액 상세 정보</h4>
+                            </div>
+
+                            <div className="flex flex-col h-full">
+                                <div className="flex-grow overflow-y-auto p-4">
+                                    <AdminDispatchPrice
+                                        data={dispatchAmount}
+                                        isLoadingConsultantMutate={isDispatchAmount}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            className={`fixed top-1/2 transform -translate-y-1/2 z-50 bg-gray-500 text-white px-2 py-4 cursor-pointer rounded-l-lg transition-all duration-300`}
+                            style={{
+                                right: isCollapsed ? "0" : "650px",
+                            }}
+                            onClick={() => setIsCollapsed(!isCollapsed)}
+                        >
+                            {isCollapsed ? "<<" : ">>"}
+                        </div>
+                    </>
                 )}
-
-                <div
-                    className="h-full grid gap-2 p-2 mx-auto overflow-x-auto"
-                    style={{
-                        marginRight: isCollapsed ? "0" : "650px",
-                        gridTemplateColumns: "minmax(240px, 1fr) minmax(550px, 2.5fr) minmax(400px, 2.5fr) minmax(190px, 1.5fr)",
-                    }}
-                >
-                    <Reservation
-                        onLoad={loadReservation}
-                        onNew={resetMoveInfo}
-                        reservations={reservations}
-                    />
-                    <MoveInfo
-                        consultantData={consultant}
-                        items={items}
-                        setItems={setItems}
-                        reservationData={reservationData}
-                        isNewMoveInfo={isNewMoveInfo}
-                        setIsNewMoveInfo={setIsNewMoveInfo}
-                        setDispatchAmount={setDispatchAmount}
-                        setIsDispatchAmount={setIsDispatchAmount}
-                        paymentMethod={paymentMethod}
-                        setPaymentMethod={setPaymentMethod}
-                        onReady={() => setIsMoveInfoLoading(false)}
-                        estimatePrice={estimatePrice}
-                        depositPrice={depositPrice}
-                        sliderValue={sliderValue}
-                        setSliderValue={setSliderValue}
-                        setReservationData={setReservationData}
-                        searchItemTerm={searchItemTerm}
-                        setSearchItemTerm={setSearchItemTerm}
-                        unregisterWord={unregisterWord}
-                        setUnregisterWord={setUnregisterWord}
-                    />
-                    <DispatchCost items={items}
-                                  setItems={setItems}
-                                  dispatchAmount={dispatchAmount}
-                                  isDispatchAmount={isDispatchAmount}
-                                  paymentMethod={paymentMethod}
-                                  estimate={estimate}
-                                  setEstimate={setEstimate}
-                                  sliderValue={sliderValue}
-                                  setSliderValue={setSliderValue}
-                                  depositPrice={depositPrice}
-                                  setDepositPrice={setDepositPrice}
-                                  estimatePrice={estimatePrice}
-                                  setEstimatePrice={setEstimatePrice}
-                                  surtax={surtax}
-                                  setSurtax={setSurtax}
-                                  estimateLever={reservationData?.estimateLever}
-                                  searchItemTerm={searchItemTerm}
-                                  setSearchItemTerm={setSearchItemTerm}
-                    />
-                    <AdditionalFunctions consultantData={consultant}/>
-
-                    {hasAdminAccess && (
-                        <>
-                            <div
-                                className={`fixed top-0 right-0 h-full z-50 bg-white shadow-lg transform transition-transform duration-300 ${
-                                    isCollapsed ? "translate-x-full" : "translate-x-0"
-                                }`}
-                                style={{width: "650px"}}
-                            >
-                                <div className="flex justify-between items-center bg-gray-200 p-4">
-                                    <h4 className="text-gray-700">배차 금액 상세 정보</h4>
-                                </div>
-
-                                <div className="flex flex-col h-full">
-                                    <div className="flex-grow overflow-y-auto p-4">
-                                        <AdminDispatchPrice
-                                            data={dispatchAmount}
-                                            isLoadingConsultantMutate={isDispatchAmount}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div
-                                className={`fixed top-1/2 transform -translate-y-1/2 z-50 bg-gray-500 text-white px-2 py-4 cursor-pointer rounded-l-lg transition-all duration-300`}
-                                style={{
-                                    right: isCollapsed ? "0" : "650px",
-                                }}
-                                onClick={() => setIsCollapsed(!isCollapsed)}
-                            >
-                                {isCollapsed ? "<<" : ">>"}
-                            </div>
-                        </>
-                    )}
-                </div>
             </div>
-        </Layout>
+        </div>
     );
 };
 

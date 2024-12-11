@@ -1,0 +1,63 @@
+import React, {useEffect} from 'react';
+import {Button, Modal, Tabs} from 'antd';
+import PictureUploadTab from "@component/modal/picture/PictureUploadTab";
+import PictureImageAndVoiceSearchTab from "@component/modal/picture/PictureImageAndVoiceSearchTab";
+
+const PictureModal = ({ isPictureVisible, handlePictureModalCancel }) => {
+    const tabItems = [
+        {
+            label: (
+                <span className="text-sm font-semibold text-gray-600 hover:text-blue-500 transition">
+                    이미지/녹음 업로드
+                </span>
+            ),
+            key: '1',
+            children: <PictureUploadTab />,
+        },
+        {
+            label: (
+                <span className="text-sm font-semibold text-gray-600 hover:text-blue-500 transition">
+                    이미지/녹음 조회
+                </span>
+            ),
+            key: '2',
+            children: <PictureImageAndVoiceSearchTab />,
+        }
+    ];
+
+    useEffect(() => {
+
+    }, []);
+
+    return (
+        <Modal
+            title="이미지/녹음 업로드 및 조회"
+            open={isPictureVisible}
+            onCancel={handlePictureModalCancel}
+            maskClosable={false}
+            footer={[
+                <Button key="close" onClick={handlePictureModalCancel}>
+                    닫기
+                </Button>,
+            ]}
+            width="72%"
+            styles={{
+                body: { padding: 0, height: '65vh', overflowY: 'hidden'},
+            }}
+        >
+            <Tabs
+                defaultActiveKey="1"
+                items={tabItems}
+                className="border-b border-gray-200"
+                tabBarStyle={{
+                    borderBottom: '1px solid #e5e7eb',
+                }}
+                style={{
+                    height: '100%',
+                }}
+            />
+        </Modal>
+    );
+};
+
+export default PictureModal;

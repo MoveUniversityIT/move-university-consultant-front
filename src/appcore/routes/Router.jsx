@@ -1,53 +1,81 @@
-import React from "react";
-import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
+import React, {useEffect, useState} from "react";
+import {createBrowserRouter, Navigate, RouterProvider} from "react-router-dom";
 import LoginForm from "@/component/LoginForm";
 import Consultant from "@component/Consultant";
-import { useSelector } from "react-redux";
+import {useSelector} from "react-redux";
 import ProtectedRoute from "@/appcore/routes/ProtectedRoute";
 import RegisterForm from "@/component/RegisterForm";
 import AdminDashboard from "@component/admin/AdminDashboard";
 import TestPointTransfer from "@component/TestPointTransfer";
+import {useGetNotice} from "@hook/useUser";
+import Notice from "@component/Notice";
+import CustomLayout from "@/common/component/CustomLayout";
+import Community from "@component/Community";
 
 const Router = () => {
     const isLogin = useSelector((state) => state.login.loginState);
+    const userId = useSelector((state) => state.login.userId);
+    const {data: noticesData} = useGetNotice(userId);
+    const [notices, setNotices] = useState({notices: [], unreadCount: 0});
+
+    useEffect(() => {
+        setNotices(noticesData);
+    }, [noticesData]);
 
     const router = createBrowserRouter(
         [
             {
                 path: "/",
-                element: isLogin ? <Navigate to="/consultant" replace /> : <LoginForm />,
+                element: isLogin ? <Navigate to="/consultant" replace/> : <LoginForm/>,
             },
             {
-                path: "/consultant",
+                path: "/",
                 element: (
-                    <ProtectedRoute requiredRoles={["ROLE_MANAGER", "ROLE_ADMIN", "ROLE_EMPLOYEE"]}>
-                        <Consultant />
-                    </ProtectedRoute>
+                        <CustomLayout notices={notices}/>
                 ),
+                children: [
+                    {
+                        path: "consultant",
+                        element: (
+                            <ProtectedRoute requiredRoles={["ROLE_MANAGER", "ROLE_ADMIN", "ROLE_EMPLOYEE"]}>
+                                <Consultant/>
+                            </ProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "notice",
+                        element: (
+                            <ProtectedRoute requiredRoles={["ROLE_MANAGER", "ROLE_ADMIN", "ROLE_EMPLOYEE"]}>
+                                <Community notices={notices} setNotices={setNotices}/>
+                            </ProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "admin",
+                        element: (
+                            <ProtectedRoute requiredRoles={["ROLE_ADMIN"]}>
+                                <AdminDashboard/>
+                            </ProtectedRoute>
+                        ),
+                    },
+                ]
             },
-            {
-                path: "/admin",
-                element: (
-                    <ProtectedRoute requiredRoles={["ROLE_ADMIN"]}>
-                        <AdminDashboard />
-                    </ProtectedRoute>
-                ),
-            },
+
             {
                 path: "/register",
-                element: <RegisterForm />,
+                element: <RegisterForm/>,
             },
             {
                 path: "test",
                 element: (
                     <ProtectedRoute requiredRoles={["ROLE_ADMIN"]}>
-                        <TestPointTransfer />
+                        <TestPointTransfer/>
                     </ProtectedRoute>
                 )
             },
             {
                 path: "*",
-                element: <Navigate to="/" replace />,
+                element: <Navigate to="/" replace/>,
             },
         ],
         {
@@ -62,7 +90,7 @@ const Router = () => {
         }
     );
 
-    return <RouterProvider router={router} />;
+    return <RouterProvider router={router}/>;
 };
 
 export default Router;

@@ -1,18 +1,30 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {Button, message} from "antd";
 import {Header} from "antd/es/layout/layout";
 import {resetState} from "@/features/user/loginSlice";
 import {useDispatch, useSelector} from "react-redux";
-import {useNavigate} from "react-router-dom";
-import { FaTruck, FaUniversity, FaTv, FaCloudSun, FaUserShield, FaSatelliteDish } from "react-icons/fa";
+import {useLocation, useNavigate} from "react-router-dom";
+import {
+    FaTruck,
+    FaUniversity,
+    FaTv,
+    FaCloudSun,
+    FaUserShield,
+    FaSatelliteDish,
+    FaBullhorn,
+    FaChalkboardTeacher
+} from "react-icons/fa";
 import {hasAccess} from "@/appcore/utils/utils";
 
 
-const CustomHeader = () => {
+const CustomHeader = ({notices}) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const roles = useSelector((state) => state.login.roles);
     const hasAdminAccess = hasAccess(roles, ["ROLE_ADMIN"]);
+    const location = useLocation();
+    const isAdminPage = location.pathname === "/admin";
+
 
     const handleLogout = () => {
         dispatch(resetState());
@@ -20,16 +32,37 @@ const CustomHeader = () => {
         navigate("/login");
     };
 
+    const goToConsultant = () => {
+        navigate("/consultant")
+    }
+
+    const goToNotice = () => {
+        navigate("/notice")
+    }
+
     return (
         <Header className="fixed top-0 left-0 right-0 bg-white text-gray-800 z-50 shadow-md h-14">
             <div className="flex items-center justify-between px-4 py-2">
                 <div
-                    className="w-36 h-10 bg-mv-logo bg-contain bg-no-repeat flex-shrink-0"
+                    className="w-36 h-10 bg-mv-logo bg-contain bg-no-repeat flex-shrink-0 cursor-pointer"
                     title="사이트 로고"
+                    onClick={goToConsultant}
                 ></div>
 
-                <nav className="flex items-center space-x-6 overflow-hidden">
-                <a href="https://moveuniversity.kr" target="_blank"
+                <nav className="flex items-center space-x-6 overflow-visible">
+                    <div
+                        className="relative flex items-center space-x-2 text-gray-800 hover:text-orange-500 text-sm whitespace-nowrap hover:cursor-pointer"
+                    onClick={goToNotice}>
+                        <FaBullhorn className="w-5 h-5"/>
+                        {notices?.unreadCount > 0 && (
+                            <span
+                                className="text-xs font-semibold text-white bg-red-500 rounded-full w-4 absolute text-center !ml-0 translate-x-3/4 -translate-y-2/4">
+                                {notices?.unreadCount}
+                            </span>
+                        )}
+                        <span>공지사항</span>
+                    </div>
+                    <a href="https://moveuniversity.kr" target="_blank"
                        className="flex items-center space-x-2 text-gray-800 hover:text-yellow-600 text-sm whitespace-nowrap">
                         <FaUniversity className="w-5 h-5"/>
                         <span>이사대학</span>
@@ -56,15 +89,24 @@ const CustomHeader = () => {
                         <span>날씨</span>
                     </a>
                     {hasAdminAccess && (
-                        <a href="/admin"
+                        <a href={isAdminPage ? "/consultant" : "/admin"}
                            className="flex items-center space-x-2 text-gray-800 hover:text-red-600 text-sm whitespace-nowrap">
-                            <FaUserShield className="w-5 h-5"/>
-                            <span>관리자</span>
+                            {isAdminPage ? (
+                                <>
+                                    <FaChalkboardTeacher className="w-5 h-5" />
+                                    <span>상담봇</span>
+                                </>
+                            ) : (
+                                <>
+                                    <FaUserShield className="w-5 h-5"/>
+                                    <span>관리자</span>
+                                </>
+
+                            )}
                         </a>
                     )}
                 </nav>
 
-                {/* 로그아웃 버튼 */}
                 <Button
                     type="primary"
                     danger

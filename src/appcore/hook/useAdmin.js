@@ -1,5 +1,12 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
-import {getDifficulty, getDifficultyList, getUserManagement, patchUserInfo, postDifficulty} from "@api/adminApi";
+import {
+    getDifficulty,
+    getDifficultyList,
+    getUserManagement,
+    patchUserInfo,
+    postDifficulty,
+    postNotice
+} from "@api/adminApi";
 
 export const useUserManagement = () => {
     return useQuery({
@@ -47,5 +54,16 @@ export const useDifficultyLevelList = (page) => {
         queryFn: ({queryKey}) => getDifficultyList(queryKey[1]),
         enabled: !!page,
         retry: false,
+    })
+}
+
+export const usePostNotice = (noticeForm) => {
+    return useMutation({
+        mutationFn: (noticeForm) => postNotice(noticeForm),
+        retry: false,
+        onError: (error) => {
+            const errorMessage = error.errorMessage || "공지사항 등록에 실패했습니다.";
+            alert(`API 요청 오류: ${errorMessage}`)
+        },
     })
 }

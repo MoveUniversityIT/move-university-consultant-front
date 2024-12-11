@@ -14,7 +14,7 @@ import {
     Tooltip
 } from "antd";
 import dayjs from "dayjs";
-import {useAddressSearch, useCalcConsultant, useRoadDistance} from "@hook/useConsultant";
+import {useAddressSearch, useCalcConsultant, useCalcConsultants, useRoadDistance} from "@hook/useConsultant";
 import AddressInput from "@/component/AddressInput";
 import MethodAndFloorInput from "@/component/MethodAndFloorInput";
 import CustomDatePicker from "@/component/CustomDatePicker";
@@ -53,7 +53,11 @@ const MoveInfo = ({
                       searchItemTerm,
                       setSearchItemTerm,
                       unregisterWord,
-                      setUnregisterWord
+                      setUnregisterWord,
+                      consultantDataForm,
+                      setConsultantDataForm,
+                      setDispatchCosts,
+                      moveTypeCheckBoxes
                   }) => {
     const queryClient = useQueryClient();
 
@@ -127,7 +131,6 @@ const MoveInfo = ({
     const [dateCheckList, setDateCheckList] = useState([]);
 
 
-    const [consultantDataForm, setConsultantDataForm] = useState(null);
     const [isFormValid, setIsFormValid] = useState(false);
 
     const {data: dispatchAmount, isLoading: isDispatchAmount, error: dispatchError} = useCalcConsultant(
@@ -156,6 +159,8 @@ const MoveInfo = ({
     const {data: supaIntermediaryName} = useSupabaseIntermediary(client?.value);
 
     const {mutate: saveGongchaMutate} = useSupabaseSaveGongcha();
+
+    const {mutate: calcListsMutate} = useCalcConsultants();
 
 
     useEffect(() => {
@@ -423,6 +428,7 @@ const MoveInfo = ({
         setLoadAddressList([]);
         setUnloadAddressList([]);
         setSliderValue(5);
+        setDispatchCosts({});
     };
 
     const handleSave = () => {
@@ -577,7 +583,7 @@ const MoveInfo = ({
 
         saveGongchaMutate(gongchaData, {
             onSuccess: (data) => {
-                const successMessage = "공차 저장이 정상적으로 처리되었습니다.";
+                const successMessage = "공차등록이 정상적으로 처리되었습니다.";
                 message.success({
                     content: successMessage,
                     key: 'saveGongcha',
@@ -588,7 +594,7 @@ const MoveInfo = ({
                 setReservationId(data?.reservationId);
             },
             onError: (error) => {
-                const errorMessage = error?.errorMessage || "공차 저장 중 에러가 발생했습니다";
+                const errorMessage = error?.errorMessage || "공차등록 중 에러가 발생했습니다";
                 message.error({
                     content: errorMessage,
                     key: 'errorSaveGongcha',
@@ -645,6 +651,18 @@ const MoveInfo = ({
             // setSliderValue(reservationData?.estimateLever ?? 5);
         }
     }, [reservationData]);
+
+    useEffect(() => {
+        if(consultantDataForm) {
+            consultantDataForm["moveTypeIds"] = moveTypeCheckBoxes;
+
+            calcListsMutate(consultantDataForm, {
+                onSuccess: (data) => {
+                    // setDispatchCosts();
+                },
+            })
+        }
+    }, [consultantDataForm]);
 
     useEffect(() => {
         if (isNewMoveInfo) {
@@ -1028,13 +1046,13 @@ const MoveInfo = ({
                         onChange={(value) => setVehicleTonnage(value)}
                     >
                         <Option value="1">1</Option>
-                        <Option value="1.4">1.4</Option>
-                        <Option value="2.5">2.5</Option>
-                        <Option value="3.5">3.5</Option>
-                        <Option value="5">5</Option>
-                        <Option value="7.5">7.5</Option>
-                        <Option value="10">10</Option>
-                        <Option value="15">15</Option>
+                        {/*<Option value="1.4">1.4</Option>*/}
+                        {/*<Option value="2.5">2.5</Option>*/}
+                        {/*<Option value="3.5">3.5</Option>*/}
+                        {/*<Option value="5">5</Option>*/}
+                        {/*<Option value="7.5">7.5</Option>*/}
+                        {/*<Option value="10">10</Option>*/}
+                        {/*<Option value="15">15</Option>*/}
                     </Select>
                 </Form.Item>
 

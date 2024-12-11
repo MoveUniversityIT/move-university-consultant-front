@@ -8,6 +8,7 @@ import {persistStore} from "redux-persist";
 import RootStore from "@/appcore/rootStore";
 import {Provider} from "react-redux";
 import {PersistGate} from "redux-persist/integration/react";
+import {WebSocketProvider} from "@/appcore/context/WebSocketContext";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -25,7 +26,9 @@ root.render(
     <Provider store={RootStore}>
         <PersistGate persistor={persistor}>
             <QueryClientProvider client={queryClient}>
-                <App />
+                <WebSocketProvider>
+                    <App />
+                </WebSocketProvider>
             </QueryClientProvider>
         </PersistGate>
     </Provider>

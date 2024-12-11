@@ -1,9 +1,9 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
 import {
     deleteReservation, fetchIntermediaryrByName, fetchManagerByName,
-    getCheckEmail,
+    getCheckEmail, getNotices,
     getReservation,
-    postLogin,
+    postLogin, postReadNotice,
     postRegisterUser,
     postReservation, postSaveGongcha
 } from "@api/userApi";
@@ -97,6 +97,25 @@ export const useSupabaseIntermediary = (intermediaryName) => {
 export const useSupabaseSaveGongcha = () => {
     return useMutation( {
         mutationFn: (isaData) => postSaveGongcha(isaData),
+        retry: false,
+    })
+}
+
+// 공지사항 조회
+export const useGetNotice = (userId) => {
+    return useQuery({
+        queryKey: ['notice', userId],
+        queryFn: () => getNotices(),
+        staleTime: Infinity,
+        enabled: !!userId,
+        retry: false,
+    })
+}
+
+// 공지사항 확인
+export const usePostReadNotice = () => {
+    return useMutation( {
+        mutationFn: (noticeId) => postReadNotice(noticeId),
         retry: false,
     })
 }

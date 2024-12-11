@@ -18,7 +18,6 @@ export const getDifficulty = async (bCode) => {
 }
 
 export const postDifficulty = async (data) => {
-    console.log("data", data);
     const response = await API.post('/admin/difficulty', data)
 
     return response?.data
@@ -28,4 +27,10 @@ export const getDifficultyList = async (page) => {
     const response = await API.get(`/admin/difficulty?page=${page.page}&size=${page.size}`)
 
     return response?.data
+}
+
+export const postNotice = async (noticeForm) => {
+    const response = await API.post('/admin/notice', noticeForm);
+
+    return response?.data;
 }

@@ -48,11 +48,13 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
             resizeObserver.observe(pageRef.current);
         }
 
-        // Clean up
+        window.addEventListener("resize", updateMaxPages);
+
         return () => {
             if (pageRef.current) {
                 resizeObserver.unobserve(pageRef.current);
             }
+            window.removeEventListener("resize", updateMaxPages);
         };
     }, []);
 

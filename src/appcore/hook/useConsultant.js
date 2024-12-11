@@ -1,16 +1,17 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
 import {
-    getCalcConsultant,
+    getCalcConsultant, getCalcConsultants,
     getConsultantMetadata, getDifficultyKakaoAddress, getImage,
     getItem,
     getKakaoAddress,
     getPendingItem,
     getRoadDistance,
-    getSpecialDay,
+    getSpecialDay, getUploadImageAndVoice,
     patchUpdateDateFeeRate,
     postSaveItem,
-    postSpecialDate
+    postSpecialDate, postUploadImageAndVoice
 } from "@api/consultantApi";
+import {message} from "antd";
 
 // 상담 봇 메타 데이터 조회
 export const useConsultantMetadata = (userId) => {
@@ -65,6 +66,7 @@ export const useRoadDistance = (location) => {
 //     });
 // }
 
+// 배차 금액 조회
 export const useCalcConsultant = (consultantDataForm, enabled) => {
     return useQuery({
             queryKey: ['calcConsultant', consultantDataForm],
@@ -75,13 +77,20 @@ export const useCalcConsultant = (consultantDataForm, enabled) => {
     );
 };
 
+// 배차 금액 조회(여러 항목)
+export const useCalcConsultants = () => {
+    return useMutation({
+        mutationFn: (consultantDataForm) => getCalcConsultants(consultantDataForm),
+        retry: false,
+    })
+}
+
 // 특수일(손 없는날) 조회
 export const useSpecialDay = () => {
     return useMutation({
         mutationFn: (year) => getSpecialDay(year),
         retry: false,
         onError: (error) => {
-            console.log("error테스트", error);
             const errorMessage = error.errorMessage || "특수일(손없는 날) 데이터를 가져오는데 실패했습니다.";
             alert(`API 요청 오류: ${errorMessage}`)
         },
@@ -178,3 +187,25 @@ export const useImageQuery = (imageName, enabled = true) => {
         },
     });
 };
+
+export const usePostUploadImageAndVoice = () => {
+    return useMutation({
+        mutationFn: (dataForm) => postUploadImageAndVoice(dataForm),
+        retry: false,
+        onError: (error) => {
+            const errorMessage = error.errorMessage || "업로드 중 오류가 발생했습니다.";
+            message.error(errorMessage);
+        },
+    })
+}
+
+export const useGetUploadImageAndVoice = () => {
+    return useMutation({
+        mutationFn: (searchParams) => getUploadImageAndVoice(searchParams),
+        retry: false,
+        onError: (error) => {
+            const errorMessage = error.errorMessage || "이미지/녹음 조회를 하는데 문제가 발생했습니다.";
+            message.error(errorMessage);
+        }
+    })
+}

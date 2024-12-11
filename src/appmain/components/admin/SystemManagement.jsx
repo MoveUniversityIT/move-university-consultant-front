@@ -3,8 +3,8 @@ import UploadExcel from "@/component/UploadExcel";
 import DownloadExcel from "@/component/DownloadExcel";
 import {useQueryClient} from "@tanstack/react-query";
 import {useDifficultyAddressSearch} from "@hook/useConsultant";
-import {Button, Input, InputNumber, message, Table} from "antd";
-import {useDifficultyLevel, useDifficultyLevelList, useUpdateDifficultyLevel} from "@hook/useAdmin";
+import {Button, Input, InputNumber, message} from "antd";
+import {useDifficultyLevel, useUpdateDifficultyLevel} from "@hook/useAdmin";
 import _ from "lodash";
 
 const SystemManagement = () => {
@@ -16,13 +16,10 @@ const SystemManagement = () => {
     const [addressName, setAddressName] = useState('');
     const [administrativeCode, setAdministrativeCode] = useState('0');
     const [skipAddressChangeEvent, setSkipAddressChangeEvent] = useState(false);
-    const [currentPageable, setCurrentPageable] = useState({page: 1, size: 3});
-    const [pageSize] = useState(3);
 
     const [difficulty, setDifficulty] = useState(0);
     const [addressList, setAddressList] = useState([]);
     const {data: locationListData} = useDifficultyAddressSearch(location);
-    // const {data: difficultyListData } = useDifficultyLevelList(currentPageable)
     const {data: difficultyData, error: difficultyError} = useDifficultyLevel(administrativeCode);
     const [bCodeError, setBCodeError] = useState(null);
     const {mutate: difficultyLevelMutate} = useUpdateDifficultyLevel();
@@ -120,17 +117,6 @@ const SystemManagement = () => {
         })
     }
 
-    // const handlePageChange = async (page) => {
-    //     setCurrentPageable({page, size: pageSize});
-    // };
-
-    // const paginationConfig = {
-    //     current: currentPageable.page,
-    //     pageSize: currentPageable.pageSize,
-    //     total: difficultyListData?.totalElements || 1,
-    //     onChange: handlePageChange,
-    // };
-
     useEffect(() => {
         if(locationListData) {
             setAddressList(locationListData);
@@ -144,13 +130,9 @@ const SystemManagement = () => {
         setDifficulty(difficultyData?.difficultyLevel || 0);
     }, [difficultyData])
 
-    // useEffect(() => {
-    //     console.log(difficultyListData);
-    // }, [difficultyListData])
-
     return (
         <div className="w-full h-full flex flex-col bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">시스템 설정</h2>
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">기타 설정</h2>
 
             {/* 지역 설정 섹션 */}
             <div className="flex flex-row w-full mx-auto bg-white rounded-lg shadow-md p-6 gap-6 mb-8">
@@ -257,38 +239,6 @@ const SystemManagement = () => {
                         </div>
                     </div>
                 </div>
-
-                {/*/!* 오른쪽: 지역 리스트 섹션 *!/*/}
-                {/*<div className="flex flex-col flex-[1] bg-gray-50 p-4 rounded-lg shadow-sm">*/}
-                {/*<h3 className="text-md font-semibold text-gray-700 mb-4">지역 난이도 리스트</h3>*/}
-                {/*    <Table*/}
-                {/*        dataSource={difficultyListData?.content || []}*/}
-                {/*        columns={[*/}
-                {/*            {*/}
-                {/*                title: '순번',*/}
-                {/*                dataIndex: 'id',*/}
-                {/*                key: 'id',*/}
-                {/*                width: '20%',*/}
-                {/*            },*/}
-                {/*            {*/}
-                {/*                title: '행정동 코드',*/}
-                {/*                dataIndex: 'difficultyBCode',*/}
-                {/*                key: 'difficultyBCode',*/}
-                {/*                width: '50%',*/}
-                {/*            },*/}
-                {/*            {*/}
-                {/*                title: '난이도',*/}
-                {/*                dataIndex: 'difficultyLevel',*/}
-                {/*                key: 'difficultyLevel',*/}
-                {/*                width: '30%',*/}
-                {/*                render: (text) => (*/}
-                {/*                    <span className="font-semibold text-gray-600">{text}</span>*/}
-                {/*                ),*/}
-                {/*            },*/}
-                {/*        ]}*/}
-                {/*        pagination={paginationConfig}*/}
-                {/*    />*/}
-                {/*</div>*/}
             </div>
 
 
@@ -325,7 +275,6 @@ const SystemManagement = () => {
                 </div>
             </div>
         </div>
-
     );
 };
 

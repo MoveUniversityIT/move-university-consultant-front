@@ -22,7 +22,9 @@ const API = axios.create({
 
 API.interceptors.request.use(
     (config) => {
-        if (!config.headers["Content-Type"]) {
+        if (config.data instanceof FormData) {
+            delete config.headers["Content-Type"];
+        } else if (!config.headers["Content-Type"]) {
             config.headers["Content-Type"] = "application/json";
         }
 
@@ -122,13 +124,13 @@ API.interceptors.response.use(
                     const text = await error.response.data.text();
                     const errorData = JSON.parse(text);
                     const errorMessage = errorData.errorMessage || "알 수 없는 오류가 발생했습니다.";
-                    alert(errorMessage);
+                    // alert(errorMessage);
                 } catch (parseError) {
-                    alert("알 수 없는 오류가 발생했습니다.");
+                    // alert("알 수 없는 오류가 발생했습니다.");
                 }
             } else {
                 const errorMessage = error?.response?.data.errorMessage || "알 수 없는 오류가 발생했습니다.";
-                alert(errorMessage);
+                // alert(errorMessage);
             }
             return Promise.reject(error.response?.data);
         }

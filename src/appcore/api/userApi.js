@@ -71,3 +71,15 @@ export const postSaveGongcha = async (isaData) => {
     return data;
 }
 
+export const getNotices = async () => {
+    const response = await API.get('/user/notice');
+
+    return response?.data;
+}
+
+export const postReadNotice = async (noticeId) => {
+    const response = await API.post('/user/notice', noticeId);
+
+    return response?.data;
+}
+

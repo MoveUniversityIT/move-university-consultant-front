@@ -26,10 +26,12 @@ const unitLabel = {
     totalLadderPrice: "원"
 };
 
-const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymentMethod,
-                      estimate, setEstimate, sliderValue, setSliderValue, depositPrice,
-                      setDepositPrice, estimatePrice, setEstimatePrice, surtax, setSurtax, estimateLever,
-                      searchItemTerm, setSearchItemTerm}) => {
+const DispatchCost = ({
+                          items, setItems, dispatchAmount, isDispatchAmount, paymentMethod,
+                          estimate, setEstimate, sliderValue, setSliderValue, depositPrice,
+                          setDepositPrice, estimatePrice, setEstimatePrice, surtax, setSurtax, estimateLever,
+                          searchItemTerm, setSearchItemTerm, dispatchCosts, moveTypeCheckBoxes, setMoveTypeCheckBoxes
+                      }) => {
     const [calcData, setCalcData] = useState({});
 
     // minDeposit + (slider value - 1) * ((maxDeposit - minDeposit) / (10 -1))
@@ -53,54 +55,81 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
         };
 
         // `interpolate` 함수로 계산
-        let calcEstimate = interpolate(
-            estimate.minEstimatePrice,
-            estimate.estimatePrice,
-            estimate.maxEstimatePrice,
-            value,
-            1,
-            10
-        );
+        // let calcEstimate = interpolate(
+        //     estimate.minEstimatePrice,
+        //     estimate.estimatePrice,
+        //     estimate.maxEstimatePrice,
+        //     value,
+        //     1,
+        //     10
+        // );
 
-        // 반올림 처리
-        calcEstimate = Math.round(calcEstimate * 100) / 100;
+        const minEstimate = Math.round(estimate.baseCost * 1.15);
+        const midEstimate = estimate.estimatePrice;
+        const maxEstimate = Math.round(estimate.estimatePrice * 1.5);
 
-        // 30만 미만일 경우 5천원 단위로 반올림
-        if (calcEstimate < 300000) {
-            calcEstimate = Math.round(calcEstimate / 5000) * 5000;
-        }
-        // 30만 이상 ~ 130만 미만일 경우 1만원 단위로 반올림
-        else if (calcEstimate < 1300000) {
-            calcEstimate = Math.round(calcEstimate / 10000) * 10000;
+        let calcEstimate = estimate.estimatePrice;
 
-            const thousandWon = Math.floor(calcEstimate / 100000); // 10만 단위
-            const tenThousandWon = calcEstimate % 100000; // 10만 단위 잔여값
+        if(value === 5) {
+            // 반올림 처리
+            calcEstimate = Math.round(calcEstimate * 100) / 100;
 
-            if (tenThousandWon > 60000 || tenThousandWon <= 10000 || tenThousandWon === 0) {
-                if (60000 < tenThousandWon && tenThousandWon < 100000) {
-                    calcEstimate = (calcEstimate - tenThousandWon) + 80000;
-                } else {
-                    calcEstimate = (thousandWon - 1) * 100000 + 80000;
+            // 30만 미만일 경우 5천원 단위로 반올림
+            if (calcEstimate < 300000) {
+                calcEstimate = Math.round(calcEstimate / 5000) * 5000;
+            }
+            // 30만 이상 ~ 130만 미만일 경우 1만원 단위로 반올림
+            else if (calcEstimate < 1300000) {
+                calcEstimate = Math.round(calcEstimate / 10000) * 10000;
+
+                const thousandWon = Math.floor(calcEstimate / 100000); // 10만 단위
+                const tenThousandWon = calcEstimate % 100000; // 10만 단위 잔여값
+
+                if (tenThousandWon > 60000 || tenThousandWon <= 10000 || tenThousandWon === 0) {
+                    if (60000 < tenThousandWon && tenThousandWon < 100000) {
+                        calcEstimate = (calcEstimate - tenThousandWon) + 80000;
+                    } else {
+                        calcEstimate = (thousandWon - 1) * 100000 + 80000;
+                    }
+
+                } else if (tenThousandWon > 10000 && tenThousandWon <= 60000) {
+                    calcEstimate = Math.floor(calcEstimate / 100000) * 100000 + 40000;
                 }
 
-            } else if (tenThousandWon > 10000 && tenThousandWon <= 60000) {
-                calcEstimate = Math.floor(calcEstimate / 100000) * 100000 + 40000;
+                if (calcEstimate <= 980000) {
+                    calcEstimate += 5000;
+                }
+
+                calcEstimate = Math.round(calcEstimate);
+            }
+            // 130만 이상의 경우 5만원 단위 반올림
+            else {
+                calcEstimate = Math.round(calcEstimate / 50000) * 50000;
+            }
+        }else if(1 <= value && value < 5) {
+            calcEstimate = minEstimate + ((midEstimate - minEstimate) / (5 - 1)) * (value - 1);
+            calcEstimate = Math.round(calcEstimate / 5000) * 5000;
+
+            if(calcEstimate <= 980000) {
+                calcEstimate = Math.round(calcEstimate / 5000) * 5000;
+            }else {
+                calcEstimate = Math.round(calcEstimate / 10000) * 10000;
             }
 
-            if (calcEstimate <= 980000) {
-                calcEstimate += 5000;
-            }
+        }else if(5 < value && value <= 10) {
+            calcEstimate = midEstimate + ((maxEstimate - midEstimate) / (10 - 5)) * (value - 5);
 
-            calcEstimate = Math.round(calcEstimate);
-        }
-        // 130만 이상의 경우 5만원 단위 반올림
-        else {
-            calcEstimate = Math.round(calcEstimate / 50000) * 50000;
+            if(calcEstimate <= 980000) {
+                calcEstimate = Math.round(calcEstimate / 5000) * 5000;
+            }else {
+                calcEstimate = Math.round(calcEstimate / 10000) * 10000;
+            }
         }
 
         setEstimatePrice(calcEstimate);
         setDepositPrice(calcEstimate - estimate.totalCalcPrice);
         setSurtax(Math.round(calcEstimate * 0.1));
+
     };
 
     const handleCheckboxChange = (itemName, itemCount, key, checked) => {
@@ -200,6 +229,7 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
         })
 
         setEstimate({
+            baseCost: dispatchAmount?.estimatePrice?.baseCost || 0,
             deposit: dispatchAmount?.estimatePrice?.deposit || 0,
             minDeposit: dispatchAmount?.estimatePrice?.minDeposit || 0,
             maxDeposit: dispatchAmount?.estimatePrice?.maxDeposit || 0,
@@ -278,7 +308,6 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
                 <div>
                     <div className="flex items-center space-x-4">
                         <span className="text-sm w-2/5 font-semibold text-gray-700">견적금액 레버:</span>
-
                         <Slider
                             min={1}
                             max={10}
@@ -287,7 +316,6 @@ const DispatchCost = ({items, setItems, dispatchAmount, isDispatchAmount, paymen
                             className="w-full"
                             style={{height: "10px"}}
                         />
-
                         <span className="text-sm font-semibold text-gray-700">{sliderValue}</span>
                     </div>
                     <div className="mt-4 text-gray-600">

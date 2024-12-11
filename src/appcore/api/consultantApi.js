@@ -103,6 +103,17 @@ export const getCalcConsultant = async (consultantDataForm) => {
     }
 }
 
+// 배차 금액 리스트 조회
+export const getCalcConsultants = async (consultantDataForm) => {
+    try {
+        const response = await API.post('/consultant/price/calculate-list', consultantDataForm);
+        return response?.data;
+    } catch (error) {
+        const errorMessage = error.errorMessage || "알 수 없는 오류가 발생했습니다.";
+        throw new Error(errorMessage);
+    }
+}
+
 // 특수일(손 없는날) 조회
 export const getSpecialDay = async (year) => {
     const response = await API.get(`/consultant/special-day?year=${year}`);
@@ -154,3 +165,17 @@ export const getImage = async (imageName) => {
 
     return `data:image/jpeg;base64,${base64Image}`;
 };
+
+// 이미지 녹음 업로드
+export const postUploadImageAndVoice = async (dataForm) => {
+    const response = await API.post('/consultant/image-voice', dataForm);
+
+    return response?.data;
+}
+
+export const getUploadImageAndVoice = async (searchParams) => {
+    const response = await API.get(
+        `/consultant/image-voice?queryValue=${searchParams.queryValue}&size=${searchParams.size}&page=${searchParams.page}`, searchParams)
+
+    return response?.data;
+}
