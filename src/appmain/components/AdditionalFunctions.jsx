@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from "react";
-import {Button, Card, message, Modal, Input} from "antd";
+import {Button, Card, Input, message, Modal} from "antd";
 import {useImageQuery} from "@hook/useConsultant";
 import {useDispatch} from "react-redux";
-import {resetState} from "@/features/user/loginSlice";
 import {useNavigate} from "react-router-dom";
+import PictureModal from "@component/modal/picture/PictureModal";
 
 const AdditionalFunctions = () => {
     const dispatch = useDispatch();
@@ -11,6 +11,7 @@ const AdditionalFunctions = () => {
 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isInputModalVisible, setIsInputModalVisible] = useState(false);
+    const [isPictureVisible, setIsPictureVisible] = useState(false);
     const [imageSrc, setImageSrc] = useState(null);
     const [modalTitle, setModalTitle] = useState("");
     const [downloadFileName, setDownloadFileName] = useState("");
@@ -98,11 +99,13 @@ const AdditionalFunctions = () => {
         link.click();
     };
 
-    const handleLogout = () => {
-        dispatch(resetState());
-        message.info("로그아웃 되었습니다.");
-        navigate("/login");
-    };
+    const handleShowPicture = () => {
+        setIsPictureVisible(true);
+    }
+
+    const handlePictureModalCancel = () => {
+        setIsPictureVisible(false);
+    }
 
     useEffect(() => {
         setImageSrc(imageUrl);
@@ -131,6 +134,9 @@ const AdditionalFunctions = () => {
                 </Button>
                 <Button type="default" onClick={() => handleShowImage("ladder_price", "사다리 요금표")}>
                     사다리 요금표
+                </Button>
+                <Button type="default" onClick={handleShowPicture}>
+                    이미지/녹음
                 </Button>
             </div>
 
@@ -200,6 +206,8 @@ const AdditionalFunctions = () => {
                     />
                 )}
             </Modal>
+
+            <PictureModal isPictureVisible={isPictureVisible} handlePictureModalCancel={handlePictureModalCancel} />
         </Card>
     );
 };
