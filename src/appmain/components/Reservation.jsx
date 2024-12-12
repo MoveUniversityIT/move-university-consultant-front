@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button, Card, Input, List, Modal, Pagination } from "antd";
 import { useDeleteReservation } from "@hook/useUser";
 import { useQueryClient } from "@tanstack/react-query";
@@ -13,23 +13,16 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
     const pageRef = useRef(null); // 페이징 크기를 감지하기 위한 ref
     const [maxPages, setMaxPages] = useState(1); // 최대 페이지 표시 수
 
-
-    // 세로 크기를 기준으로 itemsPerPage 계산
     useEffect(() => {
         const updateItemsPerPage = () => {
-            const containerHeight = containerRef.current.offsetHeight;
-            const itemHeight = 120;
-            const calculatedItems = Math.floor(containerHeight / itemHeight);
-            setItemsPerPage(Math.max(1, calculatedItems));
+            if (containerRef.current) {
+                const containerHeight = containerRef.current.offsetHeight;
+                const itemHeight = 120;
+                const calculatedItems = Math.floor(containerHeight / itemHeight);
+                setItemsPerPage(Math.max(1, calculatedItems));
+            }
         };
 
-        updateItemsPerPage();
-        window.addEventListener("resize", updateItemsPerPage);
-
-        return () => window.removeEventListener("resize", updateItemsPerPage);
-    }, []);
-
-    useEffect(() => {
         const updateMaxPages = () => {
             if (pageRef.current) {
                 const containerWidth = pageRef.current.offsetWidth;
@@ -43,18 +36,26 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
             }
         };
 
-        const resizeObserver = new ResizeObserver(updateMaxPages);
+        const containerObserver = new ResizeObserver(updateItemsPerPage);
+        const pageObserver = new ResizeObserver(updateMaxPages);
+
+        if (containerRef.current) {
+            containerObserver.observe(containerRef.current);
+        }
         if (pageRef.current) {
-            resizeObserver.observe(pageRef.current);
+            pageObserver.observe(pageRef.current);
         }
 
-        window.addEventListener("resize", updateMaxPages);
+        updateItemsPerPage();
+        updateMaxPages();
 
         return () => {
-            if (pageRef.current) {
-                resizeObserver.unobserve(pageRef.current);
+            if (containerRef.current) {
+                containerObserver.unobserve(containerRef.current);
             }
-            window.removeEventListener("resize", updateMaxPages);
+            if (pageRef.current) {
+                pageObserver.unobserve(pageRef.current);
+            }
         };
     }, []);
 
@@ -85,13 +86,11 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
         );
     });
 
-// 페이지네이션은 필터링된 데이터(filteredReservations)에만 적용
     const paginatedReservations = filteredReservations.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
 
-// 검색어가 변경될 때 페이지를 첫 페이지로 초기화
     useEffect(() => {
         setCurrentPage(1);
     }, [searchTerm]);
@@ -101,7 +100,7 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
             title="상담 예약"
             className="shadow-md rounded-md h-full flex flex-col justify-between w-full overflow-hidden"
             styles={{
-                body: {display: "flex", flexDirection: "column", height: "100%"},
+                body: { display: "flex", flexDirection: "column", height: "100%" },
             }}
         >
             <div>
@@ -117,7 +116,6 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
                 />
             </div>
 
-            {/* 리스트 */}
             <div ref={containerRef} className="flex-1 overflow-y-hidden mb-4">
                 <List
                     dataSource={paginatedReservations}
@@ -179,7 +177,6 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
                 />
             </div>
 
-            {/* Pagination */}
             <div ref={pageRef} className="w-full flex justify-center mb-4">
                 <Pagination
                     current={currentPage}

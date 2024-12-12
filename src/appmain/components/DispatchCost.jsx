@@ -33,6 +33,7 @@ const DispatchCost = ({
                           searchItemTerm, setSearchItemTerm, dispatchCosts, moveTypeCheckBoxes, setMoveTypeCheckBoxes
                       }) => {
     const [calcData, setCalcData] = useState({});
+    const [tempTotalCbm, setTempTotalCbm] = useState(0);
 
     // minDeposit + (slider value - 1) * ((maxDeposit - minDeposit) / (10 -1))
     const handleSliderChange = (value) => {
@@ -187,15 +188,24 @@ const DispatchCost = ({
     };
 
     useEffect(() => {
+        let loadTransCount = 0;
+        let unloadTransCount = 0;
+
         setCalcData({
             totalItemCbm: dispatchAmount?.totalItemCbm ? dispatchAmount.totalItemCbm : 0,
             transportHelperCount: dispatchAmount?.helpers
                 ? dispatchAmount.helpers.reduce((total, helper) => {
                     if (helper.helperType === "TRANSPORT") {
+                        if (helper.loadUnloadType === "LOAD") {
+                            loadTransCount += helper.helperCount || 0;
+                        } else if (helper.loadUnloadType === "UNLOAD") {
+                            unloadTransCount += helper.helperCount || 0;
+                        }
                         return Number(total) + Number(helper.helperCount || 0);
                     }
                     return total;
-                }, 0)?.toLocaleString()
+                }, 0)
+                - Math.min(loadTransCount, unloadTransCount)?.toLocaleString()
                 : 0,
             cleaningHelperCount: dispatchAmount?.helpers
                 ? dispatchAmount.helpers.reduce((total, helper) => {
@@ -241,6 +251,14 @@ const DispatchCost = ({
     }, [dispatchAmount]);
 
     useEffect(() => {
+        const totalItemCbm = items instanceof Object
+            ? Object.values(items).reduce((sum, item) => sum + (item.itemCbm * item.itemCount || 0), 0)
+            : 0;
+
+        setTempTotalCbm(totalItemCbm?.toLocaleString());
+    }, [items]);
+
+    useEffect(() => {
         handleSliderChange(5);
     }, [estimate]);
 
@@ -267,7 +285,7 @@ const DispatchCost = ({
                     </div>
                 </div>
 
-                <Divider>물품 목록 & 옵션 설정</Divider>
+                <Divider>물품({tempTotalCbm}Cbm) 목록 & 옵션 설정</Divider>
                 <Form
                     layout="vertical"
                     className="flex gap-1 h-[20vh] overflow-y-auto"

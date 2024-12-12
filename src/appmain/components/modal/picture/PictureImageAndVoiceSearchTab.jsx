@@ -110,7 +110,7 @@ const PictureImageAndVoiceSearchTab = () => {
                                                 src={file.fileUrl}
                                                 alt={file.fileName}
                                                 className="h-full w-full object-cover"
-                                                preview={false} // 미리보기 비활성화
+                                                preview={false}
                                             />
                                         </div>
                                     ) : (

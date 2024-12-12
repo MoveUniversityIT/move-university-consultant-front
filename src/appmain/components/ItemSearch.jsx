@@ -217,6 +217,7 @@ const ItemSearch = ({
                                     updatedItems[item.itemName] = {
                                         itemId: item.itemId,
                                         itemName: item.itemName,
+                                        itemCbm: item.itemCbm,
                                         itemCount: quantity,
                                         isDisassembly: item.isDisassembly,
                                         isInstallation: item.isInstallation,
@@ -340,6 +341,7 @@ const ItemSearch = ({
             updatedItems[item.itemName] = {
                 itemId: item.itemId,
                 itemName: item.itemName.trim(),
+                itemCbm: item.itemCbm,
                 itemCount: 1,
                 isDisassembly: item.isDisassembly,
                 isInstallation: item.isInstallation,
@@ -454,6 +456,7 @@ const ItemSearch = ({
                             itemId: firstSuggestion.itemId,
                             itemName: baseItemName,
                             itemCount: 1,
+                            itemCbm: firstSuggestion.itemCbm,
                             isDisassembly: firstSuggestion.isDisassembly,
                             isInstallation: firstSuggestion.isInstallation,
                             requiredIsDisassembly: firstSuggestion.isDisassembly,
