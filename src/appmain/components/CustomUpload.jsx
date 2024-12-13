@@ -25,9 +25,9 @@ const CustomUpload = ({fileList, setFileList}) => {
             return false;
         }
 
-        const isLt5M = file.size / 1024 / 1024 < 5;
-        if (!isLt5M) {
-            message.error('파일은 5MB보다 작아야 합니다.');
+        const isLt20M = file.size / 1024 / 1024 < 20;
+        if (!isLt20M) {
+            message.error('파일은 20MB보다 작아야 합니다.');
             return false;
         }
 

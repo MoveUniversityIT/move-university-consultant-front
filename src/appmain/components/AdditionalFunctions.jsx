@@ -135,9 +135,9 @@ const AdditionalFunctions = () => {
                 <Button type="default" onClick={() => handleShowImage("ladder_price", "사다리 요금표")}>
                     사다리 요금표
                 </Button>
-                <Button type="default" onClick={handleShowPicture}>
-                    이미지/녹음
-                </Button>
+                {/*<Button type="default" onClick={handleShowPicture}>*/}
+                {/*    이미지/녹음*/}
+                {/*</Button>*/}
             </div>
 
             <Modal
