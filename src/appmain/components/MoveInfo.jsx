@@ -510,6 +510,8 @@ const MoveInfo = ({
         let payment_type = gongchaPaymentTypes.indexOf(paymentMethod?.value);
         let transportHelperCount = 0;
         let cleaningHelperCount = 0;
+        let loadTransCount = 0;
+        let unloadTransCount = 0;
 
         if (carry_type_start < 0) {
             carry_type_start = 3;
@@ -525,11 +527,16 @@ const MoveInfo = ({
         const transportHelperPrice = dispatchAmount?.helpers
             ? dispatchAmount.helpers.reduce((total, helper) => {
                 if (helper?.helperType === "TRANSPORT") {
-                    transportHelperCount += helper?.helperCount;
-                    return Number(total) + Number(helper?.totalHelperPrice || 0);
+                    if (helper.loadUnloadType === "LOAD") {
+                        loadTransCount += helper.helperCount || 0;
+                    } else if (helper.loadUnloadType === "UNLOAD") {
+                        unloadTransCount += helper.helperCount || 0;
+                    }
+                    return Number(total) + Number(helper.helperCount || 0);
                 }
                 return total;
-            }, 0)?.toLocaleString()
+            }, 0)
+            - Math.min(loadTransCount, unloadTransCount)?.toLocaleString()
             : 0;
 
         // 추가 이모가격
