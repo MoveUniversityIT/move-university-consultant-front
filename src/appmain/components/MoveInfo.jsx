@@ -508,8 +508,6 @@ const MoveInfo = ({
         let customer_helper_end = getCustomerHelperText(unloadCustomers);
         let isa_type = gongchaMoveTypes.indexOf(moveType?.value);
         let payment_type = gongchaPaymentTypes.indexOf(paymentMethod?.value);
-        let transportHelperCount = 0;
-        let cleaningHelperCount = 0;
         let loadTransCount = 0;
         let unloadTransCount = 0;
 
@@ -523,10 +521,10 @@ const MoveInfo = ({
         // 한대 차량가격
         const vehicleRoundingHalfUp = dispatchAmount?.vehicleRoundingHalfUp ?? 0;
 
-        // 추가 인부가격
-        const transportHelperPrice = dispatchAmount?.helpers
+        // 인부 수량
+        const transportHelperCount = dispatchAmount.helpers
             ? dispatchAmount.helpers.reduce((total, helper) => {
-                if (helper?.helperType === "TRANSPORT") {
+                if (helper.helperType === "TRANSPORT") {
                     if (helper.loadUnloadType === "LOAD") {
                         loadTransCount += helper.helperCount || 0;
                     } else if (helper.loadUnloadType === "UNLOAD") {
@@ -539,18 +537,36 @@ const MoveInfo = ({
             - Math.min(loadTransCount, unloadTransCount)?.toLocaleString()
             : 0;
 
+        const cleaningHelperCount = dispatchAmount.helpers
+            ? dispatchAmount.helpers.reduce((total, helper) => {
+                if (helper.helperType === "PACKING_CLEANING") {
+                    return Number(total) + Number(helper.helperCount || 0);
+                }
+                return total;
+            }, 0)?.toLocaleString()
+            : 0;
+
+        // 추가 인부가격
+        const transportHelperPrice = dispatchAmount?.helpers
+            ? dispatchAmount.helpers.reduce((total, helper) => {
+                if (helper?.helperType === "TRANSPORT") {
+                    return Number(total) + Number(helper?.totalHelperPrice || 0);
+                }
+                return total;
+            }, 0)?.toLocaleString()
+            : 0;
+
         // 추가 이모가격
         const cleaningHelperPrice = dispatchAmount?.helpers
             ? dispatchAmount.helpers.reduce((total, helper) => {
                 if (helper?.helperType === "PACKING_CLEANING") {
-                    cleaningHelperCount += helper?.helperCount;
                     return Number(total) + Number(helper?.totalHelperPrice || 0);
                 }
                 return total;
             }, 0)?.toLocaleString()
             : 0
 
-        const head_count = dispatchAmount?.vehicleCount + transportHelperCount + cleaningHelperCount;
+        const head_count = Number(dispatchAmount?.vehicleCount) + Number(transportHelperCount) + Number(cleaningHelperCount);
 
         const dispatch_memo = `총 배차가격: ${totalCalcPrice?.toLocaleString()}, 한대 차량가격: ${vehicleRoundingHalfUp.toLocaleString()}, 추가 인부 가격: ${transportHelperPrice}, 추가 이모 가격: ${cleaningHelperPrice}`;
 
@@ -660,7 +676,7 @@ const MoveInfo = ({
     }, [reservationData]);
 
     useEffect(() => {
-        if(consultantDataForm) {
+        if (consultantDataForm) {
             consultantDataForm["moveTypeIds"] = moveTypeCheckBoxes;
 
             calcListsMutate(consultantDataForm, {
