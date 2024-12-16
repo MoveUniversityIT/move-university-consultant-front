@@ -78,15 +78,15 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
                         >
                             <div className="flex flex-col gap-1">
                                 <p className="text-sm text-gray-600 flex">
-                                    <span className="font-semibold w-14 text-center">요청일:</span>
+                                    <span className="font-semibold text-center">요청일:</span>
                                     <span className="ml-2">{reservation.requestDate}</span>
                                 </p>
                                 <p className="text-sm text-gray-600 flex">
-                                    <span className="font-semibold w-14 text-center">화주이름:</span>
+                                    <span className="font-semibold text-center">화주이름:</span>
                                     <span className="ml-2">{reservation.customerName}</span>
                                 </p>
                                 <p className="text-sm text-gray-600 flex">
-                                    <span className="font-semibold w-14 text-center">화주번호:</span>
+                                    <span className="font-semibold text-center">화주번호:</span>
                                     <span className="ml-2">{reservation.customerPhoneNumber}</span>
                                 </p>
                             </div>
