@@ -11,6 +11,7 @@ import {useGetNotice} from "@hook/useUser";
 import Notice from "@component/Notice";
 import CustomLayout from "@/common/component/CustomLayout";
 import Community from "@component/Community";
+import QnaMap from "@component/mindMap/QnaMap";
 
 const Router = () => {
     const isLogin = useSelector((state) => state.login.loginState);
@@ -55,6 +56,14 @@ const Router = () => {
                         element: (
                             <ProtectedRoute requiredRoles={["ROLE_ADMIN"]}>
                                 <AdminDashboard/>
+                            </ProtectedRoute>
+                        ),
+                    },
+                    {
+                        path: "mind-map",
+                        element: (
+                            <ProtectedRoute requiredRoles={["ROLE_ADMIN"]}>
+                                <QnaMap />
                             </ProtectedRoute>
                         ),
                     },

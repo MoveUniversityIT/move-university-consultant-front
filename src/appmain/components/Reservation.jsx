@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Card, Input, List, Modal, Pagination } from "antd";
 import { useDeleteReservation } from "@hook/useUser";
 import { useQueryClient } from "@tanstack/react-query";
@@ -6,55 +6,10 @@ import { useQueryClient } from "@tanstack/react-query";
 const Reservation = ({ onLoad, onNew, reservations }) => {
     const queryClient = useQueryClient();
     const { mutate: reservationMutate } = useDeleteReservation();
+
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(1); // 초기값 설정
-    const containerRef = useRef(null); // 컴포넌트의 크기를 감지하기 위한 ref
-    const pageRef = useRef(null); // 페이징 크기를 감지하기 위한 ref
-    const [maxPages, setMaxPages] = useState(1); // 최대 페이지 표시 수
-
-
-    // 세로 크기를 기준으로 itemsPerPage 계산
-    useEffect(() => {
-        const updateItemsPerPage = () => {
-            const containerHeight = containerRef.current.offsetHeight;
-            const itemHeight = 120;
-            const calculatedItems = Math.floor(containerHeight / itemHeight);
-            setItemsPerPage(Math.max(1, calculatedItems));
-        };
-
-        updateItemsPerPage();
-        window.addEventListener("resize", updateItemsPerPage);
-
-        return () => window.removeEventListener("resize", updateItemsPerPage);
-    }, []);
-
-    useEffect(() => {
-        const updateMaxPages = () => {
-            if (pageRef.current) {
-                const containerWidth = pageRef.current.offsetWidth;
-                if (containerWidth < 400) {
-                    setMaxPages(2);
-                } else if (containerWidth < 600) {
-                    setMaxPages(3);
-                } else {
-                    setMaxPages(4);
-                }
-            }
-        };
-
-        const resizeObserver = new ResizeObserver(updateMaxPages);
-        if (pageRef.current) {
-            resizeObserver.observe(pageRef.current);
-        }
-
-        // Clean up
-        return () => {
-            if (pageRef.current) {
-                resizeObserver.unobserve(pageRef.current);
-            }
-        };
-    }, []);
+    const itemsPerPage = 5;
 
     const confirmAction = (title, content, onConfirm) => {
         Modal.confirm({
@@ -83,13 +38,13 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
         );
     });
 
-// 페이지네이션은 필터링된 데이터(filteredReservations)에만 적용
+    // 페이지네이션은 필터링된 데이터(filteredReservations)에만 적용
     const paginatedReservations = filteredReservations.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
 
-// 검색어가 변경될 때 페이지를 첫 페이지로 초기화
+    // 검색어가 변경될 때 페이지를 첫 페이지로 초기화
     useEffect(() => {
         setCurrentPage(1);
     }, [searchTerm]);
@@ -97,10 +52,7 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
     return (
         <Card
             title="상담 예약"
-            className="shadow-md rounded-md h-full flex flex-col justify-between w-full overflow-hidden"
-            styles={{
-                body: {display: "flex", flexDirection: "column", height: "100%"},
-            }}
+            className="shadow-md rounded-md h-full flex flex-col w-full overflow-hidden"
         >
             <div>
                 <Button type="primary" block className="mb-4" onClick={onNew}>
@@ -116,17 +68,13 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
             </div>
 
             {/* 리스트 */}
-            <div ref={containerRef} className="flex-1 overflow-y-hidden mb-4">
+            <div className="flex-1 overflow-y-auto mb-4" style={{ minHeight: "700px" }}>
                 <List
                     dataSource={paginatedReservations}
                     renderItem={(reservation) => (
                         <List.Item
                             key={reservation.reservationId}
                             className="w-full bg-white rounded-lg mb-2 p-4 border border-gray-200 hover:border-blue-500 hover:bg-blue-50 hover:shadow-xl transition-all duration-300 flex flex-col items-center transform"
-                            style={{
-                                borderBlockEnd: "none",
-                                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                            }}
                         >
                             <div className="flex flex-col gap-1">
                                 <p className="text-sm text-gray-600 flex">
@@ -178,7 +126,7 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
             </div>
 
             {/* Pagination */}
-            <div ref={pageRef} className="w-full flex justify-center mb-4">
+            <div className="w-full flex justify-center mb-4">
                 <Pagination
                     current={currentPage}
                     pageSize={itemsPerPage}
@@ -187,19 +135,6 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
                     showSizeChanger={false}
                     responsive={true}
                     showLessItems
-                    className="text-center"
-                    itemRender={(page, type, originalElement) => {
-                        if (type === "prev" || type === "next") {
-                            return originalElement;
-                        }
-                        if (type === "page" && Math.abs(page - currentPage) >= maxPages) {
-                            return null;
-                        }
-                        if (type === "jump-prev" || type === "jump-next") {
-                            return null;
-                        }
-                        return originalElement;
-                    }}
                 />
             </div>
         </Card>

@@ -57,7 +57,7 @@ export const useDifficultyLevelList = (page) => {
     })
 }
 
-export const usePostNotice = (noticeForm) => {
+export const usePostNotice = () => {
     return useMutation({
         mutationFn: (noticeForm) => postNotice(noticeForm),
         retry: false,
