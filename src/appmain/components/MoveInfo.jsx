@@ -813,15 +813,11 @@ const MoveInfo = ({
             className="shadow-md rounded-md relative"
         >
             <div
-                className={`absolute mt-1 ml-20 top-2 font-bold text-sm flex items-center justify-center ${
+                className={`absolute mt-1 top-2 font-bold text-sm flex items-center justify-center ${
                     reservationId ? "text-orange-500" : "text-blue-500"
                 }`}
                 style={{
-                    color: reservationId ? "orange" : "blue",
-                    fontWeight: "bold",
-                    position: "absolute",
-                    top: "8px",
-                    left: "8px",
+                    "margin-left": "4.5rem",
                     backgroundColor: reservationId
                         ? "rgba(255, 230, 204, 0.8)"
                         : "rgba(235, 245, 255, 0.8)",
