@@ -1,9 +1,10 @@
 import React, {useState} from 'react';
-import {Button, Input, Spin, Tree} from 'antd';
-import {DeleteOutlined, EditOutlined, PlusOutlined} from '@ant-design/icons';
+import {Button, Input, Modal, Spin, Tree} from 'antd';
+import {DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined} from '@ant-design/icons';
 import {useDeleteQna, useGetQna, usePatchQna, usePostQna} from "@hook/useQna";
+import CustomEditableInput from "@/common/component/CustomEditableInput";
 
-const QnaMap = () => {
+const Qna = () => {
     const {data: qnaData, isLoading, refetch} = useGetQna();
     const {mutate: postQna} = usePostQna();
     const {mutate: patchQna} = usePatchQna();
@@ -11,6 +12,27 @@ const QnaMap = () => {
 
     const [editingKey, setEditingKey] = useState(null);
     const [newCategoryName, setNewCategoryName] = useState('');
+
+    const { confirm } = Modal;
+
+    const deleteNode = (key) => {
+        confirm({
+            title: "삭제 확인",
+            icon: <ExclamationCircleOutlined />,
+            content: "정말로 이 텍스트를 삭제하시겠습니까?",
+            okText: "삭제",
+            okType: "danger",
+            cancelText: "취소",
+            onOk() {
+                postQnaDelete(key, {
+                    onSuccess: () => refetch(),
+                });
+            },
+            onCancel() {
+                console.log("삭제 취소됨");
+            },
+        });
+    };
 
     // 서버 데이터 -> Tree 데이터 변환
     const mapToTreeData = (data) => {
@@ -44,12 +66,6 @@ const QnaMap = () => {
                 onSuccess: () => refetch(),
             }
         );
-    };
-
-    const deleteNode = (key) => {
-        postQnaDelete(key, {
-            onSuccess: () => refetch(),
-        });
     };
 
     const updateNodeTitle = (key, newTitle) => {
@@ -97,12 +113,11 @@ const QnaMap = () => {
                             onDoubleClick={() => setEditingKey(node.key)}
                         >
                             {editingKey === node.key ? (
-                                <Input
-                                    defaultValue={node.title}
-                                    autoFocus
-                                    onBlur={(e) => updateNodeTitle(node.key, e.target.value)}
-                                    onPressEnter={(e) => updateNodeTitle(node.key, e.target.value)}
-                                    className="flex-grow border border-gray-300 rounded-lg px-2 py-1"
+                                <CustomEditableInput
+                                    node={node}
+                                    updateNodeTitle={updateNodeTitle}
+                                    editingKey={editingKey}
+                                    setEditingKey={setEditingKey}
                                 />
                             ) : (
                                 <span className="flex-grow font-medium text-gray-800">
@@ -141,4 +156,4 @@ const QnaMap = () => {
     );
 };
 
-export default QnaMap;
+export default Qna;

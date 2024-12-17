@@ -6,7 +6,9 @@ import {Content} from "antd/es/layout/layout";
 import Sider from "antd/es/layout/Sider";
 import AdminNotice from "@component/admin/AdminNotice";
 import SystemManagement from "@component/admin/SystemManagement";
-import {FaBullhorn} from "react-icons/fa";
+import {FaBullhorn, FaQuestionCircle} from "react-icons/fa";
+import Qna from "@component/mindMap/Qna";
+import ProtectedRoute from "@/appcore/routes/ProtectedRoute";
 
 const AdminDashboard = () => {
     const [activeMenu, setActiveMenu] = useState('userManagement');
@@ -32,6 +34,11 @@ const AdminDashboard = () => {
                     icon: <SettingOutlined />,
                     label: '기타 설정',
                 },
+                {
+                    key: 'qnaRegistration',
+                    icon: <FaQuestionCircle />,
+                    label: 'QnA 설정',
+                },
             ],
         },
     ];
@@ -44,7 +51,12 @@ const AdminDashboard = () => {
                 return <AdminNotice />;
             case 'difficultyRegistration':
                 return <SystemManagement />;
-            case 'itemRegistration':
+            case 'qnaRegistration':
+                return (
+                    <ProtectedRoute requiredRoles={["ROLE_ADMIN"]}>
+                        <Qna />
+                    </ProtectedRoute>
+                );
             default:
                 return <UserManagement />;
         }
