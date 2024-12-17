@@ -60,16 +60,19 @@ const CustomEditableInput = ({node, updateNodeTitle, editingKey, setEditingKey})
             }}
         >
             <ReactMarkdown
+                breaks={true}
                 components={{
                     p: ({children}) => (
-                        <p style={{margin: "0", lineHeight: "0.7"}}>{children}</p>
+                        <p style={{margin: "0", lineHeight: "1.5"}}>
+                            {children}
+                        </p>
                     ),
-                    br: () => <br style={{display: "block", content: "", height: "1em"}}/>, // 줄바꿈 시 간격 적용
                 }}
             >
                 {inputValue}
             </ReactMarkdown>
         </div>
+
     );
 };
 
