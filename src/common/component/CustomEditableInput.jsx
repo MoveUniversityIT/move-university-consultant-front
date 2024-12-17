@@ -52,15 +52,15 @@ const CustomEditableInput = ({node, updateNodeTitle, editingKey, setEditingKey})
         <div
             className="font-medium text-gray-800 whitespace-pre-wrap overflow-hidden !flex-grow"
             style={{
-                border: "1px solid #e0e0e0", // 더 은은한 테두리 색상
-                padding: "15px 20px", // 좌우 패딩을 조금 더 여유롭게
-                borderRadius: "8px", // 모서리를 둥글게
-                backgroundColor: "#fafafa", // 배경색 추가
-                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)", // 부드러운 그림자
-                lineHeight: "1.6", // 줄 간격 설정
-                fontSize: "14px", // 가독성을 위한 폰트 크기
-                color: "#333", // 진한 텍스트 색상
-                wordBreak: "break-word", // 긴 단어도 줄바꿈 처리
+                border: "1px solid #e0e0e0",
+                padding: "15px 20px",
+                borderRadius: "8px",
+                backgroundColor: "#fafafa",
+                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                lineHeight: "1.6",
+                fontSize: "14px",
+                color: "#333",
+                wordBreak: "break-word",
             }}
         >
             <ReactMarkdown

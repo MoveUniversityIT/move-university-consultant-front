@@ -87,7 +87,7 @@ const Qna = () => {
     }
 
     return (
-        <div className="max-w-7xl mx-auto bg-white shadow-lg rounded-lg p-6 h-full overflow-auto">
+        <div className="bg-white shadow-lg rounded-lg p-6 h-full overflow-auto w-full">
             <h1 className="text-2xl font-bold text-blue-600 mb-4">QnA</h1>
 
             <div className="flex flex-col space-y-4 mb-6 w-full">
