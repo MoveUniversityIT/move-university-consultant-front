@@ -671,6 +671,7 @@ const MoveInfo = ({
 
             setSearchItemTerm(reservationData?.searchItemTerm ?? '');
             setSearchSpecialItemTerm(reservationData?.searchSpecialItemTerm ?? '');
+            setUnregisterWord([]);
             // setSliderValue(reservationData?.estimateLever ?? 5);
         }
     }, [reservationData]);
