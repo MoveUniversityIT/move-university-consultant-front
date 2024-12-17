@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import { Input, Button } from "antd";
+import React, {useState} from "react";
+import {Input, Button} from "antd";
+import ReactMarkdown from "react-markdown";
 
-const { TextArea } = Input;
+const {TextArea} = Input;
 
-const CustomEditableInput = ({ node, updateNodeTitle, editingKey, setEditingKey }) => {
+const CustomEditableInput = ({node, updateNodeTitle, editingKey, setEditingKey}) => {
     const [inputValue, setInputValue] = useState(node.title || "");
 
     const handleInputChange = (e) => {
@@ -21,7 +22,7 @@ const CustomEditableInput = ({ node, updateNodeTitle, editingKey, setEditingKey 
                 value={inputValue}
                 autoFocus
                 onChange={handleInputChange}
-                autoSize={{ minRows: 1}}
+                autoSize={{minRows: 1}}
                 className="font-medium text-gray-800 whitespace-pre-wrap"
                 style={{
                     flexGrow: 1,
@@ -29,7 +30,9 @@ const CustomEditableInput = ({ node, updateNodeTitle, editingKey, setEditingKey 
                     maxWidth: "90%",
                     minWidth: "calc(55vw - 100px)",
                 }}
-            />
+            >
+
+            </TextArea>
 
             <div className="flex gap-2 shrink-0">
                 <Button
@@ -52,11 +55,18 @@ const CustomEditableInput = ({ node, updateNodeTitle, editingKey, setEditingKey 
             className="font-medium text-gray-800 whitespace-pre-wrap overflow-hidden !flex-grow"
             onDoubleClick={() => setEditingKey(node.key)}
             style={{
-                pointerEvents: "none",
-                userSelect: "none",
+                border: "1px solid #ddd",
+                padding: "10px",
+                lineHeight: "1",
             }}
         >
-            {node.title}
+            <ReactMarkdown
+                components={{
+                    p: ({children}) => <p style={{margin: "0"}}>{children}</p>,
+                }}
+            >
+                {inputValue}
+            </ReactMarkdown>
         </div>
     );
 };
