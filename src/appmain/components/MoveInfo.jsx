@@ -524,7 +524,7 @@ const MoveInfo = ({
         const vehicleRoundingHalfUp = dispatchAmount?.vehicleRoundingHalfUp ?? 0;
 
         // 인부 수량
-        const transportHelperCount = dispatchAmount.helpers
+        const transportHelperCount = dispatchAmount?.helpers
             ? dispatchAmount.helpers.reduce((total, helper) => {
                 if (helper.helperType === "TRANSPORT") {
                     if (helper.loadUnloadType === "LOAD") {
@@ -539,7 +539,7 @@ const MoveInfo = ({
             - Math.min(loadTransCount, unloadTransCount)?.toLocaleString()
             : 0;
 
-        const cleaningHelperCount = dispatchAmount.helpers
+        const cleaningHelperCount = dispatchAmount?.helpers
             ? dispatchAmount.helpers.reduce((total, helper) => {
                 if (helper.helperType === "PACKING_CLEANING") {
                     return Number(total) + Number(helper.helperCount || 0);
