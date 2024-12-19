@@ -85,7 +85,14 @@ export const getRoadDistance = async (location) => {
         });
 
         const distance = response?.routes[0]?.summary?.distance;
-        return distance ? distance / 1000 : 0; // distance가 없으면 0 반환
+        const message = response?.routes[0]?.result_msg;
+        const code = response?.routes[0]?.result_code;
+
+        return {
+            distance : distance ? distance / 1000 : 0,
+            message: message,
+            code
+        };
     } catch (error) {
         console.error("도로 거리를 가져오는데 실패했습니다:", error);
         return 0; // API 호출 실패 시 0 반환

@@ -189,7 +189,8 @@ const MoveInfo = ({
         setLocationInfo((prev) => ({
             ...prev,
             startX: coordinates?.x ?? null,
-            startY: coordinates?.y ?? null
+            startY: coordinates?.y ?? null,
+            _trigger: Math.random()
         }));
     };
 
@@ -197,7 +198,8 @@ const MoveInfo = ({
         setLocationInfo((prev) => ({
             ...prev,
             endX: coordinates?.x ?? null,
-            endY: coordinates?.y ?? null
+            endY: coordinates?.y ?? null,
+            _trigger: Math.random()
         }));
     }
 
@@ -260,8 +262,8 @@ const MoveInfo = ({
     }, [locationList, locationSearch]);
 
     useEffect(() => {
-        if (roadDistanceData) {
-            setDistance(Math.round(roadDistanceData));
+        if (roadDistanceData && roadDistanceData.distance !== "undefined") {
+            setDistance(Math.round(roadDistanceData.distance));
         }
     }, [roadDistanceData]);
 
@@ -672,7 +674,6 @@ const MoveInfo = ({
             setSearchItemTerm(reservationData?.searchItemTerm ?? '');
             setSearchSpecialItemTerm(reservationData?.searchSpecialItemTerm ?? '');
             setUnregisterWord([]);
-            // setSliderValue(reservationData?.estimateLever ?? 5);
         }
     }, [reservationData]);
 
@@ -682,7 +683,6 @@ const MoveInfo = ({
 
             calcListsMutate(consultantDataForm, {
                 onSuccess: (data) => {
-                    // setDispatchCosts();
                 },
             })
         }
@@ -818,7 +818,7 @@ const MoveInfo = ({
                     reservationId ? "text-orange-500" : "text-blue-500"
                 }`}
                 style={{
-                    "margin-left": "4.5rem",
+                    marginLeft: "4.5rem",
                     backgroundColor: reservationId
                         ? "rgba(255, 230, 204, 0.8)"
                         : "rgba(235, 245, 255, 0.8)",
@@ -831,7 +831,8 @@ const MoveInfo = ({
                 {reservationId ? "수정" : "신규"}
             </div>
 
-            {dispatchError && (
+            {(dispatchError && (roadDistanceData?.code !==
+                102 && roadDistanceData?.code !== 103)) && (
                 <div
                     className="absolute mt-1 right-2 top-2 text-red-500 font-bold text-sm flex items-center justify-center"
                     style={{
@@ -848,6 +849,25 @@ const MoveInfo = ({
                     }}
                 >
                     {dispatchError?.message}
+                </div>
+            )}
+            {(roadDistanceData?.code === 102 || roadDistanceData?.code === 103) && (
+                <div
+                    className="absolute mt-1 right-2 top-2 text-red-500 font-bold text-sm flex items-center justify-center"
+                    style={{
+                        color: "red",
+                        fontWeight: "bold",
+                        position: "absolute",
+                        top: "8px",
+                        right: "8px",
+                        backgroundColor: "rgba(255, 235, 235, 0.8)",
+                        borderRadius: "4px",
+                        padding: "4px 8px",
+                        lineHeight: "1.5",
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                    }}
+                >
+                    {roadDistanceData?.message}
                 </div>
             )}
             <Form layout="vertical">
@@ -1066,13 +1086,6 @@ const MoveInfo = ({
                         onChange={(value) => setVehicleTonnage(value)}
                     >
                         <Option value="1">1</Option>
-                        {/*<Option value="1.4">1.4</Option>*/}
-                        {/*<Option value="2.5">2.5</Option>*/}
-                        {/*<Option value="3.5">3.5</Option>*/}
-                        {/*<Option value="5">5</Option>*/}
-                        {/*<Option value="7.5">7.5</Option>*/}
-                        {/*<Option value="10">10</Option>*/}
-                        {/*<Option value="15">15</Option>*/}
                     </Select>
                 </Form.Item>
 
