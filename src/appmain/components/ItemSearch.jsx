@@ -460,10 +460,10 @@ const ItemSearch = ({
                     }
 
                     let quantity = 1; // 기본 수량
-                    const quantityMatch = beforeCursor.match(/-(\d+)$/); // -숫자 형식 찾기
+                    const quantityMatch = beforeCursor.match(/-+(\d+)$/);
                     if (quantityMatch) {
                         quantity = parseInt(quantityMatch[1], 10);
-                        baseItemName = baseItemName.replace(/-\d+$/, "").trim(); // 수량 부분 제거
+                        baseItemName = baseItemName.replace(/-+\d+$/, "").trim();
                     }
 
                     const newItemName = `${baseItemName}${tag}${quantity !== 1 ? quantity : ''}`;
