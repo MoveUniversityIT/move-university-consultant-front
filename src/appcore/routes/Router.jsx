@@ -6,12 +6,11 @@ import {useSelector} from "react-redux";
 import ProtectedRoute from "@/appcore/routes/ProtectedRoute";
 import RegisterForm from "@/component/RegisterForm";
 import AdminDashboard from "@component/admin/AdminDashboard";
-import TestPointTransfer from "@component/TestPointTransfer";
 import {useGetNotice} from "@hook/useUser";
-import Notice from "@component/Notice";
 import CustomLayout from "@/common/component/CustomLayout";
 import Community from "@component/Community";
-import Qna from "@component/mindMap/Qna";
+import CustomerImage from "@component/CustomerImage";
+import {WebSocketProvider} from "@/appcore/context/WebSocketContext";
 
 const Router = () => {
     const isLogin = useSelector((state) => state.login.loginState);
@@ -32,47 +31,52 @@ const Router = () => {
             {
                 path: "/",
                 element: (
-                        <CustomLayout notices={notices}/>
+                    <CustomLayout notices={notices}/>
                 ),
                 children: [
                     {
                         path: "consultant",
                         element: (
-                            <ProtectedRoute requiredRoles={["ROLE_MANAGER", "ROLE_ADMIN", "ROLE_EMPLOYEE"]}>
-                                <Consultant/>
-                            </ProtectedRoute>
+                            <WebSocketProvider>
+                                <ProtectedRoute requiredRoles={["ROLE_MANAGER", "ROLE_ADMIN", "ROLE_EMPLOYEE"]}>
+                                    <Consultant/>
+                                </ProtectedRoute>
+                            </WebSocketProvider>
                         )
                     },
                     {
                         path: "notice",
                         element: (
-                            <ProtectedRoute requiredRoles={["ROLE_MANAGER", "ROLE_ADMIN", "ROLE_EMPLOYEE"]}>
-                                <Community notices={notices} setNotices={setNotices}/>
-                            </ProtectedRoute>
+                            <WebSocketProvider>
+                                <ProtectedRoute requiredRoles={["ROLE_MANAGER", "ROLE_ADMIN", "ROLE_EMPLOYEE"]}>
+                                    <Community notices={notices} setNotices={setNotices}/>
+                                </ProtectedRoute>
+                            </WebSocketProvider>
                         )
                     },
                     {
                         path: "admin",
                         element: (
-                            <ProtectedRoute requiredRoles={["ROLE_ADMIN"]}>
-                                <AdminDashboard/>
-                            </ProtectedRoute>
+                            <WebSocketProvider>
+                                <ProtectedRoute requiredRoles={["ROLE_ADMIN"]}>
+                                    <AdminDashboard/>
+                                </ProtectedRoute>
+                            </WebSocketProvider>
                         ),
                     }
                 ]
             },
-
             {
                 path: "/register",
-                element: <RegisterForm/>,
+                element: (
+                    <WebSocketProvider>
+                        <RegisterForm/>
+                    </WebSocketProvider>
+                ),
             },
             {
-                path: "test",
-                element: (
-                    <ProtectedRoute requiredRoles={["ROLE_ADMIN"]}>
-                        <TestPointTransfer/>
-                    </ProtectedRoute>
-                )
+                path: "/customer",
+                element: <CustomerImage/>
             },
             {
                 path: "*",
@@ -91,7 +95,9 @@ const Router = () => {
         }
     );
 
-    return <RouterProvider router={router}/>;
+    return (
+        <RouterProvider router={router}/>
+    );
 };
 
 export default Router;

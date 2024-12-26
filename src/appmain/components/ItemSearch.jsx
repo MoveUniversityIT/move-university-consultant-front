@@ -1,6 +1,7 @@
 import React, {useRef, useState} from "react";
-import {Form, Input} from "antd";
+import {Button, Form, Input} from "antd";
 import _ from "lodash";
+import {ArrowDownOutlined, ArrowUpOutlined, SortAscendingOutlined, SortDescendingOutlined} from "@ant-design/icons";
 
 const ItemSearch = ({
                         searchTerm, suggestions, collapseItems, items, setItems,
@@ -78,7 +79,12 @@ const ItemSearch = ({
         };
 
         if (start <= end && currentItem) {
-            const normalizedCurrent = currentItem.trim().toLowerCase();
+            const tempNormalizedCurrent = currentItem.trim().toLowerCase();
+
+            const hyphenIndex = tempNormalizedCurrent.indexOf('-');
+            const normalizedCurrent = hyphenIndex !== -1
+                ? tempNormalizedCurrent.slice(0, hyphenIndex).trim()
+                : tempNormalizedCurrent;
 
             let filteredSuggestions = collapseItems.flatMap((category) =>
                 category.subcategories.flatMap((subcategory) =>
@@ -213,23 +219,34 @@ const ItemSearch = ({
                                 const requiredIsDisassembly = item.isDisassembly === 'Y' && (tag === '분' || tag === '분조') ? 'Y' : 'N';
                                 const requiredIsInstallation = item.isInstallation === 'Y' && (tag === '조' || tag === '분조') ? 'Y' : 'N';
 
+                                const additionalPrice =
+                                    item.baseAdditionalFee +
+                                    (requiredIsDisassembly === 'Y' ? item.disassemblyAdditionalFee : 0) +
+                                    (requiredIsInstallation === 'Y' ? item.installationAdditionalFee : 0);
+
                                 if (!updatedItems[item.itemName]) {
                                     updatedItems[item.itemName] = {
                                         itemId: item.itemId,
                                         itemName: item.itemName,
                                         itemCbm: item.itemCbm,
                                         itemCount: quantity,
+                                        weight: item.weight,
                                         isDisassembly: item.isDisassembly,
                                         isInstallation: item.isInstallation,
                                         requiredIsDisassembly,
-                                        requiredIsInstallation
+                                        requiredIsInstallation,
+                                        baseAdditionalFee: item.baseAdditionalFee,
+                                        disassemblyAdditionalFee: item.disassemblyAdditionalFee,
+                                        installationAdditionalFee: item.installationAdditionalFee,
+                                        additionalPrice
                                     };
                                 } else {
                                     updatedItems[item.itemName] = {
                                         ...updatedItems[item.itemName],
                                         itemCount: quantity,
                                         requiredIsDisassembly,
-                                        requiredIsInstallation
+                                        requiredIsInstallation,
+                                        additionalPrice
                                     };
                                 }
                                 processedItemIds.add(item.itemName.toString());
@@ -333,6 +350,14 @@ const ItemSearch = ({
             (existing) => normalizeName(existing.itemName) === normalizedBaseItemName
         );
 
+        const requiredIsDisassembly = item.isDisassembly;
+        const requiredIsInstallation = items[item.itemId]?.requiredIsInstallation || "N";
+
+        const additionalPrice =
+            item.baseAdditionalFee +
+            (requiredIsDisassembly === 'Y' ? item.disassemblyAdditionalFee : 0) +
+            (requiredIsInstallation === 'Y' ? item.installationAdditionalFee : 0);
+
         if (existingItem) {
             existingItem.itemCount = 1;
             existingItem.requiredIsDisassembly = item.isDisassembly === "Y" ? "Y" : "N";
@@ -343,10 +368,15 @@ const ItemSearch = ({
                 itemName: item.itemName.trim(),
                 itemCbm: item.itemCbm,
                 itemCount: 1,
+                weight: item.weight,
                 isDisassembly: item.isDisassembly,
                 isInstallation: item.isInstallation,
-                requiredIsDisassembly: item.isDisassembly,
-                requiredIsInstallation: items[item.itemId]?.requiredIsInstallation || "N",
+                requiredIsDisassembly,
+                requiredIsInstallation,
+                baseAdditionalFee: item.baseAdditionalFee,
+                disassemblyAdditionalFee: item.disassemblyAdditionalFee,
+                installationAdditionalFee: item.installationAdditionalFee,
+                additionalPrice
             };
         }
 
@@ -422,14 +452,21 @@ const ItemSearch = ({
 
                     const beforeText = searchTerm.slice(0, start).trim();
                     const afterText = searchTerm.slice(end).trim();
-                    const baseItemName = firstSuggestion.itemName.trim();
+                    let baseItemName = firstSuggestion.itemName.trim();
 
                     let tag = "";
                     if (firstSuggestion.isDisassembly === 'Y') {
                         tag = '[분]';
                     }
 
-                    const newItemName = `${baseItemName}${tag}`;
+                    let quantity = 1; // 기본 수량
+                    const quantityMatch = beforeCursor.match(/-(\d+)$/); // -숫자 형식 찾기
+                    if (quantityMatch) {
+                        quantity = parseInt(quantityMatch[1], 10);
+                        baseItemName = baseItemName.replace(/-\d+$/, "").trim(); // 수량 부분 제거
+                    }
+
+                    const newItemName = `${baseItemName}${tag}${quantity !== 1 ? quantity : ''}`;
 
                     let updatedSearchTerm = `${beforeText} ${newItemName}, ${afterText}`.trim();
 
@@ -449,18 +486,31 @@ const ItemSearch = ({
                         (existing) => normalizeName(existing.itemName) === normalizedBaseItemName
                     );
 
+                    const requiredIsDisassembly = firstSuggestion.isDisassembly;
+                    const requiredIsInstallation = items[firstSuggestion.itemId]?.requiredIsInstallation || "N";
+
+                    const additionalPrice =
+                        firstSuggestion.baseAdditionalFee +
+                        (requiredIsDisassembly === 'Y' ? firstSuggestion.disassemblyAdditionalFee : 0) +
+                        (requiredIsInstallation === 'Y' ? firstSuggestion.installationAdditionalFee : 0);
+
                     if (existingItem) {
                         existingItem.requiredIsDisassembly = firstSuggestion.isDisassembly === "Y" ? "Y" : "N";
                     } else {
                         updatedItems[firstSuggestion.itemName] = {
                             itemId: firstSuggestion.itemId,
                             itemName: baseItemName,
-                            itemCount: 1,
+                            itemCount: quantity,
                             itemCbm: firstSuggestion.itemCbm,
+                            weight: firstSuggestion.weight,
                             isDisassembly: firstSuggestion.isDisassembly,
                             isInstallation: firstSuggestion.isInstallation,
-                            requiredIsDisassembly: firstSuggestion.isDisassembly,
-                            requiredIsInstallation: items[firstSuggestion.itemId]?.requiredIsInstallation || "N",
+                            requiredIsDisassembly,
+                            requiredIsInstallation,
+                            baseAdditionalFee: firstSuggestion.baseAdditionalFee,
+                            disassemblyAdditionalFee: firstSuggestion.disassemblyAdditionalFee,
+                            installationAdditionalFee: firstSuggestion.installationAdditionalFee,
+                            additionalPrice
                         };
                     }
 
@@ -516,9 +566,93 @@ const ItemSearch = ({
         setTimeout(() => setIsDropdownVisible(false), 100);
     };
 
+    const handleSort = (key, orderKey) => {
+        const itemsArray = Object.values(items);
+
+        const targetItems = ["박스(포장됨)", "박스(필요)", "바구니(포장됨)", "바구니(필요)"];
+
+        // 정렬 수행
+        const sortedItems = _.orderBy(
+            itemsArray,
+            [
+                (item) => {
+                    const index = targetItems.indexOf(item.itemName);
+                    return index !== -1 ? index : -Infinity;
+                },
+                'additionalPrice', // 추가 요금
+                'itemCbm',        // CBM
+                'weight'          // 무게
+            ],
+            [
+                'asc',
+                orderKey,   // additionalPrice 기준
+                orderKey,   // itemCbm 기준
+                orderKey    // weight 기준
+            ]
+        );
+
+        // 정렬된 배열을 객체로 변환
+        const sortedItemsObject = sortedItems.reduce((acc, item) => {
+            acc[item.itemName] = item;
+            return acc;
+        }, {});
+
+        setItems(sortedItemsObject);
+
+        // 검색어 업데이트
+        const updatedSearchTerm = sortedItems
+            .map((item) => {
+                let tags = "";
+
+                if (item.requiredIsDisassembly === "Y" && item.requiredIsInstallation === "Y") {
+                    tags = "[분조]";
+                } else if (item.requiredIsDisassembly === "Y") {
+                    tags = "[분]";
+                } else if (item.requiredIsInstallation === "Y") {
+                    tags = "[조]";
+                }
+
+                const itemCount = item.itemCount && item.itemCount !== 1 ? item.itemCount : "";
+
+                return `${item.itemName}${tags}${itemCount}`;
+            })
+            .join(", ");
+
+        setSearchTerm(updatedSearchTerm);
+    };
+
+
     return (
         <Form.Item className="relative !mb-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">물품명:</label>
+            <div className="flex justify-between items-center mb-1">
+                <label className="block text-sm font-medium text-gray-700">물품명:</label>
+                <div>
+                    <Button
+                        type="default"
+                        size="small"
+                        onClick={() => handleSort("itemName", "asc")}
+                        icon={<SortDescendingOutlined/>}
+                        style={{
+                            backgroundColor: "#fff1f0",
+                            color: "#ff4d4f",
+                            borderColor: "#ffa39e",
+                        }}
+                        className="ml-1"
+                    />
+                    <Button
+                        type="default"
+                        size="small"
+                        onClick={() => handleSort("itemName", "desc")}
+                        icon={<SortAscendingOutlined/>}
+                        style={{
+                            backgroundColor: "#e6f7ff",
+                            color: "#1890ff",
+                            borderColor: "#91d5ff",
+                        }}
+                        className="ml-1"
+                    />
+                </div>
+            </div>
             <Input.TextArea
                 ref={searchTermRef}
                 placeholder="물품 이름을 입력하고 콤마(,)로 구분하세요"

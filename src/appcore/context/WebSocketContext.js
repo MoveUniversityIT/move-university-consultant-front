@@ -37,7 +37,7 @@ export const WebSocketProvider = ({ children }) => {
                     setIsConnected(true);
 
                     client.subscribe('/mu/notices', (message) => {
-                        if (message.body === "새로운 공지사항 등록") {
+                        if (message.body === "공지사항") {
                             queryClient.invalidateQueries('notice');
                         }
                     });

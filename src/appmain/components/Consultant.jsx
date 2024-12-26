@@ -143,7 +143,7 @@ const Consultant = () => {
                               moveTypeCheckBoxes={moveTypeCheckBoxes}
                               setMoveTypeCheckBoxes={setMoveTypeCheckBoxes}
                 />
-                <AdditionalFunctions consultantData={consultant}/>
+                <AdditionalFunctions consultantData={consultant} items={items}/>
 
                 {hasAdminAccess && (
                     <>

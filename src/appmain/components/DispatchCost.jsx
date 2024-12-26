@@ -71,7 +71,7 @@ const DispatchCost = ({
 
         let calcEstimate = estimate.estimatePrice;
 
-        if(value === 5) {
+        if (value === 5) {
             // 반올림 처리
             calcEstimate = Math.round(calcEstimate * 100) / 100;
 
@@ -107,22 +107,22 @@ const DispatchCost = ({
             else {
                 calcEstimate = Math.round(calcEstimate / 50000) * 50000;
             }
-        }else if(1 <= value && value < 5) {
+        } else if (1 <= value && value < 5) {
             calcEstimate = minEstimate + ((midEstimate - minEstimate) / (5 - 1)) * (value - 1);
             calcEstimate = Math.round(calcEstimate / 5000) * 5000;
 
-            if(calcEstimate <= 980000) {
+            if (calcEstimate <= 980000) {
                 calcEstimate = Math.round(calcEstimate / 5000) * 5000;
-            }else {
+            } else {
                 calcEstimate = Math.round(calcEstimate / 10000) * 10000;
             }
 
-        }else if(5 < value && value <= 10) {
+        } else if (5 < value && value <= 10) {
             calcEstimate = midEstimate + ((maxEstimate - midEstimate) / (10 - 5)) * (value - 5);
 
-            if(calcEstimate <= 980000) {
+            if (calcEstimate <= 980000) {
                 calcEstimate = Math.round(calcEstimate / 5000) * 5000;
-            }else {
+            } else {
                 calcEstimate = Math.round(calcEstimate / 10000) * 10000;
             }
         }
@@ -135,9 +135,30 @@ const DispatchCost = ({
 
     const handleCheckboxChange = (itemName, itemCount, key, checked) => {
         setItems((prevItems) => {
+            const prevItem = prevItems[itemName];
+
+            // 추가 요금 계산 함수
+            const calculateAdditionalPrice = (key, checked) => {
+                let price = prevItem.baseAdditionalFee;
+
+                if (key === "requiredIsDisassembly") {
+                    price += checked ? prevItem.disassemblyAdditionalFee : 0;
+                    price += prevItem.requiredIsInstallation === "Y" ? prevItem.installationAdditionalFee : 0;
+                } else if (key === "requiredIsInstallation") {
+                    price += prevItem.requiredIsDisassembly === "Y" ? prevItem.disassemblyAdditionalFee : 0;
+                    price += checked ? prevItem.installationAdditionalFee : 0;
+                }
+
+                return price;
+            };
+
+            // 추가 요금 계산
+            const additionalPrice = calculateAdditionalPrice(key, checked);
+
             const updatedItem = {
                 ...prevItems[itemName],
                 [key]: checked ? "Y" : "N",
+                additionalPrice
             };
 
             // 태그 계산
@@ -180,74 +201,93 @@ const DispatchCost = ({
         });
     };
 
-    const handleCheckSave = (key, value) => {
-        setMoveTypeCheckBoxes({
-            ...moveTypeCheckBoxes,
-            [key]: value
-        });
-    };
-
     useEffect(() => {
         let loadTransCount = 0;
         let unloadTransCount = 0;
 
-        setCalcData({
-            totalItemCbm: dispatchAmount?.totalItemCbm ? dispatchAmount.totalItemCbm : 0,
-            transportHelperCount: dispatchAmount?.helpers
-                ? dispatchAmount.helpers.reduce((total, helper) => {
-                    if (helper.helperType === "TRANSPORT") {
-                        if (helper.loadUnloadType === "LOAD") {
-                            loadTransCount += helper.helperCount || 0;
-                        } else if (helper.loadUnloadType === "UNLOAD") {
-                            unloadTransCount += helper.helperCount || 0;
+        if (dispatchAmount && dispatchAmount.length > 0) {
+            setCalcData({
+                totalItemCbm: dispatchAmount[0]?.totalItemCbm ? dispatchAmount[0].totalItemCbm : 0,
+                transportHelperCount: dispatchAmount[0]?.helpers
+                    ? dispatchAmount[0].helpers.reduce((total, helper) => {
+                        if (helper.helperType === "TRANSPORT") {
+                            if (helper.loadUnloadType === "LOAD") {
+                                loadTransCount += helper.helperCount || 0;
+                            } else if (helper.loadUnloadType === "UNLOAD") {
+                                unloadTransCount += helper.helperCount || 0;
+                            }
+                            return Number(total) + Number(helper.helperCount || 0);
                         }
-                        return Number(total) + Number(helper.helperCount || 0);
-                    }
-                    return total;
-                }, 0)
-                - Math.min(loadTransCount, unloadTransCount)?.toLocaleString()
-                : 0,
-            cleaningHelperCount: dispatchAmount?.helpers
-                ? dispatchAmount.helpers.reduce((total, helper) => {
-                    if (helper.helperType === "PACKING_CLEANING") {
-                        return Number(total) + Number(helper.helperCount || 0);
-                    }
-                    return total
-                }, 0)?.toLocaleString()
-                : 0,
-            vehicleName: dispatchAmount?.vehicleName,
-            vehicleCount: dispatchAmount?.vehicleCount?.toLocaleString() ?? 0,
-            vehicleRoundingHalfUp: dispatchAmount?.vehicleRoundingHalfUp?.toLocaleString() ?? 0,
-            transportHelperPrice: dispatchAmount?.helpers
-                ? dispatchAmount.helpers.reduce((total, helper) => {
-                    if (helper.helperType === "TRANSPORT") {
-                        return Number(total) + Number(helper.totalHelperPrice || 0);
-                    }
-                    return total;
-                }, 0)?.toLocaleString()
-                : 0,
-            cleaningHelperPrice: dispatchAmount?.helpers
-                ? dispatchAmount.helpers.reduce((total, helper) => {
-                    if (helper.helperType === "PACKING_CLEANING") {
-                        return Number(total) + Number(helper.totalHelperPrice || 0);
-                    }
-                    return total;
-                }, 0)?.toLocaleString()
-                : 0,
-            totalCalcPrice: dispatchAmount?.totalCalcPrice?.toLocaleString() ?? 0,
-            totalLadderPrice: dispatchAmount?.totalLadderPrice?.toLocaleString() ?? 0
-        })
+                        return total;
+                    }, 0)
+                    - Math.min(loadTransCount, unloadTransCount)?.toLocaleString()
+                    : 0,
+                cleaningHelperCount: dispatchAmount[0]?.helpers
+                    ? dispatchAmount[0].helpers.reduce((total, helper) => {
+                        if (helper.helperType === "PACKING_CLEANING") {
+                            return Number(total) + Number(helper.helperCount || 0);
+                        }
+                        return total
+                    }, 0)?.toLocaleString()
+                    : 0,
+                vehicleName: dispatchAmount[0]?.vehicleName,
+                vehicleCount: dispatchAmount[0]?.vehicleCount?.toLocaleString() ?? 0,
+                vehicleRoundingHalfUp: dispatchAmount[0]?.vehicleRoundingHalfUp?.toLocaleString() ?? 0,
+                transportHelperPrice: dispatchAmount[0]?.helpers
+                    ? dispatchAmount[0].helpers.reduce((total, helper) => {
+                        if (helper.helperType === "TRANSPORT") {
+                            return Number(total) + Number(helper.totalHelperPrice || 0);
+                        }
+                        return total;
+                    }, 0)?.toLocaleString()
+                    : 0,
+                cleaningHelperPrice: dispatchAmount[0]?.helpers
+                    ? dispatchAmount[0].helpers.reduce((total, helper) => {
+                        if (helper.helperType === "PACKING_CLEANING") {
+                            return Number(total) + Number(helper.totalHelperPrice || 0);
+                        }
+                        return total;
+                    }, 0)?.toLocaleString()
+                    : 0,
+                totalCalcPrice: dispatchAmount[0]?.totalCalcPrice?.toLocaleString() ?? 0,
+                totalLadderPrice: dispatchAmount[0]?.totalLadderPrice?.toLocaleString() ?? 0
+            })
 
-        setEstimate({
-            baseCost: dispatchAmount?.estimatePrice?.baseCost || 0,
-            deposit: dispatchAmount?.estimatePrice?.deposit || 0,
-            minDeposit: dispatchAmount?.estimatePrice?.minDeposit || 0,
-            maxDeposit: dispatchAmount?.estimatePrice?.maxDeposit || 0,
-            estimatePrice: dispatchAmount?.estimatePrice?.estimatePrice || 0,
-            minEstimatePrice: dispatchAmount?.estimatePrice?.minEstimatePrice || 0,
-            maxEstimatePrice: dispatchAmount?.estimatePrice?.maxEstimatePrice || 0,
-            totalCalcPrice: dispatchAmount?.totalCalcPrice || 0,
-        })
+            setEstimate({
+                baseCost: dispatchAmount[0]?.estimatePrice?.baseCost || 0,
+                deposit: dispatchAmount[0]?.estimatePrice?.deposit || 0,
+                minDeposit: dispatchAmount[0]?.estimatePrice?.minDeposit || 0,
+                maxDeposit: dispatchAmount[0]?.estimatePrice?.maxDeposit || 0,
+                estimatePrice: dispatchAmount[0]?.estimatePrice?.estimatePrice || 0,
+                minEstimatePrice: dispatchAmount[0]?.estimatePrice?.minEstimatePrice || 0,
+                maxEstimatePrice: dispatchAmount[0]?.estimatePrice?.maxEstimatePrice || 0,
+                totalCalcPrice: dispatchAmount[0]?.totalCalcPrice || 0,
+            })
+        }else {
+            setCalcData({
+                totalItemCbm: 0,
+                transportHelperCount: 0,
+                cleaningHelperCount: 0,
+                vehicleName: '',
+                vehicleCount: 0,
+                vehicleRoundingHalfUp: 0,
+                transportHelperPrice: 0,
+                cleaningHelperPrice: 0,
+                totalCalcPrice: 0,
+                totalLadderPrice: 0
+            })
+
+            setEstimate({
+                baseCost: 0,
+                deposit: 0,
+                minDeposit: 0,
+                maxDeposit: 0,
+                estimatePrice: 0,
+                minEstimatePrice: 0,
+                maxEstimatePrice: 0,
+                totalCalcPrice: 0,
+            })
+        }
     }, [dispatchAmount]);
 
     useEffect(() => {
@@ -277,9 +317,9 @@ const DispatchCost = ({
                             <div key={key} className="flex justify-between items-center border p-2 rounded-md">
                                 <span className="font-bold text-gray-600">{dataLabel[key]}:</span>
                                 <span className="text-gray-800">
-                        {value}
+                                    {value}
                                     {unitLabel[key] ? unitLabel[key] : ""}
-                    </span>
+                                </span>
                             </div>
                         ))}
                     </div>

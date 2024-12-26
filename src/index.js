@@ -26,9 +26,7 @@ root.render(
     <Provider store={RootStore}>
         <PersistGate persistor={persistor}>
             <QueryClientProvider client={queryClient}>
-                <WebSocketProvider>
-                    <App />
-                </WebSocketProvider>
+                <App/>
             </QueryClientProvider>
         </PersistGate>
     </Provider>

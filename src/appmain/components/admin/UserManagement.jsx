@@ -122,79 +122,158 @@ const UserManagement = ({ setIsLoading }) => {
 
     const columns = [
         {
-            title: "index",
-            dataIndex: "id",
-            key: "id",
-            hidden: true
+            title: <div style={{ textAlign: 'center', fontWeight: 'bold' }}>index</div>,
+            dataIndex: 'id',
+            key: 'id',
+            hidden: true,
         },
         {
-            title: "이메일",
-            dataIndex: "email",
-            key: "email",
-            render: (text) => <span className="text-blue-600">{text}</span>,
+            title: <div style={{ textAlign: 'center', fontWeight: 'bold' }}>이메일</div>,
+            dataIndex: 'email',
+            key: 'email',
+            render: (text) => (
+                <div
+                    style={{
+                        textAlign: 'center',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        color: '#2563eb', // Tailwind "text-blue-600"
+                        fontWeight: 'bold',
+                    }}
+                >
+                    {text}
+                </div>
+            ),
         },
         {
-            title: "이름",
-            dataIndex: "name",
-            key: "name",
+            title: <div style={{ textAlign: 'center', fontWeight: 'bold' }}>이름</div>,
+            dataIndex: 'name',
+            key: 'name',
+            render: (text) => (
+                <div
+                    style={{
+                        textAlign: 'center',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                    }}
+                >
+                    {text}
+                </div>
+            ),
         },
         {
-            title: "직책",
-            dataIndex: "positionName",
-            key: "positionName",
-            render: (positionName) => positionName ? positionLabel[positionName] : ""
+            title: <div style={{ textAlign: 'center', fontWeight: 'bold' }}>직책</div>,
+            dataIndex: 'positionName',
+            key: 'positionName',
+            render: (positionName) => (
+                <div
+                    style={{
+                        textAlign: 'center',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                    }}
+                >
+                    {positionName ? positionLabel[positionName] : ''}
+                </div>
+            ),
         },
         {
-            title: "휴대폰번호",
-            dataIndex: "phoneNumber",
-            key: "phoneNumber",
+            title: <div style={{ textAlign: 'center', fontWeight: 'bold' }}>휴대폰번호</div>,
+            dataIndex: 'phoneNumber',
+            key: 'phoneNumber',
+            render: (text) => (
+                <div
+                    style={{
+                        textAlign: 'center',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                    }}
+                >
+                    {text}
+                </div>
+            ),
         },
         {
-            title: "상태",
-            dataIndex: "status",
-            key: "status",
+            title: <div style={{ textAlign: 'center', fontWeight: 'bold' }}>상태</div>,
+            dataIndex: 'status',
+            key: 'status',
             render: (status, record) => (
-                record && typeof(record.key) !== 'string'? (
-                    <Select
-                        value={status}
-                        onChange={(value) => onStatusChange(record.key, value)}
-                        style={{ width: 120 }}
-                    >
-                        {Object.keys(statusLabels).map((key) => (
-                            <Option key={key} value={key}>
-                                {statusLabels[key].text}
-                            </Option>
-                        ))}
-                    </Select>
+                record && typeof record.key !== 'string' ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <Select
+                            value={status}
+                            onChange={(value) => onStatusChange(record.key, value)}
+                            style={{ width: 120 }}
+                        >
+                            {Object.keys(statusLabels).map((key) => (
+                                <Option key={key} value={key}>
+                                    {statusLabels[key].text}
+                                </Option>
+                            ))}
+                        </Select>
+                    </div>
                 ) : (
-                    <div style={{ height: "18px" }} />
+                    <div style={{ height: '18px', textAlign: 'center' }} />
                 )
             ),
         },
         {
-            title: "생성일",
-            dataIndex: "createdAt",
-            key: "createdAt",
-            render: (createdAt) => createdAt ? dayjs(createdAt).format("YYYY-MM-DD HH:mm") : "",
+            title: <div style={{ textAlign: 'center', fontWeight: 'bold' }}>생성일</div>,
+            dataIndex: 'createdAt',
+            key: 'createdAt',
+            render: (createdAt) => (
+                <div
+                    style={{
+                        textAlign: 'center',
+                        fontSize: '0.9em',
+                        whiteSpace: 'nowrap',
+                    }}
+                >
+                    {createdAt ? dayjs(createdAt).format('YYYY-MM-DD HH:mm') : ''}
+                </div>
+            ),
         },
         {
-            title: "수정일",
-            dataIndex: "updatedAt",
-            key: "updatedAt",
-            render: (updatedAt) => updatedAt ? dayjs(updatedAt).format("YYYY-MM-DD HH:mm") : "",
+            title: <div style={{ textAlign: 'center', fontWeight: 'bold' }}>수정일</div>,
+            dataIndex: 'updatedAt',
+            key: 'updatedAt',
+            render: (updatedAt) => (
+                <div
+                    style={{
+                        textAlign: 'center',
+                        fontSize: '0.9em',
+                        whiteSpace: 'nowrap',
+                    }}
+                >
+                    {updatedAt ? dayjs(updatedAt).format('YYYY-MM-DD HH:mm') : ''}
+                </div>
+            ),
         },
         {
-            title: "상태 변경",
-            key: "action",
+            title: <div style={{ textAlign: 'center', fontWeight: 'bold' }}>상태 변경</div>,
+            key: 'action',
             render: (record) => (
                 record.status ? (
-                    <Button
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                        onClick={() => handleUpdateUser(record.id, record.status)}
-                        disabled={record.status === record.originalStatus}
-                    >
-                        수정
-                    </Button>
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <Button
+                            style={{
+                                backgroundColor: record.status === record.originalStatus ? '#d1d5db' : '#2563eb', // 비활성화: 회색, 활성화: 파란색
+                                color: record.status === record.originalStatus ? '#6b7280' : 'white', // 비활성화: 어두운 회색, 활성화: 흰색
+                                padding: '8px 16px',
+                                borderRadius: '4px',
+                                cursor: record.status === record.originalStatus ? 'not-allowed' : 'pointer', // 비활성화 시 커서 변경
+                                opacity: record.status === record.originalStatus ? 0.6 : 1, // 비활성화 시 투명도 조정
+                            }}
+                            onClick={() => handleUpdateUser(record.id, record.status)}
+                            disabled={record.status === record.originalStatus}
+                        >
+                            수정
+                        </Button>
+                    </div>
                 ) : null
             ),
         },

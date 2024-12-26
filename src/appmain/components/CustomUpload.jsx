@@ -2,23 +2,10 @@ import React from 'react';
 import {message, Upload} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 
-const CustomUpload = ({fileList, setFileList}) => {
-    const beforeUpload = file => {
-        const isImage = [
-            'image/jpeg', // JPEG
-            'image/png',  // PNG
-            'image/webp', // WEBP
-            'image/gif'   // GIF
-        ].includes(file.type);
-
-        const isAudio = [
-            'audio/mpeg', // MP3
-            'audio/wav',  // WAV
-            'audio/aac',  // AAC
-            'audio/mp4',  // MP4
-            'audio/amr',  // AMR
-            'audio/x-m4a' // M4A
-        ].includes(file.type);
+const CustomUpload = ({ fileList, setFileList }) => {
+    const beforeUpload = (file) => {
+        const isImage = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type);
+        const isAudio = ['audio/mpeg', 'audio/wav', 'audio/aac', 'audio/mp4', 'audio/amr', 'audio/x-m4a'].includes(file.type);
 
         if (!isImage && !isAudio) {
             message.error('이미지(JPG, PNG, WEBP, GIF) 또는 오디오(MP3, WAV, AAC, MP4, M4A, AMR) 파일만 업로드 가능합니다.');
@@ -40,7 +27,7 @@ const CustomUpload = ({fileList, setFileList}) => {
             setFileList((current) => [
                 ...current,
                 {
-                    uid: file.uid,
+                    uid: file.uid || `${Date.now()}`,
                     name: file.name,
                     status: 'done',
                     url: filePreview,
@@ -82,8 +69,9 @@ const CustomUpload = ({fileList, setFileList}) => {
             message.error("지원되지 않는 파일 형식입니다.");
         }
     };
-    const onRemove = file => {
-        setFileList(current => current.filter(f => f.uid !== file.uid));
+
+    const onRemove = (file) => {
+        setFileList((current) => current.filter((f) => f.uid !== file.uid));
     };
 
     return (
@@ -96,11 +84,11 @@ const CustomUpload = ({fileList, setFileList}) => {
             onPreview={handlePreview}
         >
             <div>
-                <PlusOutlined/>
+                <PlusOutlined />
                 <div className="mt-1">Upload</div>
             </div>
         </Upload>
-    )
-}
+    );
+};
 
 export default CustomUpload;

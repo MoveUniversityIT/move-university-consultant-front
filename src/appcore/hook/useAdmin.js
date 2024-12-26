@@ -1,8 +1,8 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
 import {
     getDifficulty,
-    getDifficultyList,
-    getUserManagement,
+    getDifficultyList, getNotice,
+    getUserManagement, patchNotice,
     patchUserInfo,
     postDifficulty,
     postNotice
@@ -57,7 +57,38 @@ export const useDifficultyLevelList = (page) => {
     })
 }
 
+export const useGetNotices = () => {
+    return useQuery({
+        queryKey: ['notice'],
+        staleTime: 0,
+        queryFn: () => getNotice(),
+        retry: false,
+    })
+}
+
 export const usePostNotice = () => {
+    return useMutation({
+        mutationFn: (noticeForm) => postNotice(noticeForm),
+        retry: false,
+        onError: (error) => {
+            const errorMessage = error.errorMessage || "공지사항 등록에 실패했습니다.";
+            alert(`API 요청 오류: ${errorMessage}`)
+        },
+    })
+}
+
+export const useUpdateNotice = () => {
+    return useMutation({
+        mutationFn: (noticeForm) => patchNotice(noticeForm),
+        retry: false,
+        onError: (error) => {
+            const errorMessage = error.errorMessage || "공지사항 수정에 실패했습니다.";
+            alert(`API 요청 오류: ${errorMessage}`)
+        },
+    })
+}
+
+export const useDeleteNotice = () => {
     return useMutation({
         mutationFn: (noticeForm) => postNotice(noticeForm),
         retry: false,

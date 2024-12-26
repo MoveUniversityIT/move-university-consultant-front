@@ -29,10 +29,7 @@ const Qna = () => {
                 postQnaDelete(key, {
                     onSuccess: () => refetch(),
                 });
-            },
-            onCancel() {
-                console.log("삭제 취소됨");
-            },
+            }
         });
     };
 

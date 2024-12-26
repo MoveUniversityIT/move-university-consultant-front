@@ -4,7 +4,7 @@ import {useSpecialDay} from "@hook/useConsultant";
 import dayjs from "dayjs";
 import koKR from 'antd/es/date-picker/locale/ko_KR';
 
-const CustomDatePicker = ({dateCheckList, requestDate, handleDateChange}) => {
+const CustomDatePicker = ({label, dateCheckList, requestDate, handleDateChange}) => {
     const {mutate: dateMutate} = useSpecialDay();
     const [noHandsDaysByYear, setNoHandsDaysByYear] = useState({});
     const [prevYear, setPrevYear] = useState(dayjs(new Date(), 'YYYY').year());
@@ -103,7 +103,7 @@ const CustomDatePicker = ({dateCheckList, requestDate, handleDateChange}) => {
         <>
             <div className="flex items-center justify-between mb-0.5">
                 <label className="text-sm font-medium text-gray-700 block mr-2">
-                    요청일:
+                    {label}
                 </label>
                 <Legend isVisible={dateCheckList.includes("NO_HANDS_SON")}/>
             </div>

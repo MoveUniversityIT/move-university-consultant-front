@@ -66,6 +66,8 @@ const MoveInfo = ({
     const [reservationId, setReservationId] = useState(null);
     const [client, setClient] = useState({key: 0, value: '이사대학'});
     const [moveType, setMoveType] = useState(null);
+    const [storageMoveType, setStorageMoveType] = useState(null);
+
     const [vehicleType, setVehicleType] = useState({key: 1, value: '카고'});
     const [vehicleTonnage, setVehicleTonnage] = useState(1);
     const [vehicleCount, setVehicleCount] = useState(null);
@@ -91,6 +93,7 @@ const MoveInfo = ({
     const [showUnloadAddressList, setShowUnloadAddressList] = useState(false);
 
     const [isTogether, setIsTogether] = useState(false);
+    const [isAlone, setIsAlone] = useState(false);
 
     const [suggestions, setSuggestions] = useState([]);
 
@@ -98,6 +101,13 @@ const MoveInfo = ({
 
     const [requestDate, setRequestDate] = useState(dayjs(new Date()));
     const [requestTime, setRequestTime] = useState(dayjs('08:00', 'HH:mm'));
+
+    const [storageLoadRequestDate, setStorageLoadRequestDate] = useState(dayjs(new Date()));
+    const [storageLoadRequestTime, setStorageLoadRequestTime] = useState(dayjs('08:00', 'HH:mm'));
+
+    const [storageUnloadRequestDate, setStorageUnloadRequestDate] = useState(dayjs(new Date()));
+    const [storageUnloadRequestTime, setStorageUnloadRequestTime] = useState(dayjs('08:00', 'HH:mm'));
+
     const [locationInfo, setLocationInfo] = useState({
         startX: null, startY: null, endX: null, endY: null
     });
@@ -129,7 +139,8 @@ const MoveInfo = ({
 
     const [calcConsultantData, setCalcConsultantData] = useState(null);
     const [dateCheckList, setDateCheckList] = useState([]);
-
+    const [storageLoadDateCheckList, setStorageLoadDateCheckList] = useState([]);
+    const [storageUnloadDateCheckList, setStorageUnloadDateCheckList] = useState([]);
 
     const [isFormValid, setIsFormValid] = useState(false);
 
@@ -267,7 +278,7 @@ const MoveInfo = ({
         }
     }, [roadDistanceData]);
 
-    // 요청시간, 요청일 start
+    // 요청시간
     const handleDateChange = (isNoHandsSon) => (date) => {
         if (isNoHandsSon) {
             setDateCheckList(["NO_HANDS_SON"]);
@@ -278,43 +289,171 @@ const MoveInfo = ({
         setRequestDate(date);
     };
 
+    const handleStorageLoadDateChange = (isNoHandsSon) => (date) => {
+        if (isNoHandsSon) {
+            setStorageLoadDateCheckList(["NO_HANDS_SON"]);
+        } else {
+            setStorageLoadDateCheckList([]);
+        }
+
+        setStorageLoadRequestDate(date);
+    };
+
+    const handleStorageUnloadDateChange = (isNoHandsSon) => (date) => {
+        if (isNoHandsSon) {
+            setStorageUnloadDateCheckList(["NO_HANDS_SON"]);
+        } else {
+            setStorageUnloadDateCheckList([]);
+        }
+
+        setStorageUnloadRequestDate(date);
+    };
+
     const handleTimeChange = (time) => {
         setRequestTime(time);
     };
 
-    // 요청시간, 요청일 end
-    const removeTerm = (searchTerm, termsToRemove) => {
-        const regex = new RegExp(`(,\\s*|^\\s*)(${termsToRemove.join('|')})(,\\s*|$)`, 'g');
-        return searchTerm.replace(regex, (_, prefix, term, suffix) => {
-            return prefix === ',' && suffix === ',' ? ',' : ''; // 양쪽이 콤마일 경우 콤마 유지
-        }).trim();
+    const handleStorageLoadTimeChange = (time) => {
+        setStorageLoadRequestTime(time);
     };
 
-    const handleMoveTypeChange = (value, option) => {
-        setMoveType({key: option.key, value});
+    const handleStorageUnloadTimeChange = (time) => {
+        setStorageUnloadRequestTime(time);
+    };
+
+    const handleMoveTypeChange = (setter) => (value, option) => {
+        setter({ key: option.key, value });
+
+        const itemMapping = {
+            '박스(필요)': '박스(포장됨)',
+            '바구니(필요)': '바구니(포장됨)',
+        };
+
+        const reverseMapping = {
+            '박스(포장됨)': '박스(필요)',
+            '바구니(포장됨)': '바구니(필요)',
+        };
+
+        let updatedItems = { ...items };
 
         if (value === '단순운송' || value === '일반이사') {
-            const updatedItems = {...items};
-            const excludedItemNames = [];
-
             Object.keys(updatedItems).forEach((key) => {
-                const item = updatedItems[key]?.itemName;
-                if (['박스(필요)', '바구니(필요)'].some((exclude) => item === exclude)) {
-                    excludedItemNames.push(item);
-                    delete updatedItems[key];
+                const currentItem = updatedItems[key];
+                const itemName = currentItem?.itemName;
+                const itemCount = currentItem?.itemCount || 1;
+
+                if (itemName in itemMapping) {
+                    const newItemName = itemMapping[itemName];
+
+                    const existingKey = Object.keys(updatedItems).find(
+                        (k) => updatedItems[k]?.itemName === newItemName
+                    );
+
+                    if (existingKey) {
+                        updatedItems[existingKey] = {
+                            ...updatedItems[existingKey],
+                            itemCount: (updatedItems[existingKey]?.itemCount || 0) + itemCount,
+                            neededCount: itemCount,
+                        };
+                    } else {
+                        updatedItems[newItemName] = {
+                            ...currentItem,
+                            itemName: newItemName,
+                            neededCount: itemCount,
+                        };
+                    }
+
+                    currentItem.itemCount -= itemCount;
+
+                    if (currentItem.itemCount <= 0) {
+                        delete updatedItems[key];
+                    } else {
+                        delete currentItem.neededCount;
+                    }
                 }
             });
+        } else {
+            Object.keys(updatedItems).forEach((key) => {
+                const currentItem = updatedItems[key];
+                const itemName = currentItem?.itemName;
+                const itemCount = currentItem?.itemCount || 1;
 
-            setSearchItemTerm((prevSearchItemTerm) => {
-                const terms = prevSearchItemTerm.split(',').map((term) => term.trim());
-                const filteredTerms = terms.filter((term) => {
-                    return !excludedItemNames.some((excludedItem) => term.startsWith(excludedItem));
-                });
-                return filteredTerms.join(', ').trim();
+                if (itemName in reverseMapping && currentItem?.neededCount) {
+                    const originalItemName = reverseMapping[itemName];
+                    const neededCount = currentItem.neededCount;
+
+                    const existingKey = Object.keys(updatedItems).find(
+                        (k) => updatedItems[k]?.itemName === originalItemName
+                    );
+
+                    if (existingKey) {
+                        updatedItems[existingKey] = {
+                            ...updatedItems[existingKey],
+                            itemCount: (updatedItems[existingKey]?.itemCount || 0) + neededCount,
+                        };
+                    } else {
+                        updatedItems[originalItemName] = {
+                            ...currentItem,
+                            itemName: originalItemName,
+                            itemCount: neededCount,
+                        };
+                    }
+
+                    currentItem.itemCount -= neededCount;
+
+                    if (currentItem.itemCount <= 0) {
+                        delete updatedItems[key];
+                    } else {
+                        delete currentItem.neededCount;
+                    }
+                }
             });
-
-            setItems(updatedItems);
         }
+
+        // 정렬 로직 추가: 특정 항목만 뒤로 이동
+        updatedItems = Object.fromEntries(
+            Object.entries(updatedItems).sort(([keyA, valueA], [keyB, valueB]) => {
+                const targetItems = ['박스(포장됨)', '박스(필요)', '바구니(포장됨)', '바구니(필요)'];
+
+                // valueA와 valueB의 itemName이 targetItems에 포함되는지 확인
+                const indexA = targetItems.indexOf(valueA.itemName);
+                const indexB = targetItems.indexOf(valueB.itemName);
+
+                // 둘 다 targetItems에 포함되지 않은 경우 기존 순서 유지
+                if (indexA === -1 && indexB === -1) return 0;
+
+                // A만 targetItems에 포함되면 B가 앞쪽으로 이동
+                if (indexA === -1) return -1;
+
+                // B만 targetItems에 포함되면 A가 앞쪽으로 이동
+                if (indexB === -1) return 1;
+
+                // 둘 다 targetItems에 포함된 경우, targetItems 배열의 순서에 따라 정렬
+                return indexA - indexB;
+            })
+        );
+
+        // 검색어 업데이트
+        const updatedSearchTerms = Object.values(updatedItems)
+            .map((item) => {
+                let tags = '';
+
+                // 조건에 따라 tags 값 설정
+                if (item?.requiredIsDisassembly === "Y" && item?.requiredIsInstallation === "Y") {
+                    tags = "[분조]";
+                } else if (item?.requiredIsDisassembly === "Y") {
+                    tags = "[분]";
+                } else if (item?.requiredIsInstallation === "Y") {
+                    tags = "[조]";
+                }
+
+                // itemName 뒤에 tags 및 itemCount 처리
+                return `${item.itemName}${tags}${item.itemCount <= 1 ? '' : item.itemCount}`;
+            })
+            .join(', ');
+
+        setSearchItemTerm(updatedSearchTerms);
+        setItems(updatedItems);
     };
 
     const updateWorkerCount = (type, value) => {
@@ -337,13 +476,37 @@ const MoveInfo = ({
         if (_.isEmpty(unloadMethod)) emptyFields.push("하차 방법");
         if (_.isNull(unloadFloor)) emptyFields.push("하차 층수");
         if (_.isEmpty(items)) emptyFields.push("선택된 아이템");
-        if (_.isEmpty(requestDate)) emptyFields.push("요청 날짜");
-        if (_.isEmpty(requestTime)) emptyFields.push("요청 시간");
         if (_.isEmpty(vehicleType)) emptyFields.push("차량 종류");
         if (_.isEmpty(moveType)) emptyFields.push("이사 종류");
 
         if (_.isEmpty(loadCityCode)) emptyFields.push("상차지 법정동 코드");
         if (_.isEmpty(unloadCityCode)) emptyFields.push("하차지 법정동 코드");
+
+        if (moveType?.value === "보관이사") {
+            // 포장이사의 경우, 포장할 박스 여부 확인
+            if (storageMoveType?.value === "포장이사" && items) {
+                const hasPackingBox = Object.values(items).some((item) => item.itemName === "박스(필요)");
+
+                if (!hasPackingBox) {
+                    message.error({
+                        content: "포장이사의 경우 박스(필요) 물품이 존재해야 합니다.",
+                        key: 'packingBox',
+                        duration: 3,
+                    });
+
+                    return false;
+                }
+            }
+
+            if (_.isEmpty(storageMoveType)) emptyFields.push("보관이사 종류");
+            if (_.isEmpty(storageLoadRequestDate)) emptyFields.push("보관이사 상차 요청 날짜");
+            if (_.isEmpty(storageLoadRequestTime)) emptyFields.push("요청 시간");
+            if (_.isEmpty(storageLoadRequestDate)) emptyFields.push("요청 날짜");
+            if (_.isEmpty(storageLoadRequestTime)) emptyFields.push("요청 시간");
+        }else {
+            if (_.isEmpty(requestDate)) emptyFields.push("요청 날짜");
+            if (_.isEmpty(requestTime)) emptyFields.push("요청 시간");
+        }
 
         // 포장이사의 경우, 포장할 박스 여부 확인
         if (moveType?.value === "포장이사" && items) {
@@ -361,13 +524,6 @@ const MoveInfo = ({
         }
 
         if (emptyFields.length > 0) {
-            // notification.error({
-            //     message: "필수 입력 항목 누락",
-            //     description: `다음 필드를 입력해주세요: ${emptyFields.join(", ")}`,
-            //     placement: "top",
-            //     style: {width: "700px", margin: "0 auto"},
-            //     duration: 5,
-            // });
             return false;
         }
         return true;
@@ -399,8 +555,15 @@ const MoveInfo = ({
         setMoveType(null);
         setRequestDate(dayjs(new Date()));
         setRequestTime(dayjs('08:00', 'HH:mm'));
-        setIsTogether(false);
 
+        setStorageMoveType(null);
+        setStorageLoadRequestDate(dayjs(new Date()));
+        setStorageLoadRequestTime(dayjs('08:00', 'HH:mm'));
+        setStorageUnloadRequestDate(dayjs(new Date()));
+        setStorageUnloadRequestTime(dayjs('08:00', 'HH:mm'));
+
+        setIsTogether(false);
+        setIsAlone(false);
         setVehicleType({key: 1, value: '카고'});
         setVehicleTonnage(1);
         setVehicleCount(null);
@@ -456,7 +619,15 @@ const MoveInfo = ({
             moveType: JSON.stringify(moveType),               // 이사 종류
             requestDate: requestDate.format("YYYY-MM-DD"),
             requestTime: requestTime.format("HH:mm"),
+
+            storageMoveType: JSON.stringify(storageMoveType),
+            storageLoadRequestDate: storageLoadRequestDate.format("YYYY-MM-DD"),
+            storageLoadRequestTime: storageLoadRequestTime.format("HH:mm"),
+            storageUnloadRequestDate: storageUnloadRequestDate.format("YYYY-MM-DD"),
+            storageUnloadRequestTime: storageUnloadRequestTime.format("HH:mm"),
+
             isTogether,
+            isAlone,
             vehicleType: JSON.stringify(vehicleType), // 필요 시 문자열로 변환
             vehicleTonnage,         // 톤수
             vehicleCount,
@@ -517,15 +688,25 @@ const MoveInfo = ({
             carry_type_start = 3;
         }
 
+        if(!dispatchAmount || dispatchAmount.length < 1) {
+            message.error({
+                content: "배차 금액 조회 후 다시 시도해주세요.",
+                key: 'saveGongcha',
+                duration: 3,
+            });
+
+            return;
+        }
+
         // 총 배차가격
-        const totalCalcPrice = dispatchAmount?.totalCalcPrice ?? 0;
+        const totalCalcPrice = dispatchAmount[0]?.totalCalcPrice ?? 0;
 
         // 한대 차량가격
-        const vehicleRoundingHalfUp = dispatchAmount?.vehicleRoundingHalfUp ?? 0;
+        const vehicleRoundingHalfUp = dispatchAmount[0]?.vehicleRoundingHalfUp ?? 0;
 
         // 인부 수량
-        const transportHelperCount = dispatchAmount?.helpers
-            ? dispatchAmount.helpers.reduce((total, helper) => {
+        const transportHelperCount = dispatchAmount[0]?.helpers
+            ? dispatchAmount[0].helpers.reduce((total, helper) => {
                 if (helper.helperType === "TRANSPORT") {
                     if (helper.loadUnloadType === "LOAD") {
                         loadTransCount += helper.helperCount || 0;
@@ -539,8 +720,8 @@ const MoveInfo = ({
             - Math.min(loadTransCount, unloadTransCount)?.toLocaleString()
             : 0;
 
-        const cleaningHelperCount = dispatchAmount?.helpers
-            ? dispatchAmount.helpers.reduce((total, helper) => {
+        const cleaningHelperCount = dispatchAmount[0]?.helpers
+            ? dispatchAmount[0].helpers.reduce((total, helper) => {
                 if (helper.helperType === "PACKING_CLEANING") {
                     return Number(total) + Number(helper.helperCount || 0);
                 }
@@ -549,8 +730,8 @@ const MoveInfo = ({
             : 0;
 
         // 추가 인부가격
-        const transportHelperPrice = dispatchAmount?.helpers
-            ? dispatchAmount.helpers.reduce((total, helper) => {
+        const transportHelperPrice = dispatchAmount[0]?.helpers
+            ? dispatchAmount[0].helpers.reduce((total, helper) => {
                 if (helper?.helperType === "TRANSPORT") {
                     return Number(total) + Number(helper?.totalHelperPrice || 0);
                 }
@@ -559,8 +740,8 @@ const MoveInfo = ({
             : 0;
 
         // 추가 이모가격
-        const cleaningHelperPrice = dispatchAmount?.helpers
-            ? dispatchAmount.helpers.reduce((total, helper) => {
+        const cleaningHelperPrice = dispatchAmount[0]?.helpers
+            ? dispatchAmount[0].helpers.reduce((total, helper) => {
                 if (helper?.helperType === "PACKING_CLEANING") {
                     return Number(total) + Number(helper?.totalHelperPrice || 0);
                 }
@@ -568,7 +749,7 @@ const MoveInfo = ({
             }, 0)?.toLocaleString()
             : 0
 
-        const head_count = Number(dispatchAmount?.vehicleCount) + Number(transportHelperCount) + Number(cleaningHelperCount);
+        const head_count = Number(dispatchAmount[0]?.vehicleCount) + Number(transportHelperCount) + Number(cleaningHelperCount);
 
         const dispatch_memo = `총 배차가격: ${totalCalcPrice?.toLocaleString()}, 한대 차량가격: ${vehicleRoundingHalfUp.toLocaleString()}, 추가 인부 가격: ${transportHelperPrice}, 추가 이모 가격: ${cleaningHelperPrice}`;
 
@@ -591,7 +772,7 @@ const MoveInfo = ({
             is_ride_sharing: isTogether,
             required_car_type: vehicleType?.value,
             required_car_ton: vehicleTonnage?.toString(),
-            number_of_car_actual: dispatchAmount?.vehicleCount,
+            number_of_car_actual: dispatchAmount[0]?.vehicleCount,
             head_count: head_count,
             goods_name: searchItemTerm,
             memo_dispatch: searchSpecialItemTerm,
@@ -654,9 +835,19 @@ const MoveInfo = ({
             setLocationInfo(reservationData?.locationInfo ?? {endY: null, endX: null, startY: null, startX: null});
 
             setMoveType(reservationData?.moveType ?? null);
+            setStorageMoveType(reservationData?.storageMoveType ?? null);
+
             setRequestDate(dayjs(reservationData.requestDate) ?? dayjs(new Date()));
             setRequestTime(dayjs(reservationData.requestTime, "HH:mm") ?? dayjs('08:00', 'HH:mm'));
+
+            setStorageLoadRequestDate(dayjs(reservationData.storageLoadRequestDate) ?? dayjs(new Date()));
+            setStorageLoadRequestTime(dayjs(reservationData.storageLoadRequestTime, "HH:mm") ?? dayjs('08:00', 'HH:mm'));
+
+            setStorageUnloadRequestDate(dayjs(reservationData.storageUnloadRequestDate) ?? dayjs(new Date()));
+            setStorageUnloadRequestTime(dayjs(reservationData.storageUnloadRequestTime, "HH:mm") ?? dayjs('08:00', 'HH:mm'));
+
             setIsTogether(reservationData?.isTogether ?? false);
+            setIsAlone(reservationData?.isAlone ?? false);
 
             setVehicleType(reservationData?.vehicleType ?? null);
             setVehicleTonnage(reservationData?.vehicleTonnage ?? {key: 1, value: '카고'});
@@ -677,16 +868,17 @@ const MoveInfo = ({
         }
     }, [reservationData]);
 
-    useEffect(() => {
-        if (consultantDataForm) {
-            consultantDataForm["moveTypeIds"] = moveTypeCheckBoxes;
-
-            calcListsMutate(consultantDataForm, {
-                onSuccess: (data) => {
-                },
-            })
-        }
-    }, [consultantDataForm]);
+    // TODO - 나중에 여러 이사종류 표기할때 사용할 메서드
+    // useEffect(() => {
+    //     if (consultantDataForm) {
+    //         consultantDataForm["moveTypeIds"] = moveTypeCheckBoxes;
+    //
+    //         calcListsMutate(consultantDataForm, {
+    //             onSuccess: (data) => {
+    //             },
+    //         })
+    //     }
+    // }, [consultantDataForm]);
 
     useEffect(() => {
         if (isNewMoveInfo) {
@@ -718,19 +910,29 @@ const MoveInfo = ({
                 vehicleName: vehicleType.value,
                 vehicleCount,
                 distance,
+
                 requestDate: requestDate.format("YYYY-MM-DD") || null,
                 requestTime: requestTime.format("HH:mm") || null,
+
+                storageMoveTypeId: storageMoveType?.key ?? null,
+                storageMoveTypeName: storageMoveType?.value ?? null,
+                storageLoadRequestDate: storageLoadRequestDate.format("YYYY-MM-DD") || null,
+                storageLoadRequestTime: storageLoadRequestTime.format("HH:mm") || null,
+                storageUnloadRequestDate: storageUnloadRequestDate.format("YYYY-MM-DD") || null,
+                storageUnloadRequestTime: storageUnloadRequestTime.format("HH:mm") || null,
+
                 items,
                 specialItems,
                 totalItemCbm,
                 employHelperPeople: helpers,
-                isTogether
+                isTogether,
+                isAlone
             };
 
             const packingCleaningKey = "packing-cleaning-warning";
             const transportKey = "transport-warning";
 
-            if (moveType.value !== '포장이사') {
+            if (moveType.value !== '포장이사' || storageMoveType?.value !== '포장이사') {
                 const packingCleaningHelper = helpers.find(helper => helper.helperType === 'PACKING_CLEANING');
                 const peopleCount = packingCleaningHelper ? packingCleaningHelper.peopleCount : 0;
 
@@ -785,10 +987,16 @@ const MoveInfo = ({
         distance,
         requestDate,
         requestTime,
+        storageMoveType,
+        storageLoadRequestDate,
+        storageLoadRequestTime,
+        storageUnloadRequestDate,
+        storageUnloadRequestTime,
         items,
         specialItems,
         helpers,
-        isTogether
+        isTogether,
+        isAlone
     ]);
 
     useEffect(() => {
@@ -999,7 +1207,8 @@ const MoveInfo = ({
                                          <div className="text-sm">
                                              <strong>박스(필요), 바구니(필요) 기준:</strong> <br/>
                                              1대: 15박스, 2대: 27박스, 3대: 39박스, 4대: 51박스 <br/>
-                                             <strong>추가:</strong> 첫 대는 <strong>15박스</strong>, 이후 <strong>+12박스</strong>씩
+                                             <strong>추가:</strong> 첫 대는 <strong>15박스</strong>,
+                                             이후 <strong>+12박스</strong>씩
                                              추가. <br/>
                                              <span className="text-red-500">※ 박스 수 차이가 클 경우 금액이 달라질 수 있습니다.</span>
                                          </div>
@@ -1008,14 +1217,16 @@ const MoveInfo = ({
                             >
                                 <InfoCircleOutlined className="text-orange-400 cursor-pointer"/>
                             </Tooltip>
-                            <label className="text-sm font-medium text-gray-700 mb-1 block">이사종류:</label>
+                            <label className="text-sm font-medium text-gray-700 mb-1 block">이사 종류:</label>
                         </div>
                         <Select
                             placeholder="예: 단순운송"
                             value={moveType?.value}
-                            onChange={handleMoveTypeChange}
+                            onChange={handleMoveTypeChange(setMoveType)}
                         >
-                            {consultantData.moveTypes.map((moveType) => (
+                            {consultantData.moveTypes
+                                .filter((moveType) => moveType.moveTypeName !== "보관이사")
+                                .map((moveType) => (
                                 <Option key={moveType.moveTypeId} value={moveType.moveTypeName}>
                                     {moveType.moveTypeName}
                                 </Option>
@@ -1026,21 +1237,22 @@ const MoveInfo = ({
 
                 <Form.Item className="flex-1 !mb-1">
                     <CustomDatePicker
-                        dateCheckList={dateCheckList}
-                        requestDate={requestDate}
-                        handleDateChange={handleDateChange}
+                        label={moveType?.value !== '보관이사' ? "요청일:" : "상차 요청일:"}
+                        dateCheckList={moveType?.value !== '보관이사' ? dateCheckList : storageLoadDateCheckList}
+                        requestDate={moveType?.value !== '보관이사' ? requestDate : storageLoadRequestDate}
+                        handleDateChange={moveType?.value !== '보관이사' ? handleDateChange : handleStorageLoadDateChange}
                     />
                 </Form.Item>
 
                 <Form.Item className="flex-1 !mb-1">
-                    <label className="text-sm font-medium text-gray-700 mb-1 block">요청시간:</label>
+                    <label className="text-sm font-medium text-gray-700 mb-1 block">{moveType?.value !== '보관이사' ? "요청 시간:" : "상차 요청 시간:"}</label>
                     <TimePicker
                         className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        value={requestTime}
-                        onChange={handleTimeChange}
+                        value={moveType?.value !== '보관이사' ? requestTime : storageLoadRequestTime}
+                        onChange={moveType?.value !== '보관이사' ? handleTimeChange : handleStorageLoadTimeChange}
                         format="A h:mm"
                         use12Hours
-                        minuteStep={60}
+                        minuteStep={30}
                         locale={koKR}
                     />
                 </Form.Item>
@@ -1055,9 +1267,74 @@ const MoveInfo = ({
                 </Form.Item>
             </div>
 
+            {moveType?.value === '보관이사' && (
+                <div className="flex gap-2 items-start mb-1">
+                    <Form.Item className="flex-1 !mb-1">
+                        <div className="flex items-center">
+                            <Tooltip className="mr-1 mb-1"
+                                     title={
+                                         <div className="text-sm">
+                                             <strong>박스(필요), 바구니(필요) 기준:</strong> <br/>
+                                             1대: 15박스, 2대: 27박스, 3대: 39박스, 4대: 51박스 <br/>
+                                             <strong>추가:</strong> 첫 대는 <strong>15박스</strong>,
+                                             이후 <strong>+12박스</strong>씩
+                                             추가. <br/>
+                                             <span
+                                                 className="text-red-500">※ 박스 수 차이가 클 경우 금액이 달라질 수 있습니다.</span>
+                                         </div>
+                                     }
+                                     overlayStyle={{maxWidth: "400px"}}
+                            >
+                                <InfoCircleOutlined className="text-orange-400 cursor-pointer"/>
+                            </Tooltip>
+                            <label className="text-sm font-medium text-gray-700 mb-1 block">보관이사 종류:</label>
+                        </div>
+                        <Select
+                            placeholder="예: 단순운송"
+                            value={storageMoveType?.value}
+                            onChange={handleMoveTypeChange(setStorageMoveType)}
+                        >
+                            {consultantData.moveTypes
+                                .filter((moveType) => moveType.moveTypeName !== "보관이사" && moveType.moveTypeName !== "단순운송")
+                                .map((moveType) => (
+                                    <Option key={moveType.moveTypeId} value={moveType.moveTypeName}>
+                                        {moveType.moveTypeName}
+                                    </Option>
+                                ))}
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item className="flex-1 !mb-1">
+                        <CustomDatePicker
+                            label={"하차 요청일:"}
+                            dateCheckList={storageUnloadDateCheckList}
+                            requestDate={storageUnloadRequestDate}
+                            handleDateChange={handleStorageUnloadDateChange}
+                        />
+                    </Form.Item>
+
+                    <Form.Item className="flex-1 !mb-1">
+                        <label className="text-sm font-medium text-gray-700 mb-1 block">하차 요청 시간:</label>
+                        <TimePicker
+                            className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            value={storageUnloadRequestTime}
+                            onChange={handleStorageUnloadTimeChange}
+                            format="A h:mm"
+                            use12Hours
+                            minuteStep={30}
+                            locale={koKR}
+                        />
+                    </Form.Item>
+
+                    <Form.Item className="!mb-1 invisible">
+                        <div className="text-sm font-medium text-gray-700 mb-2 block">공백:</div>
+                    </Form.Item>
+                </div>
+            )}
+
             <div className="flex gap-2 items-start mb-1">
                 {consultantData?.vehicles && (
-                    <Form.Item className="flex flex-col !mb-1" style={{flex: "1.2 1 0"}}>
+                    <Form.Item className="flex flex-col !mb-1" style={{flex: "0.8 1 0"}}>
                         <label className="text-sm font-medium text-gray-700 mb-1 block">차량종류:</label>
                         <Select
                             placeholder="카고"
@@ -1140,6 +1417,28 @@ const MoveInfo = ({
                         onChange={(value) => updateWorkerCount("PACKING_CLEANING", value)}
                         placeholder="인원 수"
                         className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                </Form.Item>
+
+                <Form.Item className="!mb-1">
+                    <div className="flex items-center mb-1">
+                        <Tooltip className="mr-1"
+                                 title={
+                                     <div className="text-sm">
+                                         <strong>혼자:</strong> 물품무게로 인해 추가되는 인부 설정 무시합니다.<br/>
+                                         <span className="text-red-500">※ 추가 인부, 추가 이모 설정에는 영향을 주지 않습니다.</span>
+                                     </div>
+                                 }
+                                 overlayStyle={{maxWidth: "400px"}}
+                        >
+                            <InfoCircleOutlined className="text-orange-400 cursor-pointer"/>
+                        </Tooltip>
+                        <label className="text-sm font-medium text-gray-700 mb-1 block">혼자:</label>
+                    </div>
+                    <Checkbox
+                        checked={isAlone}
+                        onChange={(e) => setIsAlone(e.target.checked)}
+                        className="flex items-center justify-center"
                     />
                 </Form.Item>
             </div>

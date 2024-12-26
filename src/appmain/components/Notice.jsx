@@ -63,8 +63,13 @@ const Notice = ({notices, setNotices}) => {
                                 )
                             }
                         >
-                            <p className="text-gray-700">{notice.content}</p>
-                            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                            <p
+                                className="text-gray-700"
+                                style={{whiteSpace: 'pre-wrap'}}
+                            >
+                                {notice.content}
+                            </p>
+                            <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap'}}>
                                 {notice?.fileUrls.map((src, index) => (
                                     <Image
                                         key={index}

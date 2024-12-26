@@ -106,7 +106,7 @@ export const useGetNotice = (userId) => {
     return useQuery({
         queryKey: ['notice', userId],
         queryFn: () => getNotices(),
-        staleTime: Infinity,
+        staleTime: 0,
         enabled: !!userId,
         retry: false,
     })

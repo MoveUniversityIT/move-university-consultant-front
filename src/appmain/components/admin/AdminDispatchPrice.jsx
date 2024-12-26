@@ -52,7 +52,7 @@ const helperLabels = {
 };
 
 const AdminDispatchPrice = ({data, isLoading}) => {
-    const [dispatchData, setDispatchData] = useState({});
+    const [dispatchData, setDispatchData] = useState([{}]);
 
     useEffect(() => {
         if (data) {
@@ -91,10 +91,10 @@ const AdminDispatchPrice = ({data, isLoading}) => {
     const totalDataSource = Object.keys(totalLabels).map((key, index) => ({
         key: index,
         label: totalLabels[key],
-        value: dispatchData[key] !== undefined
+        value: dispatchData[0][key] !== undefined
             ? key === 'totalItemCbm' ?
-                `${dispatchData[key]?.toLocaleString()}`
-                : `${dispatchData[key]?.toLocaleString()} 원`
+                `${dispatchData[0][key]?.toLocaleString()}`
+                : `${dispatchData[0][key]?.toLocaleString()} 원`
             : null
     }));
 
@@ -117,12 +117,12 @@ const AdminDispatchPrice = ({data, isLoading}) => {
     const mainDataSource = Object.keys(labels).map((key, index) => ({
         key: index,
         label: labels[key],
-        value: dispatchData[key] !== undefined
-            ? typeof dispatchData[key] === 'number'
+        value: dispatchData[0][key] !== undefined
+            ? typeof dispatchData[0][key] === 'number'
                 ? percentFields.includes(key)
-                    ? `${dispatchData[key]?.toLocaleString()}%`
-                    : `${dispatchData[key]?.toLocaleString()}`
-                : dispatchData[key]
+                    ? `${dispatchData[0][key]?.toLocaleString()}%`
+                    : `${dispatchData[0][key]?.toLocaleString()}`
+                : dispatchData[0][key]
             : null
     }));
 
@@ -160,8 +160,8 @@ const AdminDispatchPrice = ({data, isLoading}) => {
         }
     ];
 
-    const helperDataSource = dispatchData.helpers
-        ? dispatchData.helpers.map((helper, index) => ({
+    const helperDataSource = dispatchData[0].helpers
+        ? dispatchData[0].helpers.map((helper, index) => ({
             key: index,
             ...helper
         }))

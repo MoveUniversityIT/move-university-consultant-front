@@ -29,8 +29,21 @@ export const getDifficultyList = async (page) => {
     return response?.data
 }
 
+export const getNotice = async () => {
+    const response = await API.get('/admin/notice');
+
+    return response?.data;
+}
+
 export const postNotice = async (noticeForm) => {
     const response = await API.post('/admin/notice', noticeForm);
+
+    return response?.data;
+}
+
+export const patchNotice = async (noticeForm) => {
+    const { id, data } = noticeForm;
+    const response = await API.patch(`/admin/notice/${id}`, data);
 
     return response?.data;
 }
