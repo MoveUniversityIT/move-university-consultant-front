@@ -630,18 +630,6 @@ const ItemSearch = ({
                     <Button
                         type="default"
                         size="small"
-                        onClick={() => handleSort("itemName", "asc")}
-                        icon={<SortDescendingOutlined/>}
-                        style={{
-                            backgroundColor: "#fff1f0",
-                            color: "#ff4d4f",
-                            borderColor: "#ffa39e",
-                        }}
-                        className="ml-1"
-                    />
-                    <Button
-                        type="default"
-                        size="small"
                         onClick={() => handleSort("itemName", "desc")}
                         icon={<SortAscendingOutlined/>}
                         style={{
