@@ -322,7 +322,7 @@ const MoveInfo = ({
     };
 
     const handleMoveTypeChange = (setter) => (value, option) => {
-        setter({ key: option.key, value });
+        setter({key: option.key, value});
 
         const itemMapping = {
             '박스(필요)': '박스(포장됨)',
@@ -334,7 +334,7 @@ const MoveInfo = ({
             '바구니(포장됨)': '바구니(필요)',
         };
 
-        let updatedItems = { ...items };
+        let updatedItems = {...items};
 
         if (value === '단순운송' || value === '일반이사') {
             Object.keys(updatedItems).forEach((key) => {
@@ -503,7 +503,7 @@ const MoveInfo = ({
             if (_.isEmpty(storageLoadRequestTime)) emptyFields.push("요청 시간");
             if (_.isEmpty(storageLoadRequestDate)) emptyFields.push("요청 날짜");
             if (_.isEmpty(storageLoadRequestTime)) emptyFields.push("요청 시간");
-        }else {
+        } else {
             if (_.isEmpty(requestDate)) emptyFields.push("요청 날짜");
             if (_.isEmpty(requestTime)) emptyFields.push("요청 시간");
         }
@@ -688,7 +688,7 @@ const MoveInfo = ({
             carry_type_start = 3;
         }
 
-        if(!dispatchAmount || dispatchAmount.length < 1) {
+        if (!dispatchAmount || dispatchAmount.length < 1) {
             message.error({
                 content: "배차 금액 조회 후 다시 시도해주세요.",
                 key: 'saveGongcha',
@@ -1227,10 +1227,10 @@ const MoveInfo = ({
                             {consultantData.moveTypes
                                 .filter((moveType) => moveType.moveTypeName !== "보관이사")
                                 .map((moveType) => (
-                                <Option key={moveType.moveTypeId} value={moveType.moveTypeName}>
-                                    {moveType.moveTypeName}
-                                </Option>
-                            ))}
+                                    <Option key={moveType.moveTypeId} value={moveType.moveTypeName}>
+                                        {moveType.moveTypeName}
+                                    </Option>
+                                ))}
                         </Select>
                     </Form.Item>
                 )}
@@ -1245,7 +1245,8 @@ const MoveInfo = ({
                 </Form.Item>
 
                 <Form.Item className="flex-1 !mb-1">
-                    <label className="text-sm font-medium text-gray-700 mb-1 block">{moveType?.value !== '보관이사' ? "요청 시간:" : "상차 요청 시간:"}</label>
+                    <label
+                        className="text-sm font-medium text-gray-700 mb-1 block">{moveType?.value !== '보관이사' ? "요청 시간:" : "상차 요청 시간:"}</label>
                     <TimePicker
                         className="w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         value={moveType?.value !== '보관이사' ? requestTime : storageLoadRequestTime}
@@ -1570,13 +1571,23 @@ const MoveInfo = ({
                 <div className="flex space-x-2">
                     <Button
                         className="px-5 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
-                        onClick={() =>
+                        onClick={() => {
+                            if (!dispatchAmount || dispatchAmount.length < 1) {
+                                message.error({
+                                    content: "배차 금액 조회 후 다시 시도해주세요.",
+                                    key: 'saveGongcha',
+                                    duration: 3,
+                                });
+
+                                return;
+                            }
+
                             confirmAction(
                                 "공차등록 확인",
                                 "정말로 이 데이터를 공차에 등록하시겠습니까?",
                                 handleSaveGongcha
                             )
-                        }
+                        }}
                     >
                         공차등록
                     </Button>
