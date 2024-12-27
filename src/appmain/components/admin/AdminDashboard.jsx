@@ -9,6 +9,7 @@ import SystemManagement from "@component/admin/SystemManagement";
 import {FaBullhorn, FaQuestionCircle} from "react-icons/fa";
 import Qna from "@component/mindMap/Qna";
 import ProtectedRoute from "@/appcore/routes/ProtectedRoute";
+import SalesQna from "@component/mindMap/SalesQna";
 
 const AdminDashboard = () => {
     const [activeMenu, setActiveMenu] = useState('userManagement');
@@ -39,6 +40,11 @@ const AdminDashboard = () => {
                     icon: <FaQuestionCircle />,
                     label: 'QnA 설정',
                 },
+                {
+                    key: 'salesQnaRegistration',
+                    icon: <FaQuestionCircle />,
+                    label: '영업 QnA 설정',
+                },
             ],
         },
     ];
@@ -55,6 +61,12 @@ const AdminDashboard = () => {
                 return (
                     <ProtectedRoute requiredRoles={["ROLE_ADMIN"]}>
                         <Qna />
+                    </ProtectedRoute>
+                );
+            case 'salesQnaRegistration':
+                return (
+                    <ProtectedRoute requiredRoles={["ROLE_ADMIN"]}>
+                        <SalesQna />
                     </ProtectedRoute>
                 );
             default:
