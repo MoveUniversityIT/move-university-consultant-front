@@ -80,7 +80,11 @@ const SalesQna = () => {
     };
 
     if (isLoading) {
-        return <Spin/>;
+        return (
+            <div className="flex items-center justify-center h-full">
+                <Spin/>
+            </div>
+        );
     }
 
     return (
