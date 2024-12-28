@@ -1,33 +1,46 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
 import {
-    deleteReservation, fetchIntermediaryrByName, fetchManagerByName,
-    getCheckEmail, getNotices,
+    deleteReservation,
+    fetchIntermediaryrByName,
+    fetchManagerByName,
+    getCheckEmail,
+    getNotices,
     getReservation,
-    postLogin, postReadNotice,
+    postLogin,
+    postReadNotice,
     postRegisterUser,
-    postReservation, postSaveGongcha
+    postReservation,
+    postSaveGongcha
 } from "@api/userApi";
 import {
     toggleAccessToken,
     toggleLoginState,
     toggleRefreshToken,
     toggleRoles,
-    toggleUserId, toggleUserName
+    toggleUserId,
+    toggleUserName
 } from "@/features/user/loginSlice";
 import RootStore from "@/appcore/rootStore";
 import {message} from "antd";
+import {useNavigate} from "react-router-dom";
 
 export const useLogin = () => {
+    const navigate = useNavigate();
+
     return useMutation({
         mutationFn:(loginForm) => postLogin(loginForm),
         retry: false,
-        onSuccess: (data) => {
-            RootStore.dispatch(toggleRoles(data?.roles));
-            RootStore.dispatch(toggleAccessToken(data?.accessToken));
-            RootStore.dispatch(toggleRefreshToken(data?.refreshToken));
-            RootStore.dispatch(toggleUserId(data?.userId));
-            RootStore.dispatch(toggleUserName(data?.userName));
-            RootStore.dispatch(toggleLoginState(true));
+        onSuccess: async (data) => {
+            await Promise.all([
+                RootStore.dispatch(toggleRoles(data?.roles)),
+                RootStore.dispatch(toggleAccessToken(data?.accessToken)),
+                RootStore.dispatch(toggleRefreshToken(data?.refreshToken)),
+                RootStore.dispatch(toggleUserId(data?.userId)),
+                RootStore.dispatch(toggleUserName(data?.userName)),
+                RootStore.dispatch(toggleLoginState(true)),
+            ]);
+
+            navigate("/consultant", { replace: true });
         },
         onError: (error) => {
             const errorMessage = error?.errorMessage || "로그인 실패했습니다";

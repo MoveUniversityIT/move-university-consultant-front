@@ -19,7 +19,9 @@ const Router = () => {
     const [notices, setNotices] = useState({notices: [], unreadCount: 0});
 
     useEffect(() => {
-        setNotices(noticesData);
+        if (noticesData) {
+            setNotices(noticesData);
+        }
     }, [noticesData]);
 
     const router = createBrowserRouter(

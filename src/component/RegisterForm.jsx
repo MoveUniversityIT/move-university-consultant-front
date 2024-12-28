@@ -82,11 +82,6 @@ const RegisterForm = () => {
 
                 navigate('/login');
                 message.success(successMessage);
-
-                // TODO - 회원 가입 후 로그인 시 consultant API 통신되는 부분 체크
-                setTimeout(() => {
-                    window.location.reload();
-                }, 500);
             },
             onError: (error) => {
                 const validationMessages = error?.validation
