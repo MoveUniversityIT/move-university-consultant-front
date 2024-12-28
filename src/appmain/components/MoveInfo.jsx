@@ -932,7 +932,22 @@ const MoveInfo = ({
             const packingCleaningKey = "packing-cleaning-warning";
             const transportKey = "transport-warning";
 
-            if (moveType.value !== '포장이사' || storageMoveType?.value !== '포장이사') {
+            if (moveType.value !== '포장이사') {
+                const packingCleaningHelper = helpers.find(helper => helper.helperType === 'PACKING_CLEANING');
+                const peopleCount = packingCleaningHelper ? packingCleaningHelper.peopleCount : 0;
+
+                if (peopleCount > 0) {
+                    message.warning({
+                        content: "이사종류: 포장이사가 아닌경우 추가 이모 설정은 무시 후 계산됩니다.",
+                        key: packingCleaningKey,
+                        duration: 3,
+                    });
+                } else {
+                    message.destroy(packingCleaningKey);
+                }
+            }
+
+            if (moveType.value === '보관이사' && storageMoveType?.value !== '포장이사') {
                 const packingCleaningHelper = helpers.find(helper => helper.helperType === 'PACKING_CLEANING');
                 const peopleCount = packingCleaningHelper ? packingCleaningHelper.peopleCount : 0;
 
