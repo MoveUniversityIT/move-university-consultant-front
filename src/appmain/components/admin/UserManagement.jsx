@@ -230,10 +230,20 @@ const UserManagement = ({ setIsLoading }) => {
                     style={{
                         textAlign: 'center',
                         fontSize: '0.9em',
-                        whiteSpace: 'nowrap',
+                        display: 'flex',
+                        alignItems: 'center', // 정렬 통일
+                        justifyContent: 'center',
+                        height: '100%',
                     }}
                 >
-                    {createdAt ? dayjs(createdAt).format('YYYY-MM-DD HH:mm') : ''}
+                    {createdAt ? (
+                        <div>
+                            <div>{dayjs(createdAt).format('YYYY년 MM월 DD일')}</div>
+                            <div>{dayjs(createdAt).format('A HH시 mm분').replace('AM', '오전').replace('PM', '오후')}</div>
+                        </div>
+                    ) : (
+                        '-'
+                    )}
                 </div>
             ),
         },
@@ -246,10 +256,20 @@ const UserManagement = ({ setIsLoading }) => {
                     style={{
                         textAlign: 'center',
                         fontSize: '0.9em',
-                        whiteSpace: 'nowrap',
+                        display: 'flex',
+                        alignItems: 'center', // 정렬 통일
+                        justifyContent: 'center',
+                        height: '100%',
                     }}
                 >
-                    {updatedAt ? dayjs(updatedAt).format('YYYY-MM-DD HH:mm') : ''}
+                    {updatedAt ? (
+                        <div>
+                            <div>{dayjs(updatedAt).format('YYYY년 MM월 DD일')}</div>
+                            <div>{dayjs(updatedAt).format('A HH시 mm분').replace('AM', '오전').replace('PM', '오후')}</div>
+                        </div>
+                    ) : (
+                        '-'
+                    )}
                 </div>
             ),
         },

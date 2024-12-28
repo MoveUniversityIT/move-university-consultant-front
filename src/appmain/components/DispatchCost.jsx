@@ -11,7 +11,9 @@ const dataLabel = {
     transportHelperPrice: "추가 인부 가격",
     cleaningHelperPrice: "추가 이모 가격",
     totalCalcPrice: "총 배차 가격",
-    totalLadderPrice: "사다리 기본가(별도)"
+    totalLadderPrice: "사다리 기본가(별도)",
+    totalWeight: "총 무게",
+    dokcha: "독차가"
 }
 
 const unitLabel = {
@@ -23,7 +25,9 @@ const unitLabel = {
     transportHelperPrice: "원",
     cleaningHelperPrice: "원",
     totalCalcPrice: "원",
-    totalLadderPrice: "원"
+    totalLadderPrice: "원",
+    totalWeight: "kg",
+    dokcha: "원"
 };
 
 const DispatchCost = ({
@@ -250,7 +254,9 @@ const DispatchCost = ({
                     }, 0)?.toLocaleString()
                     : 0,
                 totalCalcPrice: dispatchAmount[0]?.totalCalcPrice?.toLocaleString() ?? 0,
-                totalLadderPrice: dispatchAmount[0]?.totalLadderPrice?.toLocaleString() ?? 0
+                totalLadderPrice: dispatchAmount[0]?.totalLadderPrice?.toLocaleString() ?? 0,
+                totalWeight: dispatchAmount[0]?.totalWeight || 0,
+                dokcha: dispatchAmount[0]?.dokcha || 0
             })
 
             setEstimate({
@@ -274,7 +280,9 @@ const DispatchCost = ({
                 transportHelperPrice: 0,
                 cleaningHelperPrice: 0,
                 totalCalcPrice: 0,
-                totalLadderPrice: 0
+                totalLadderPrice: 0,
+                totalWeight: 0,
+                dokcha: 0
             })
 
             setEstimate({

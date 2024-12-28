@@ -14,6 +14,9 @@ const AdminNotice = () => {
     const {mutate: updateNotice} = useUpdateNotice();
     const {mutate: deleteNotice} = useDeleteNotice();
 
+    const [unreadUsers, setUnreadUsers] = useState([]);
+    const [isUnreadModalVisible, setIsUnreadModalVisible] = useState(false);
+
     const onFinish = (values) => {
         const uploadForm = new FormData();
         uploadForm.append('title', values.title);
@@ -73,9 +76,14 @@ const AdminNotice = () => {
         });
     };
 
+    const handleShowUnreadUsers = (users) => {
+        setUnreadUsers(users || []);
+        setIsUnreadModalVisible(true);
+    };
+
     const columns = [
         {
-            title: <div style={{ textAlign: 'center', fontWeight: 'bold' }}>제목</div>,
+            title: <div style={{textAlign: 'center', fontWeight: 'bold'}}>제목</div>,
             dataIndex: 'title',
             key: 'title',
             width: '15%',
@@ -97,7 +105,7 @@ const AdminNotice = () => {
             ),
         },
         {
-            title: <div style={{ textAlign: 'center', fontWeight: 'bold' }}>내용</div>,
+            title: <div style={{textAlign: 'center', fontWeight: 'bold'}}>내용</div>,
             dataIndex: 'content',
             key: 'content',
             width: '25%',
@@ -154,7 +162,7 @@ const AdminNotice = () => {
             ),
         },
         {
-            title: <div style={{ textAlign: 'center', fontWeight: 'bold' }}>생성일</div>,
+            title: <div style={{textAlign: 'center', fontWeight: 'bold'}}>생성일</div>,
             dataIndex: 'createdAt',
             key: 'createdAt',
             width: '10%',
@@ -171,13 +179,13 @@ const AdminNotice = () => {
                 >
                     <div>
                         <div>{dayjs(createdAt).format('YYYY년 MM월 DD일')}</div>
-                        <div>{dayjs(createdAt).format('A HH:mm').replace('AM', '오전').replace('PM', '오후')}</div>
+                        <div>{dayjs(createdAt).format('A HH시 mm분').replace('AM', '오전').replace('PM', '오후')}</div>
                     </div>
                 </div>
             ),
         },
         {
-            title: <div style={{ textAlign: 'center', fontWeight: 'bold' }}>수정일</div>,
+            title: <div style={{textAlign: 'center', fontWeight: 'bold'}}>수정일</div>,
             dataIndex: 'updatedAt',
             key: 'updatedAt',
             width: '10%',
@@ -195,7 +203,7 @@ const AdminNotice = () => {
                     >
                         <div>
                             <div>{dayjs(updatedAt).format('YYYY년 MM월 DD일')}</div>
-                            <div>{dayjs(updatedAt).format('A HH:mm').replace('AM', '오전').replace('PM', '오후')}</div>
+                            <div>{dayjs(updatedAt).format('A HH시 mm분').replace('AM', '오전').replace('PM', '오후')}</div>
                         </div>
                     </div>
                 ) : (
@@ -214,26 +222,58 @@ const AdminNotice = () => {
                 ),
         },
         {
-            title: <div style={{ textAlign: 'center', fontWeight: 'bold' }}>액션</div>,
+            title: <div style={{textAlign: 'center', fontWeight: 'bold'}}>액션</div>,
             key: 'action',
             width: '10%',
             render: (_, record) => (
                 <div
                     style={{
                         textAlign: 'center',
+                        fontSize: '0.9em',
                         display: 'flex',
-                        justifyContent: 'center',
                         alignItems: 'center', // 정렬 통일
+                        justifyContent: 'center',
+                        height: '100%',
                     }}
                 >
-                    <Button type="link" onClick={() => handleEdit(record)}>
+                    <Button
+                        style={{
+                            backgroundColor: '#10b981',
+                            borderRadius: '4px',
+                            padding: '8px 16px',
+                            color: 'white',
+                            marginRight: '8px',
+                            border: 'none',
+                        }}
+                        onClick={() => handleShowUnreadUsers(record.unreadUserIds)}
+                    >
+                        {`미확인(${record.unreadUserIds.length}명)`}
+                    </Button>
+                    <Button
+                        style={{
+                            backgroundColor: '#2563eb',
+                            borderRadius: '4px',
+                            padding: '8px 16px',
+                            color: 'white',
+                            marginRight: '8px',
+                            border: 'none',
+                        }}
+                        onClick={() => handleEdit(record)}
+                    >
                         수정
                     </Button>
-                    <Popconfirm title="정말 삭제하시겠습니까?" onConfirm={() => handleDelete(record.id)}>
-                        <Button type="link" danger>
-                            삭제
-                        </Button>
-                    </Popconfirm>
+                    <Button
+                        style={{
+                            backgroundColor: '#dc2626',
+                            borderRadius: '4px',
+                            padding: '8px 16px',
+                            color: 'white',
+                            border: 'none',
+                        }}
+                        onClick={() => handleDelete(record.id)}
+                    >
+                        삭제
+                    </Button>
                 </div>
             ),
         },
@@ -333,6 +373,60 @@ const AdminNotice = () => {
                         </Button>
                     </Form.Item>
                 </Form>
+            </Modal>
+
+            <Modal
+                title={
+                    <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '18px', color: '#333' }}>
+                        공지사항 읽지 않은 사용자 목록
+                    </div>
+                }
+                open={isUnreadModalVisible}
+                onCancel={() => setIsUnreadModalVisible(false)}
+                footer={null}
+                bodyStyle={{
+                    padding: '10px 20px', // 상하 여백 줄이기
+                    backgroundColor: '#f9f9f9',
+                    borderRadius: '8px',
+                    maxHeight: '400px', // 높이 제한
+                    overflowY: 'auto', // 스크롤 가능
+                }}
+            >
+                {unreadUsers.length > 0 ? (
+                    <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
+                        {unreadUsers.map((user, index) => (
+                            <li
+                                key={index}
+                                style={{
+                                    marginBottom: '8px', // 항목 간 여백 감소
+                                    padding: '12px', // 항목 패딩 조정
+                                    backgroundColor: '#fff',
+                                    border: '1px solid #e0e0e0', // 더 부드러운 테두리 색상
+                                    borderRadius: '4px', // 라운드 줄이기
+                                    textAlign: 'center', // 텍스트 가운데 정렬
+                                    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.1)', // 더 부드러운 그림자
+                                    fontSize: '14px', // 텍스트 크기 조정
+                                    fontWeight: '500', // 텍스트 약간 강조
+                                    color: '#555', // 텍스트 색상 부드럽게
+                                }}
+                            >
+                                {user}
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <div
+                        style={{
+                            textAlign: 'center',
+                            fontSize: '14px',
+                            fontWeight: 'bold',
+                            color: '#888',
+                            marginTop: '10px', // 상단 여백 줄임
+                        }}
+                    >
+                        모든 사용자가 읽었습니다.
+                    </div>
+                )}
             </Modal>
         </div>
     );
