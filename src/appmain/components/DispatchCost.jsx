@@ -3,6 +3,8 @@ import {Card, Checkbox, Divider, Form, List, Slider, Spin} from "antd";
 
 const dataLabel = {
     totalItemCbm: "물품 총 CBM",
+    totalWeight: "총 무게",
+    dokcha: "독차가",
     transportHelperCount: "추가 인부 수",
     cleaningHelperCount: "추가 이모 수",
     vehicleName: "차량 종류",
@@ -12,12 +14,12 @@ const dataLabel = {
     cleaningHelperPrice: "추가 이모 가격",
     totalCalcPrice: "총 배차 가격",
     totalLadderPrice: "사다리 기본가(별도)",
-    totalWeight: "총 무게",
-    dokcha: "독차가"
 }
 
 const unitLabel = {
     totalItemCbm: "CBM",
+    totalWeight: "kg",
+    dokcha: "원",
     transportHelperCount: "명",
     cleaningHelperCount: "명",
     vehicleCount: "대",
@@ -25,9 +27,7 @@ const unitLabel = {
     transportHelperPrice: "원",
     cleaningHelperPrice: "원",
     totalCalcPrice: "원",
-    totalLadderPrice: "원",
-    totalWeight: "kg",
-    dokcha: "원"
+    totalLadderPrice: "원"
 };
 
 const DispatchCost = ({
@@ -212,6 +212,11 @@ const DispatchCost = ({
         if (dispatchAmount && dispatchAmount.length > 0) {
             setCalcData({
                 totalItemCbm: dispatchAmount[0]?.totalItemCbm ? dispatchAmount[0].totalItemCbm : 0,
+                totalWeight: dispatchAmount[0]?.totalWeight || 0,
+                vehicleName: dispatchAmount[0]?.vehicleName,
+                dokcha: dispatchAmount[0]?.dokcha || 0,
+                vehicleCount: dispatchAmount[0]?.vehicleCount?.toLocaleString() ?? 0,
+                vehicleRoundingHalfUp: dispatchAmount[0]?.vehicleRoundingHalfUp?.toLocaleString() ?? 0,
                 transportHelperCount: dispatchAmount[0]?.helpers
                     ? dispatchAmount[0].helpers.reduce((total, helper) => {
                         if (helper.helperType === "TRANSPORT") {
@@ -234,9 +239,6 @@ const DispatchCost = ({
                         return total
                     }, 0)?.toLocaleString()
                     : 0,
-                vehicleName: dispatchAmount[0]?.vehicleName,
-                vehicleCount: dispatchAmount[0]?.vehicleCount?.toLocaleString() ?? 0,
-                vehicleRoundingHalfUp: dispatchAmount[0]?.vehicleRoundingHalfUp?.toLocaleString() ?? 0,
                 transportHelperPrice: dispatchAmount[0]?.helpers
                     ? dispatchAmount[0].helpers.reduce((total, helper) => {
                         if (helper.helperType === "TRANSPORT") {
@@ -255,8 +257,6 @@ const DispatchCost = ({
                     : 0,
                 totalCalcPrice: dispatchAmount[0]?.totalCalcPrice?.toLocaleString() ?? 0,
                 totalLadderPrice: dispatchAmount[0]?.totalLadderPrice?.toLocaleString() ?? 0,
-                totalWeight: dispatchAmount[0]?.totalWeight || 0,
-                dokcha: dispatchAmount[0]?.dokcha || 0
             })
 
             setEstimate({
@@ -272,17 +272,17 @@ const DispatchCost = ({
         }else {
             setCalcData({
                 totalItemCbm: 0,
-                transportHelperCount: 0,
-                cleaningHelperCount: 0,
+                totalWeight: 0,
                 vehicleName: '',
+                dokcha: 0,
                 vehicleCount: 0,
                 vehicleRoundingHalfUp: 0,
+                transportHelperCount: 0,
+                cleaningHelperCount: 0,
                 transportHelperPrice: 0,
                 cleaningHelperPrice: 0,
                 totalCalcPrice: 0,
                 totalLadderPrice: 0,
-                totalWeight: 0,
-                dokcha: 0
             })
 
             setEstimate({
