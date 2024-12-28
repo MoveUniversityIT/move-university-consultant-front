@@ -384,36 +384,43 @@ const AdminNotice = () => {
                 open={isUnreadModalVisible}
                 onCancel={() => setIsUnreadModalVisible(false)}
                 footer={null}
-                bodyStyle={{
-                    padding: '10px 20px', // 상하 여백 줄이기
-                    backgroundColor: '#f9f9f9',
-                    borderRadius: '8px',
-                    maxHeight: '400px', // 높이 제한
-                    overflowY: 'auto', // 스크롤 가능
+                styles={{
+                    body: {
+                        padding: '20px',
+                        backgroundColor: '#f9f9f9',
+                        borderRadius: '8px',
+                        maxHeight: '500px',
+                        overflowY: 'auto'
+                    },
                 }}
             >
                 {unreadUsers.length > 0 ? (
-                    <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
+                    <div
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
+                            gap: '12px',
+                        }}
+                    >
                         {unreadUsers.map((user, index) => (
-                            <li
+                            <div
                                 key={index}
                                 style={{
-                                    marginBottom: '8px', // 항목 간 여백 감소
-                                    padding: '12px', // 항목 패딩 조정
+                                    padding: '12px',
                                     backgroundColor: '#fff',
-                                    border: '1px solid #e0e0e0', // 더 부드러운 테두리 색상
-                                    borderRadius: '4px', // 라운드 줄이기
-                                    textAlign: 'center', // 텍스트 가운데 정렬
-                                    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.1)', // 더 부드러운 그림자
-                                    fontSize: '14px', // 텍스트 크기 조정
-                                    fontWeight: '500', // 텍스트 약간 강조
-                                    color: '#555', // 텍스트 색상 부드럽게
+                                    border: '1px solid #e0e0e0',
+                                    borderRadius: '4px',
+                                    textAlign: 'center',
+                                    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.1)',
+                                    fontSize: '14px',
+                                    fontWeight: '500',
+                                    color: '#555',
                                 }}
                             >
                                 {user}
-                            </li>
+                            </div>
                         ))}
-                    </ul>
+                    </div>
                 ) : (
                     <div
                         style={{
@@ -421,7 +428,7 @@ const AdminNotice = () => {
                             fontSize: '14px',
                             fontWeight: 'bold',
                             color: '#888',
-                            marginTop: '10px', // 상단 여백 줄임
+                            marginTop: '10px',
                         }}
                     >
                         모든 사용자가 읽었습니다.
