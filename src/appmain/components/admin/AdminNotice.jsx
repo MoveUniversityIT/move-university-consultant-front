@@ -1,18 +1,30 @@
 import React, {useState} from 'react';
-import {Button, Form, Input, message, Modal, Table, Popconfirm, Image} from "antd";
+import {Button, Form, Input, message, Modal, Table, Popconfirm, Image, Spin} from "antd";
 import {usePostNotice, useGetNotices, useUpdateNotice, useDeleteNotice} from "@hook/useAdmin";
 import CustomUpload from "@component/CustomUpload";
 import dayjs from "dayjs";
+import {ReloadOutlined} from "@ant-design/icons";
 
 const AdminNotice = () => {
     const [form] = Form.useForm();
     const [fileList, setFileList] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingNotice, setEditingNotice] = useState(null);
-    const {data: notices} = useGetNotices();
+    const {data: notices, refetch: getNotice} = useGetNotices();
     const {mutate: postNotice} = usePostNotice();
     const {mutate: updateNotice} = useUpdateNotice();
     const {mutate: deleteNotice} = useDeleteNotice();
+
+    const [loading, setLoading] = useState(false);
+
+    const handleRefresh = async () => {
+        setLoading(true);
+        try {
+            await getNotice();
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const [unreadUsers, setUnreadUsers] = useState([]);
     const [isUnreadModalVisible, setIsUnreadModalVisible] = useState(false);
@@ -281,7 +293,29 @@ const AdminNotice = () => {
 
     return (
         <div className="w-full h-full flex flex-col bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">공지사항 관리</h2>
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold text-gray-800">공지사항 관리</h2>
+                <Button
+                    type="default"
+                    icon={
+                        loading ? (
+                            <Spin size="small" />
+                        ) : (
+                            <ReloadOutlined />
+                        )
+                    }
+                    onClick={handleRefresh}
+                    style={{
+                        borderRadius: '4px',
+                        backgroundColor: '#f5f5f5',
+                        border: '1px solid #d9d9d9',
+                        color: '#333',
+                    }}
+                    disabled={loading}
+                >
+                    새로고침
+                </Button>
+            </div>
             <Button
                 type="primary"
                 className="mb-4 bg-blue-600 hover:bg-blue-700 text-white"
