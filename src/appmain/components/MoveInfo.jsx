@@ -703,10 +703,12 @@ const MoveInfo = ({
 
             const finalName = matchedShortName || cleanItemName;
 
-            if (itemMap.has(finalName)) {
-                itemMap.set(finalName, itemMap.get(finalName) + quantity);
-            } else {
-                itemMap.set(finalName, quantity);
+            if (finalName) {
+                if (itemMap.has(finalName)) {
+                    itemMap.set(finalName, itemMap.get(finalName) + quantity);
+                } else {
+                    itemMap.set(finalName, quantity);
+                }
             }
         });
 
@@ -799,6 +801,8 @@ const MoveInfo = ({
 
         const shortItemTerm = mapShortItemNames(searchItemTerm);
         const searchItemTermAndSearchSpecialITemTerm = `${searchItemTerm}, ${searchSpecialItemTerm}`.replace(/,\s*$/, "");
+        console.log(shortItemTerm);
+        console.log(searchItemTermAndSearchSpecialITemTerm);
 
         const gongchaData = {
             manager: supaManagerName[0]?.id,
