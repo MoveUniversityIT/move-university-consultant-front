@@ -701,12 +701,12 @@ const MoveInfo = ({
                 });
             });
 
-            if (matchedShortName) {
-                if (itemMap.has(matchedShortName)) {
-                    itemMap.set(matchedShortName, itemMap.get(matchedShortName) + quantity);
-                } else {
-                    itemMap.set(matchedShortName, quantity);
-                }
+            const finalName = matchedShortName || cleanItemName;
+
+            if (itemMap.has(finalName)) {
+                itemMap.set(finalName, itemMap.get(finalName) + quantity);
+            } else {
+                itemMap.set(finalName, quantity);
             }
         });
 
