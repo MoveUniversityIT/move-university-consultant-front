@@ -674,6 +674,50 @@ const MoveInfo = ({
         return customer_helper;
     }
 
+    const mapShortItemNames = (inputItems) => {
+        const itemMap = new Map();
+
+        const newInputItems = inputItems.split(',').map(item => item.trim());
+
+        newInputItems.forEach((input) => {
+            const quantityMatch = input.match(/(\d+)$/);
+            const quantity = quantityMatch ? parseInt(quantityMatch[1], 10) : 1;
+
+            const cleanInput = quantityMatch
+                ? input.slice(0, -quantityMatch[1].length).trim()
+                : input;
+
+            const cleanItemName = cleanInput.replace(/\[.*?\]/g, "").trim();
+
+            let matchedShortName = null;
+
+            collapseItems.forEach((category) => {
+                category.subcategories.forEach((subcategory) => {
+                    subcategory.items.forEach((item) => {
+                        if (item.itemName === cleanItemName) {
+                            matchedShortName = item.shortItemName;
+                        }
+                    });
+                });
+            });
+
+            if (matchedShortName) {
+                if (itemMap.has(matchedShortName)) {
+                    itemMap.set(matchedShortName, itemMap.get(matchedShortName) + quantity);
+                } else {
+                    itemMap.set(matchedShortName, quantity);
+                }
+            }
+        });
+
+        // 텍스트 형식으로 변환
+        const resultText = Array.from(itemMap)
+            .map(([shortItemName, quantity]) => `${shortItemName}${quantity}`)
+            .join(', ');
+
+        return resultText;
+    };
+
     const handleSaveGongcha = () => {
         let carry_type_start = gongchaMethods.indexOf(loadMethod?.value);
         let customer_helper_start = getCustomerHelperText(loadCustomers);
@@ -753,6 +797,9 @@ const MoveInfo = ({
 
         const dispatch_memo = `총 배차가격: ${totalCalcPrice?.toLocaleString()}, 한대 차량가격: ${vehicleRoundingHalfUp.toLocaleString()}, 추가 인부 가격: ${transportHelperPrice}, 추가 이모 가격: ${cleaningHelperPrice}`;
 
+        const shortItemTerm = mapShortItemNames(searchItemTerm);
+        const searchItemTermAndSearchSpecialITemTerm = `${searchItemTerm}, ${searchSpecialItemTerm}`.replace(/,\s*$/, "");
+
         const gongchaData = {
             manager: supaManagerName[0]?.id,
             intermediary: supaIntermediaryName[0]?.id,
@@ -774,8 +821,8 @@ const MoveInfo = ({
             required_car_ton: vehicleTonnage?.toString(),
             number_of_car_actual: dispatchAmount[0]?.vehicleCount,
             head_count: head_count,
-            goods_name: searchItemTerm,
-            memo_dispatch: searchSpecialItemTerm,
+            goods_name: shortItemTerm,
+            memo_dispatch: searchItemTermAndSearchSpecialITemTerm,
             mng_name: customerName,
             start_mng_mobile: customerPhoneNumber,
             payment_type,
