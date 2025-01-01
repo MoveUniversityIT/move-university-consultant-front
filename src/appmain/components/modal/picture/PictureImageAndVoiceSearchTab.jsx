@@ -54,7 +54,7 @@ const PictureImageAndVoiceSearchTab = () => {
             render: (requestDate) => (
                 <div>
                     {requestDate ? (
-                        <div>{dayjs(requestDate).format('YYYY년 MM월 DD일')}</div>
+                        <div>{dayjs(requestDate).format('YYYY-MM-DD')}</div>
                     ) : (
                         '-'
                     )}

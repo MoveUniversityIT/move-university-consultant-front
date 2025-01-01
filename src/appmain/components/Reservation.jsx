@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { Button, Card, Input, List, Modal, Pagination } from "antd";
-import { useDeleteReservation } from "@hook/useUser";
-import { useQueryClient } from "@tanstack/react-query";
+import React, {useState, useEffect} from "react";
+import {Button, Card, Input, List, Modal, Pagination} from "antd";
+import {useDeleteReservation} from "@hook/useUser";
+import {useQueryClient} from "@tanstack/react-query";
 
-const Reservation = ({ onLoad, onNew, reservations }) => {
+const Reservation = ({onLoad, onNew, reservations}) => {
     const queryClient = useQueryClient();
-    const { mutate: reservationMutate } = useDeleteReservation();
+    const {mutate: reservationMutate} = useDeleteReservation();
 
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
@@ -70,26 +70,32 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
                 />
             </div>
 
-            {/* 리스트 */}
-            <div className="flex-1 overflow-y-auto mb-4" style={{ minHeight: "700px" }}>
+            <div className="flex-1 overflow-y-auto mb-4" style={{minHeight: "700px"}}>
                 <List
                     dataSource={paginatedReservations}
                     renderItem={(reservation) => (
                         <List.Item
                             key={reservation.reservationId}
-                            className="w-full bg-white rounded-lg mb-2 p-4 border border-gray-200 hover:border-blue-500 hover:bg-blue-50 hover:shadow-xl transition-all duration-300 flex flex-col items-center transform"
+                            className="w-full bg-gradient-to-r from-gray-50 to-white rounded-lg mb-2 p-4 border border-gray-200 shadow-sm hover:border-transparent hover:shadow-xl hover:bg-gradient-to-r hover:from-blue-100 hover:to-blue-50 transition-all duration-300 flex flex-col items-center transform"
                         >
-                            <div className="flex flex-col gap-1">
+
+                        <div className="flex flex-col gap-1">
                                 <p className="text-sm text-gray-600 flex">
-                                    <span className="font-semibold text-center">요청일:</span>
+                                    <span className="font-semibold text-center bg-gray-100 px-2 rounded">
+                                        요청일:
+                                    </span>
                                     <span className="ml-2">{reservation.requestDate}</span>
                                 </p>
                                 <p className="text-sm text-gray-600 flex">
-                                    <span className="font-semibold text-center">화주이름:</span>
+                                    <span className="font-semibold text-center bg-gray-100 px-2 rounded">
+                                        화주이름:
+                                    </span>
                                     <span className="ml-2">{reservation.customerName}</span>
                                 </p>
                                 <p className="text-sm text-gray-600 flex">
-                                    <span className="font-semibold text-center">화주번호:</span>
+                                    <span className="font-semibold text-center bg-gray-100 px-2 rounded">
+                                        화주번호:
+                                    </span>
                                     <span className="ml-2">{reservation.customerPhoneNumber}</span>
                                 </p>
                             </div>
