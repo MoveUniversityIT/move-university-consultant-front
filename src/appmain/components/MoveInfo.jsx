@@ -25,8 +25,9 @@ import PhoneNumberInput from "@component/PhoneNumberInput";
 import {useSaveReservation, useSupabaseIntermediary, useSupabaseManager, useSupabaseSaveGongcha} from "@hook/useUser";
 import {useQueryClient} from "@tanstack/react-query";
 import SpecialItemSearch from "@component/SpecialItemSearch";
-import {InfoCircleOutlined} from "@ant-design/icons";
+import {InfoCircleOutlined, SaveOutlined} from "@ant-design/icons";
 import {useSelector} from "react-redux";
+import {FiTruck} from "react-icons/fi";
 
 const {Option} = Select;
 
@@ -1633,7 +1634,8 @@ const MoveInfo = ({
             <div className="flex justify-between items-center">
                 <div className="flex space-x-2">
                     <Button
-                        className="px-5 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
+                        className="px-4 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
+                        icon={<FiTruck />}
                         onClick={() => {
                             if (!dispatchAmount || dispatchAmount.length < 1) {
                                 message.error({
@@ -1655,7 +1657,8 @@ const MoveInfo = ({
                         공차등록
                     </Button>
                     <Button
-                        className="px-5 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-200"
+                        className="px-4 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-200"
+                        icon={<SaveOutlined />}
                         onClick={handleSave}
                     >
                         저장

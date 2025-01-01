@@ -2,6 +2,7 @@ import React, {useState, useEffect} from "react";
 import {Button, Card, Input, List, Modal, Pagination} from "antd";
 import {useDeleteReservation} from "@hook/useUser";
 import {useQueryClient} from "@tanstack/react-query";
+import {PlusOutlined} from "@ant-design/icons";
 
 const Reservation = ({onLoad, onNew, reservations}) => {
     const queryClient = useQueryClient();
@@ -57,6 +58,7 @@ const Reservation = ({onLoad, onNew, reservations}) => {
             <div>
                 <Button
                     className="px-5 py-3 mb-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
+                    icon={<PlusOutlined />}
                     block
                     onClick={onNew}>
                     새로 만들기
