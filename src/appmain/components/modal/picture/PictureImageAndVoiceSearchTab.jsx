@@ -84,8 +84,7 @@ const PictureImageAndVoiceSearchTab = () => {
             align: "center",
             render: (_, record) => (
                 <Button
-                    type="primary"
-                    className="hover:underline text-sm"
+                    className="px-4 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
                     onClick={() => {
                         navigator.clipboard.writeText(
                             `${process.env.REACT_IMAGE_BASE_URL}/customer-image?queryValue=${record.encryptedKey}`
