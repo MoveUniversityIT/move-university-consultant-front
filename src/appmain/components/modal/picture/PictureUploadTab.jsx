@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Button, Form, Input, message, Upload} from "antd";
+import {Button, Divider, Form, Input, message, Upload} from "antd";
 import {usePostNotice} from "@hook/useAdmin";
 import {PlusOutlined} from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -173,84 +173,101 @@ const PictureUploadTab = () => {
     };
 
     const uploadButton = (
-        <div>
-            <PlusOutlined/>
-            <div className="mt-1">Upload</div>
+        <div className="flex flex-col items-center justify-center">
+            <PlusOutlined className="text-blue-500 text-lg" />
+            <div className="mt-1 text-sm font-medium text-gray-600">파일 추가</div>
         </div>
     );
 
     return (
-        <Form
-            form={form}
-            name="admin-notice"
-            onFinish={onFinish}
-            labelCol={{span: 4}}
-            wrapperCol={{span: 16}}
-            className="w-full h-full p-4 bg-white rounded-lg flex items-center justify-center flex-col"
-            autoComplete="off"
-        >
-            <Form.Item
-                label={<span onClick={(e) => e.preventDefault()}>고객 이름</span>}
-                name="customerName"
-                rules={[{required: true, message: '고객 이름을 입력해주세요.'}]}
-                className="mb-4 w-full"
+        <div className="overflow-hidden h-[65vh] p-6 bg-gray-50 rounded-lg">
+            <Form
+                form={form}
+                name="image-voice"
+                onFinish={onFinish}
+                labelCol={{span: 4}}
+                wrapperCol={{span: 16}}
+                className="w-full items-center justify-center"
+                autoComplete="off"
             >
-                <Input />
-            </Form.Item>
+                <Divider orientation="left" className="text-gray-500 !mt-0">
+                    화주 정보
+                </Divider>
 
-            <Form.Item
-                label={<span onClick={(e) => e.preventDefault()}>고객 번호</span>}
-                name="customerPhoneNumber"
-                rules={[{required: true, message: '고객 번호를 입력해주세요.'}]}
-                className="mb-4 w-full"
-            >
-                <Input onChange={onPhoneNumberChange} />
-            </Form.Item>
-
-            <Form.Item
-                label={<span onClick={(e) => e.preventDefault()}>요청일</span>}
-                name="requestDate"
-                rules={[
-                    { required: true, message: '요청일을 입력해주세요.' },
-                    { validator: validateDate }
-                ]}
-                className="mb-4 w-full"
-            >
-                <Input placeholder="YYYY-MM-DD" onChange={onDateChange} maxLength={10}/>
-            </Form.Item>
-
-            <Form.Item
-                label={<span onClick={(e) => e.preventDefault()}>파일</span>}
-                rules={[
-                    { required: true, message: '파일을 업로드해주세요.' }
-                ]}
-                name="upload"
-                valuePropName="fileList"
-                getValueFromEvent={e => e && e.fileList}
-                className="mb-4 w-full"
-            >
-                <Upload
-                    listType="picture-card"
-                    fileList={fileList}
-                    beforeUpload={beforeUpload}
-                    onRemove={onRemove}
-                    multiple={true}
-                    onPreview={handlePreview}
+                <Form.Item
+                    label={<span className="font-medium text-gray-700">화주 이름</span>}
+                    name="customerName"
+                    rules={[{required: true, message: "화주 이름을 입력해주세요."}]}
+                    className="mb-4 w-full"
                 >
-                    {fileList.length >= 8 ? null : uploadButton}
-                </Upload>
-            </Form.Item>
+                    <Input placeholder="화주 이름 입력" className="py-2 px-4 border rounded-lg"/>
+                </Form.Item>
 
-            <Form.Item wrapperCol={{offset: 8, span: 16}}>
-                <Button type="primary"
+                <Form.Item
+                    label={<span className="font-medium text-gray-700">화주 번호</span>}
+                    name="customerPhoneNumber"
+                    rules={[{required: true, message: "화주 번호를 입력해주세요."}]}
+                    className="mb-4 w-full"
+                >
+                    <Input
+                        placeholder="화주 번호 입력"
+                        className="py-2 px-4 border rounded-lg"
+                        onChange={onPhoneNumberChange}
+                    />
+                </Form.Item>
+
+                <Form.Item
+                    label={<span className="font-medium text-gray-700">요청일</span>}
+                    name="requestDate"
+                    rules={[
+                        {required: true, message: "요청일을 입력해주세요."},
+                        {validator: validateDate},
+                    ]}
+                    className="mb-4 w-full"
+                >
+                    <Input
+                        placeholder="YYYY-MM-DD"
+                        className="py-2 px-4 border rounded-lg"
+                        onChange={onDateChange}
+                        maxLength={10}
+                    />
+                </Form.Item>
+
+                <Divider orientation="left" className="text-gray-500">
+                    파일 업로드
+                </Divider>
+
+                <Form.Item
+                    label={<span className="font-medium text-gray-700">파일</span>}
+                    name="upload"
+                    valuePropName="fileList"
+                    getValueFromEvent={(e) => e && e.fileList}
+                    className="mb-4 w-full"
+                >
+                    <Upload
+                        listType="picture-card"
+                        fileList={fileList}
+                        beforeUpload={beforeUpload}
+                        onRemove={onRemove}
+                        multiple={true}
+                        onPreview={handlePreview}
+                        className="w-full"
+                    >
+                        {fileList.length >= 8 ? null : uploadButton}
+                    </Upload>
+                </Form.Item>
+
+                <Form.Item wrapperCol={{offset: 4, span: 16}} className="mt-6 text-center">
+                    <Button
+                        type="primary"
                         htmlType="submit"
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
-                        disabled={!fileList.length}
-                >
-                    이미지/녹음 저장
-                </Button>
-            </Form.Item>
-        </Form>
+                        className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg"
+                    >
+                        이미지/녹음 저장
+                    </Button>
+                </Form.Item>
+            </Form>
+        </div>
     )
 }
 

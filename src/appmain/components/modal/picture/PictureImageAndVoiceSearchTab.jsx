@@ -106,7 +106,7 @@ const PictureImageAndVoiceSearchTab = () => {
     }));
 
     return (
-        <div className="overflow-hidden h-[65vh] p-6 bg-gray-50">
+        <div className="overflow-hidden h-[65vh] p-6 bg-gray-50 rounded-lg">
             <div className="sticky top-0 rounded-lg bg-white z-10 shadow">
                 <Search
                     placeholder="화주 이름, 화주 번호, 요청일 검색"
