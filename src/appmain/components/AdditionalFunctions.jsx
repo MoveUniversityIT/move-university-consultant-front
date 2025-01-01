@@ -158,12 +158,12 @@ const AdditionalFunctions = () => {
                     onClick={() => handleShowImage("ladder_price", "사다리 요금표")}>
                     사다리 요금표
                 </Button>
-                <Button
-                    className="px-5 py-3 bg-gradient-to-r from-gray-400 to-gray-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:from-gray-500 hover:to-gray-700 transition-transform transform hover:scale-105 duration-300"
-                    icon={<PictureOutlined/>}
-                    onClick={handleShowPicture}>
-                    이미지/녹음
-                </Button>
+                {/*<Button*/}
+                {/*    className="px-5 py-3 bg-gradient-to-r from-gray-400 to-gray-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:from-gray-500 hover:to-gray-700 transition-transform transform hover:scale-105 duration-300"*/}
+                {/*    icon={<PictureOutlined/>}*/}
+                {/*    onClick={handleShowPicture}>*/}
+                {/*    이미지/녹음*/}
+                {/*</Button>*/}
             </div>
 
             <Modal
