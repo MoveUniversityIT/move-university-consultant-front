@@ -19,6 +19,7 @@ const Consultant = () => {
     const [isNewMoveInfo, setIsNewMoveInfo] = useState(false);
     const [dispatchAmount, setDispatchAmount] = useState(null);
     const [isDispatchAmount, setIsDispatchAmount] = useState(false);
+    const [isFormValid, setIsFormValid] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState({key: 1, value: '현금'});
     const [searchItemTerm, setSearchItemTerm] = useState('');
     const [unregisterWord, setUnregisterWord] = useState([]);
@@ -120,6 +121,8 @@ const Consultant = () => {
                     setConsultantDataForm={setConsultantDataForm}
                     setDispatchCosts={setDispatchCosts}
                     moveTypeCheckBoxes={moveTypeCheckBoxes}
+                    isFormValid={isFormValid}
+                    setIsFormValid={setIsFormValid}
                 />
                 <DispatchCost items={items}
                               setItems={setItems}
@@ -142,6 +145,10 @@ const Consultant = () => {
                               dispatchCosts={dispatchCosts}
                               moveTypeCheckBoxes={moveTypeCheckBoxes}
                               setMoveTypeCheckBoxes={setMoveTypeCheckBoxes}
+                              consultantDataForm={consultantDataForm}
+                              setConsultantDataForm={setConsultantDataForm}
+                              isFormValid={isFormValid}
+                              setIsFormValid={setIsFormValid}
                 />
                 <AdditionalFunctions consultantData={consultant} items={items}/>
 

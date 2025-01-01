@@ -180,9 +180,30 @@ export const postUploadImageAndVoice = async (dataForm) => {
     return response?.data;
 }
 
-export const getUploadImageAndVoice = async (searchParams) => {
+export const getUploadImage = async (searchParams) => {
     const response = await API.get(
-        `/consultant/image-voice?queryValue=${searchParams.queryValue}&size=${searchParams.size}&page=${searchParams.page}`, searchParams)
+        `/consultant/image?queryValue=${searchParams.queryValue}`)
+
+    return response?.data;
+}
+
+export const getCustomerUploadImage = async (searchParams) => {
+    const response = await API.get(
+        `/anonymous/image?queryValue=${searchParams.queryValue}`)
+
+    return response?.data;
+}
+
+export const getUploadVoice = async (searchParams) => {
+    const response = await API.get(
+        `/consultant/voice?queryValue=${searchParams.queryValue}`)
+
+    return response?.data;
+}
+
+export const getCustomerUploadVoice = async (searchParams) => {
+    const response = await API.get(
+        `/anonymous/voice?queryValue=${searchParams.queryValue}`)
 
     return response?.data;
 }

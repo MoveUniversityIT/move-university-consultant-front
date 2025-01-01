@@ -14,7 +14,7 @@ import {
     Tooltip
 } from "antd";
 import dayjs from "dayjs";
-import {useAddressSearch, useCalcConsultant, useCalcConsultants, useRoadDistance} from "@hook/useConsultant";
+import {useAddressSearch, useCalcConsultant, useRoadDistance} from "@hook/useConsultant";
 import AddressInput from "@/component/AddressInput";
 import MethodAndFloorInput from "@/component/MethodAndFloorInput";
 import CustomDatePicker from "@/component/CustomDatePicker";
@@ -57,7 +57,9 @@ const MoveInfo = ({
                       consultantDataForm,
                       setConsultantDataForm,
                       setDispatchCosts,
-                      moveTypeCheckBoxes
+                      moveTypeCheckBoxes,
+                      isFormValid,
+                      setIsFormValid
                   }) => {
     const queryClient = useQueryClient();
 
@@ -142,8 +144,6 @@ const MoveInfo = ({
     const [storageLoadDateCheckList, setStorageLoadDateCheckList] = useState([]);
     const [storageUnloadDateCheckList, setStorageUnloadDateCheckList] = useState([]);
 
-    const [isFormValid, setIsFormValid] = useState(false);
-
     const {data: dispatchAmount, isLoading: isDispatchAmount, error: dispatchError} = useCalcConsultant(
         consultantDataForm,
         isFormValid
@@ -170,9 +170,6 @@ const MoveInfo = ({
     const {data: supaIntermediaryName} = useSupabaseIntermediary(client?.value);
 
     const {mutate: saveGongchaMutate} = useSupabaseSaveGongcha();
-
-    const {mutate: calcListsMutate} = useCalcConsultants();
-
 
     useEffect(() => {
         if (

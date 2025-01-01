@@ -1,15 +1,20 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
 import {
-    getCalcConsultant, getCalcConsultants,
-    getConsultantMetadata, getDifficultyKakaoAddress, getImage,
+    getCalcConsultant,
+    getCalcConsultants,
+    getConsultantMetadata, getCustomerUploadImage, getCustomerUploadVoice,
+    getDifficultyKakaoAddress,
+    getImage,
     getItem,
     getKakaoAddress,
     getPendingItem,
     getRoadDistance,
-    getSpecialDay, getUploadImageAndVoice,
+    getSpecialDay,
+    getUploadImage, getUploadVoice,
     patchUpdateDateFeeRate,
     postSaveItem,
-    postSpecialDate, postUploadImageAndVoice
+    postSpecialDate,
+    postUploadImageAndVoice
 } from "@api/consultantApi";
 import {message} from "antd";
 
@@ -80,7 +85,7 @@ export const useCalcConsultant = (consultantDataForm, enabled) => {
 // 배차 금액 조회(여러 항목)
 export const useCalcConsultants = () => {
     return useMutation({
-        mutationFn: (consultantDataForm) => getCalcConsultants(consultantDataForm),
+        mutationFn: (consultantDataForm) => getCalcConsultant(consultantDataForm),
         retry: false,
     })
 }
@@ -199,12 +204,45 @@ export const usePostUploadImageAndVoice = () => {
     })
 }
 
-export const useGetUploadImageAndVoice = () => {
+export const useGetUploadImage = () => {
     return useMutation({
-        mutationFn: (searchParams) => getUploadImageAndVoice(searchParams),
+        mutationFn: (searchParams) => getUploadImage(searchParams),
         retry: false,
         onError: (error) => {
-            const errorMessage = error.errorMessage || "이미지/녹음 조회를 하는데 문제가 발생했습니다.";
+            const errorMessage = error.errorMessage || "이미지 조회를 하는데 문제가 발생했습니다.";
+            message.error(errorMessage);
+        }
+    })
+}
+
+export const useGetCustomerUploadImage = () => {
+    return useMutation({
+        mutationFn: (searchParams) => getCustomerUploadImage(searchParams),
+        retry: false,
+        onError: (error) => {
+            const errorMessage = error.errorMessage || "이미지 조회를 하는데 문제가 발생했습니다.";
+            message.error(errorMessage);
+        }
+    })
+}
+
+export const useGetUploadVoice = () => {
+    return useMutation({
+        mutationFn: (searchParams) => getUploadVoice(searchParams),
+        retry: false,
+        onError: (error) => {
+            const errorMessage = error.errorMessage || "녹음 조회를 하는데 문제가 발생했습니다.";
+            message.error(errorMessage);
+        }
+    })
+}
+
+export const useGetCustomerUploadVoice = () => {
+    return useMutation({
+        mutationFn: (searchParams) => getCustomerUploadVoice(searchParams),
+        retry: false,
+        onError: (error) => {
+            const errorMessage = error.errorMessage || "이미지 조회를 하는데 문제가 발생했습니다.";
             message.error(errorMessage);
         }
     })

@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useGetCustomerUploadImage } from "@hook/useConsultant";
-import { Card, Image, Spin } from "antd";
+import { useGetCustomerUploadVoice } from "@hook/useConsultant";
+import { Card, Spin, Tooltip, Button } from "antd";
+import { PlayCircleOutlined } from "@ant-design/icons";
 
-const CustomerImage = () => {
+const CustomerVoice = () => {
     const [searchParams] = useSearchParams();
     const [data, setData] = useState(null);
-    const { mutate: getCustomerUploadImageVoice } = useGetCustomerUploadImage();
+    const { mutate: getCustomerUploadVoice } = useGetCustomerUploadVoice();
 
     useEffect(() => {
         const query = searchParams.get("queryValue");
 
-        getCustomerUploadImageVoice(
+        getCustomerUploadVoice(
             {
                 queryValue: query,
             },
@@ -46,30 +47,30 @@ const CustomerImage = () => {
                     </div>
                 </div>
 
-                <Image.PreviewGroup>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {data.urls.map((url, index) => (
-                            <Card
-                                key={index}
-                                hoverable
-                                className="shadow-md rounded-lg overflow-hidden"
-                                cover={
-                                    <div className="relative w-full h-60 bg-gray-100">
-                                        <Image
-                                            alt={`이미지 ${index + 1}`}
-                                            src={url}
-                                            className="h-full w-full object-cover"
-                                        />
-                                    </div>
-                                }
-                            />
-                        ))}
-                    </div>
-                </Image.PreviewGroup>
-
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {data.urls.map((url, index) => (
+                        <Card
+                            key={index}
+                            hoverable
+                            className="shadow-lg rounded-lg overflow-hidden transition-transform transform hover:scale-105"
+                            bodyStyle={{
+                                padding: "1rem",
+                                textAlign: "center",
+                            }}
+                        >
+                            <audio
+                                controls
+                                className="w-full rounded-md shadow-sm border border-gray-300"
+                            >
+                                <source src={url} type="audio/mpeg" />
+                                브라우저가 오디오 태그를 지원하지 않습니다.
+                            </audio>
+                        </Card>
+                    ))}
+                </div>
             </div>
         </div>
     );
 };
 
-export default CustomerImage;
+export default CustomerVoice;

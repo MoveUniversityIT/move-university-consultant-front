@@ -55,7 +55,10 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
             className="shadow-md rounded-md h-full flex flex-col w-full overflow-hidden"
         >
             <div>
-                <Button type="primary" block className="mb-4" onClick={onNew}>
+                <Button
+                    className="px-5 py-3 mb-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
+                    block
+                    onClick={onNew}>
                     새로 만들기
                 </Button>
 
@@ -95,7 +98,7 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
                             <div className="flex justify-end gap-2 border-t pt-2 mt-1">
                                 <Button
                                     size="small"
-                                    className="bg-blue-500 text-white rounded-md border border-blue-500 hover:bg-blue-600 hover:border-blue-600 px-4 py-1 text-xs shadow-sm transition-all duration-200"
+                                    className="px-4 py-3 mb-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
                                     onClick={() =>
                                         confirmAction(
                                             "불러오기 확인",
@@ -108,7 +111,7 @@ const Reservation = ({ onLoad, onNew, reservations }) => {
                                 </Button>
                                 <Button
                                     size="small"
-                                    className="bg-red-500 text-white rounded-md border border-red-500 hover:bg-red-600 hover:border-red-600 px-4 py-1 text-xs shadow-sm transition-all duration-200"
+                                    className="px-4 py-3 mb-2 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-200"
                                     onClick={() =>
                                         confirmAction(
                                             "삭제 확인",

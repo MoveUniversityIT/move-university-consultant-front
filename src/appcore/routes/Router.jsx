@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {createBrowserRouter, Navigate, RouterProvider} from "react-router-dom";
 import LoginForm from "@/component/LoginForm";
 import Consultant from "@component/Consultant";
@@ -6,23 +6,16 @@ import {useSelector} from "react-redux";
 import ProtectedRoute from "@/appcore/routes/ProtectedRoute";
 import RegisterForm from "@/component/RegisterForm";
 import AdminDashboard from "@component/admin/AdminDashboard";
-import {useGetNotice} from "@hook/useUser";
 import CustomLayout from "@/common/component/CustomLayout";
 import Community from "@component/Community";
 import CustomerImage from "@component/CustomerImage";
 import {WebSocketProvider} from "@/appcore/context/WebSocketContext";
+import CustomerVoice from "@component/CustomerVoice";
+import MapsTest from "@component/MapsTest";
 
 const Router = () => {
     const isLogin = useSelector((state) => state.login.loginState);
-    const userId = useSelector((state) => state.login.userId);
-    const {data: noticesData} = useGetNotice(userId);
     const [notices, setNotices] = useState({notices: [], unreadCount: 0});
-
-    useEffect(() => {
-        if (noticesData) {
-            setNotices(noticesData);
-        }
-    }, [noticesData]);
 
     const router = createBrowserRouter(
         [
@@ -33,7 +26,7 @@ const Router = () => {
             {
                 path: "/",
                 element: (
-                    <CustomLayout notices={notices}/>
+                    <CustomLayout notices={notices} setNotices={setNotices}/>
                 ),
                 children: [
                     {
@@ -69,6 +62,14 @@ const Router = () => {
                 ]
             },
             {
+                path: "/customer-image",
+                element: <CustomerImage />
+            },
+            {
+                path: "/customer-voice",
+                element: <CustomerVoice />
+            },
+            {
                 path: "/register",
                 element: (
                     <WebSocketProvider>
@@ -77,8 +78,10 @@ const Router = () => {
                 ),
             },
             {
-                path: "/customer",
-                element: <CustomerImage/>
+                path: "/maps",
+                element: (
+                    <MapsTest />
+                ),
             },
             {
                 path: "*",

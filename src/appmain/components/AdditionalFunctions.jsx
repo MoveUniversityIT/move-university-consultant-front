@@ -4,6 +4,14 @@ import {useImageQuery} from "@hook/useConsultant";
 import {useDispatch} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import PictureModal from "@component/modal/picture/PictureModal";
+import {
+    BankOutlined,
+    FileOutlined,
+    InsuranceOutlined,
+    MessageOutlined,
+    PictureOutlined,
+    TableOutlined
+} from "@ant-design/icons";
 
 const AdditionalFunctions = () => {
     const dispatch = useDispatch();
@@ -120,24 +128,42 @@ const AdditionalFunctions = () => {
               className="shadow-md rounded-md h-full"
         >
             <div className="grid grid-cols-1 gap-4">
-                <Button type="default" onClick={handlePaymentText}>
+                <Button
+                    className="px-5 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:from-blue-600 hover:to-indigo-600 transition-transform transform hover:scale-105 duration-300"
+                    icon={<MessageOutlined/>}
+                    onClick={handlePaymentText}>
                     계약금 문자
                 </Button>
-                <Button type="default" onClick={() => handleShowImage("business_license", "사업자 등록증")}>
+                <Button
+                    className="px-5 py-3 bg-gradient-to-r from-green-400 to-teal-500 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:from-green-500 hover:to-teal-600 transition-transform transform hover:scale-105 duration-300"
+                    icon={<FileOutlined/>}
+                    onClick={() => handleShowImage("business_license", "사업자 등록증")}>
                     사업자 등록증
                 </Button>
-                <Button type="default" onClick={() => handleShowImage("moveuniversity_account", "통장")}>
+                <Button
+                    className="px-5 py-3 bg-gradient-to-r from-purple-400 to-purple-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:from-purple-500 hover:to-purple-700 transition-transform transform hover:scale-105 duration-300"
+                    icon={<BankOutlined/>}
+                    onClick={() => handleShowImage("moveuniversity_account", "통장")}>
                     통장
                 </Button>
-                <Button type="default" onClick={() => handleShowImage("insurance_certification", "화물보험")}>
+                <Button
+                    className="px-5 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:from-yellow-500 hover:to-orange-600 transition-transform transform hover:scale-105 duration-300"
+                    icon={<InsuranceOutlined/>}
+                    onClick={() => handleShowImage("insurance_certification", "화물보험")}>
                     화물보험
                 </Button>
-                <Button type="default" onClick={() => handleShowImage("ladder_price", "사다리 요금표")}>
+                <Button
+                    className="px-5 py-3 bg-gradient-to-r from-red-400 to-pink-500 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:from-red-500 hover:to-pink-600 transition-transform transform hover:scale-105 duration-300"
+                    icon={<TableOutlined/>}
+                    onClick={() => handleShowImage("ladder_price", "사다리 요금표")}>
                     사다리 요금표
                 </Button>
-                {/*<Button type="default" onClick={handleShowPicture}>*/}
-                {/*    이미지/녹음*/}
-                {/*</Button>*/}
+                <Button
+                    className="px-5 py-3 bg-gradient-to-r from-gray-400 to-gray-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:from-gray-500 hover:to-gray-700 transition-transform transform hover:scale-105 duration-300"
+                    icon={<PictureOutlined/>}
+                    onClick={handleShowPicture}>
+                    이미지/녹음
+                </Button>
             </div>
 
             <Modal
@@ -149,7 +175,7 @@ const AdditionalFunctions = () => {
                 cancelText="취소"
                 centered
                 styles={{
-                    body: { padding: '20px' },
+                    body: {padding: '20px'},
                 }}
             >
                 <div
@@ -190,7 +216,7 @@ const AdditionalFunctions = () => {
                 open={isModalVisible}
                 footer={[
                     <Button key="download" type="primary" onClick={handleDownloadImage}>
-                    다운로드
+                        다운로드
                     </Button>,
                     <Button key="cancel" onClick={handleCloseModal}>
                         닫기
@@ -207,7 +233,9 @@ const AdditionalFunctions = () => {
                 )}
             </Modal>
 
-            <PictureModal isPictureVisible={isPictureVisible} handlePictureModalCancel={handlePictureModalCancel} />
+            {isPictureVisible && (
+                <PictureModal isPictureVisible={isPictureVisible} handlePictureModalCancel={handlePictureModalCancel}/>
+            )}
         </Card>
     );
 };
