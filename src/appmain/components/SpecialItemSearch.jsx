@@ -34,7 +34,7 @@ const SpecialItemSearch = ({
         const currentItem = value.slice(start, end).trim();
 
         if (start <= end && currentItem) {
-            const normalizeString = (str) => str.replace(/[()]/g, "").trim().toLowerCase();
+            const normalizeString = (str) => str.replace(/\s+/g, "").toLowerCase();
 
             const normalizedCurrent = normalizeString(currentItem);
 
@@ -66,9 +66,7 @@ const SpecialItemSearch = ({
                 const singleSuggestion = filteredSpecialSuggestions[0];
                 const singleSuggestionName = singleSuggestion.specialItemName.toLowerCase();
 
-                const normalizedWithoutTrailingNumbers = currentItem.replace(/\d+$/, "").trim().toLowerCase();
-
-                if (singleSuggestionName === normalizedWithoutTrailingNumbers) {
+                if (singleSuggestionName === normalizedCurrent) {
                     filteredSpecialSuggestions = [];
                 }
             }
@@ -84,35 +82,31 @@ const SpecialItemSearch = ({
             .filter((term) => term);
 
         const updatedSpecialItems = { ...specialItems };
-        const processedSpecialItemIds = new Set();
 
         terms.forEach((term) => {
-            const match = term.match(/^(.+?)(\d*)$/);
-
+            const match = term.match(/^(.+?)\((\d+.*)\)$/); // 대기비용(3시간) 형태 분리
             if (match) {
-                const specialItemName = match[1].trim();
+                const specialItemName = match[1].trim(); // "대기비용"
+                const specialItemDetail = match[2].trim(); // "3시간"
+                const fullItemName = `${specialItemName}(${specialItemDetail})`;
+
                 let isRegistered = false;
 
                 for (let i = 0; i < collapseSpecialItems.length; i++) {
                     const specialItem = collapseSpecialItems[i];
-                    const normalizedSpecialName = normalizeString(specialItem.specialItemName);
 
-                    if (normalizeString(specialItemName) === normalizedSpecialName) {
-                        if (!updatedSpecialItems[specialItem.specialItemName]) {
-                            updatedSpecialItems[specialItem.specialItemName] = {
-                                specialItemId: specialItem.specialItemId,
-                                specialItemName: specialItem.specialItemName,
-                            };
-                        }
-                        processedSpecialItemIds.add(specialItem.specialItemName.toString());
+                    // 정확한 매칭 조건
+                    if (specialItem.specialItemName === fullItemName) {
+                        updatedSpecialItems[fullItemName] = {
+                            specialItemId: specialItem.specialItemId,
+                            specialItemName: fullItemName,
+                        };
                         isRegistered = true;
                         break;
                     }
                 }
 
                 if (!isRegistered) {
-                    // Handle unregistered items if needed
-                    // unregisteredItems.push(term);
                 }
             }
         });
