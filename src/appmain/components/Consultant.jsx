@@ -150,7 +150,7 @@ const Consultant = () => {
                               isFormValid={isFormValid}
                               setIsFormValid={setIsFormValid}
                 />
-                <AdditionalFunctions consultantData={consultant} items={items}/>
+                <AdditionalFunctions consultantData={consultant} items={items} paymentMethod={paymentMethod} />
 
                 {hasAdminAccess && (
                     <>

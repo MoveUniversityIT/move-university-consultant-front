@@ -1,32 +1,43 @@
 import React, { useState } from "react";
-import { Button, Input, message, Table } from "antd";
+import {Button, Input, message, Pagination, Table} from "antd";
 import { useGetUploadVoice } from "@hook/useConsultant";
 import dayjs from "dayjs";
 
 const { Search } = Input;
 
 const PictureAudioSearchTab = () => {
-    const itemsPerPage = 12;
+    const itemsPerPage = 10;
     const [currentPage, setCurrentPage] = useState(1);
-    const { mutate: getUploadVoice } = useGetUploadVoice();
+    const [searchTerm, setSearchTerm] = useState();
     const [groups, setGroups] = useState([]);
-    const [searchTerm, setSearchTerm] = useState([]);
+    const [totalItems, setTotalItems] = useState(0);
+    const { mutate: getUploadVoice } = useGetUploadVoice();
 
-    const handleSearch = (value) => {
-        const searchTerm = value.toLowerCase();
-
+    const fetchTableData = (page = 1, searchValue = "") => {
         const searchParams = {
-            queryValue: searchTerm,
+            queryValue: searchValue,
+            page: page - 1,
+            size: itemsPerPage,
         };
 
         getUploadVoice(searchParams, {
             onSuccess: (data) => {
-                setGroups(data || []);
+                setGroups(data.content || []);
+                setTotalItems(data.totalElements || 0);
+                setCurrentPage(data.pageable.pageNumber + 1);
             },
         });
 
-        setSearchTerm(searchTerm);
-        setCurrentPage(1);
+        setSearchTerm(searchValue);
+        setCurrentPage(page);
+    };
+
+    const handleSearch = (value) => {
+        fetchTableData(1, value);
+    };
+
+    const handlePageChange = (page) => {
+        fetchTableData(page);
     };
 
     // 테이블 열 정의
@@ -119,13 +130,17 @@ const PictureAudioSearchTab = () => {
                 <Table
                     columns={columns}
                     dataSource={dataSource}
-                    pagination={{
-                        current: currentPage,
-                        pageSize: itemsPerPage,
-                        onChange: (page) => setCurrentPage(page),
-                    }}
-                    bordered
+                    pagination={false}
                     rowClassName="hover:bg-gray-50"
+                />
+            </div>
+            <div className="flex justify-center">
+                <Pagination
+                    current={currentPage}
+                    total={totalItems}
+                    pageSize={itemsPerPage}
+                    onChange={handlePageChange}
+                    showSizeChanger={false}
                 />
             </div>
         </div>

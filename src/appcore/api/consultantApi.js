@@ -180,9 +180,9 @@ export const postUploadImageAndVoice = async (dataForm) => {
     return response?.data;
 }
 
-export const getUploadImage = async (searchParams) => {
+export const getUploadImage = async ({queryValue, page, size}) => {
     const response = await API.get(
-        `/consultant/image?queryValue=${searchParams.queryValue}`)
+        `/consultant/image?queryValue=${queryValue}&page=${page}&size=${size}`)
 
     return response?.data;
 }
@@ -194,9 +194,9 @@ export const getCustomerUploadImage = async (searchParams) => {
     return response?.data;
 }
 
-export const getUploadVoice = async (searchParams) => {
+export const getUploadVoice = async ({queryValue, page, size}) => {
     const response = await API.get(
-        `/consultant/voice?queryValue=${searchParams.queryValue}`)
+        `/consultant/voice?queryValue=${queryValue}&page=${page}&size=${size}`)
 
     return response?.data;
 }

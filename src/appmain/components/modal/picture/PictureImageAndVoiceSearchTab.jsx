@@ -1,32 +1,43 @@
-import React, {useState} from "react";
-import {Button, Input, message, Table} from "antd";
-import {useGetUploadImage} from "@hook/useConsultant";
+import React, { useState } from "react";
+import {Button, Input, message, Pagination, Table} from "antd";
+import { useGetUploadImage } from "@hook/useConsultant";
 import dayjs from "dayjs";
 
-const {Search} = Input;
+const { Search } = Input;
 
 const PictureImageAndVoiceSearchTab = () => {
-    const itemsPerPage = 12;
+    const itemsPerPage = 10;
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState();
-    const {mutate: getUploadImage} = useGetUploadImage();
     const [groups, setGroups] = useState([]);
+    const [totalItems, setTotalItems] = useState(0);
+    const { mutate: getUploadImage } = useGetUploadImage();
 
-    const handleSearch = (value) => {
-        const searchTerm = value.toLowerCase();
-
+    const fetchTableData = (page = 1, searchValue = "") => {
         const searchParams = {
-            queryValue: searchTerm,
+            queryValue: searchValue,
+            page: page - 1,
+            size: itemsPerPage,
         };
 
         getUploadImage(searchParams, {
             onSuccess: (data) => {
-                setGroups(data || []);
+                setGroups(data.content || []);
+                setTotalItems(data.totalElements || 0);
+                setCurrentPage(data.pageable.pageNumber + 1);
             },
         });
 
-        setSearchTerm(searchTerm);
-        setCurrentPage(1);
+        setSearchTerm(searchValue);
+        setCurrentPage(page);
+    };
+
+    const handleSearch = (value) => {
+        fetchTableData(1, value);
+    };
+
+    const handlePageChange = (page) => {
+        fetchTableData(page);
     };
 
     // 테이블 열 정의
@@ -54,12 +65,12 @@ const PictureImageAndVoiceSearchTab = () => {
             render: (requestDate) => (
                 <div>
                     {requestDate ? (
-                        <div>{dayjs(requestDate).format('YYYY-MM-DD')}</div>
+                        <div>{dayjs(requestDate).format("YYYY-MM-DD")}</div>
                     ) : (
-                        '-'
+                        "-"
                     )}
                 </div>
-            )
+            ),
         },
         {
             title: "URL",
@@ -105,7 +116,7 @@ const PictureImageAndVoiceSearchTab = () => {
     }));
 
     return (
-        <div className="overflow-hidden h-[65vh] p-6 bg-gray-50 rounded-lg">
+        <div className="overflow-hidden h-[70vh] p-6 bg-gray-50 rounded-lg">
             <div className="sticky top-0 rounded-lg bg-white z-10 shadow">
                 <Search
                     placeholder="화주 이름, 화주 번호, 요청일 검색"
@@ -119,13 +130,17 @@ const PictureImageAndVoiceSearchTab = () => {
                 <Table
                     columns={columns}
                     dataSource={dataSource}
-                    pagination={{
-                        current: currentPage,
-                        pageSize: itemsPerPage,
-                        onChange: (page) => setCurrentPage(page),
-                    }}
-                    bordered
+                    pagination={false}
                     rowClassName="hover:bg-gray-50"
+                />
+            </div>
+            <div className="flex justify-center">
+                <Pagination
+                    current={currentPage}
+                    total={totalItems}
+                    pageSize={itemsPerPage}
+                    onChange={handlePageChange}
+                    showSizeChanger={false}
                 />
             </div>
         </div>

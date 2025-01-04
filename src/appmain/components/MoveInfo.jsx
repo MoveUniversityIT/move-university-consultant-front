@@ -799,8 +799,6 @@ const MoveInfo = ({
 
         const shortItemTerm = mapShortItemNames(searchItemTerm);
         const searchItemTermAndSearchSpecialITemTerm = `${searchItemTerm}, ${searchSpecialItemTerm}`.replace(/,\s*$/, "");
-        console.log(shortItemTerm);
-        console.log(searchItemTermAndSearchSpecialITemTerm);
 
         const gongchaData = {
             manager: supaManagerName[0]?.id,

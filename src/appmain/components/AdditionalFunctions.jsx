@@ -13,7 +13,7 @@ import {
     TableOutlined
 } from "@ant-design/icons";
 
-const AdditionalFunctions = () => {
+const AdditionalFunctions = ({paymentMethod}) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -52,21 +52,58 @@ const AdditionalFunctions = () => {
 
         const totalAmountFormatted = formatAmount(totalAmount);
         const contractDepositFormatted = formatAmount(contractDeposit);
-
-        const text = `송부드린 견적, 계약서 확인해주시고 동의하시면
-
-1005-504-674760 우리은행 (주)이사대학
-
-총액 ${totalAmountFormatted} 중 이사 중개 계약금 ${contractDepositFormatted} 입금해주시고
-
-잔금은 하차당일 모든 화물이 안전하게 잘 왔는지 확인하신 후
-현장에서 치뤄주시면 되십니다!
-
-입금 후 입금자명 말씀해주시면 확인후에 계약 확정나십니다!`;
+        const tempDeposit = formatAmount(String(Number(totalAmount) - Number(contractDeposit)));
 
         try {
+        if (paymentMethod.value === '현금') {
+            const text = `https://docs.google.com/forms/d/e/1FAIpQLSeKRh3z0T2A_imQ5R-dgjdpd_WhYrU8AIcHLl1dEk8eeDHyEg/viewform?usp=sharing
+송부드린 견적, 계약서 확인해주시고 동의하시면
+1005-504-674760 우리은행 (주)이사대학
+총액 ${totalAmountFormatted} 중 이사 중개 계약금 ${contractDepositFormatted} 입금해주시고
+
+잔금은 하차당일 모든 화물이 안전하게 잘 왔는지 확인하시고 카드, 세금계산서건이 아니라면 현장에서 기사님께 직접 치뤄주시면 되십니다!
+
+입금 후 입금자명 말씀해주시면 확인후에 계약 확정나십니다!
+
+*운송건에 대한 보상 혹은 환불 시 리뷰는 작성하실 수 없다는 점 미리 고지드립니다.
+
+내용 확인해주시고 이에 동의하신다면 입금해주시면 감사합니다!
+
+입금 후 연락이 없으시면 예약이 완료되지 않습니다. 꼭 연락 부탁드립니다!`;
+
             await navigator.clipboard.writeText(text);
             message.success("텍스트가 복사되었습니다!");
+        }else if(paymentMethod.value === '세금계산서' || paymentMethod.value === '현금영수증') {
+            const text = `https://docs.google.com/forms/d/e/1FAIpQLSeKRh3z0T2A_imQ5R-dgjdpd_WhYrU8AIcHLl1dEk8eeDHyEg/viewform?usp=sharing
+
+송부드린 계약서, 약관 확인해주시고 동의하시면
+1005-504-674760 우리은행(주) 이사대학
+총액 ${totalAmountFormatted} 중 이사 중개 계약금 ${contractDepositFormatted} 입금해주시고
+
+잔금은 하차당일 모든 화물이 안전하게 잘왔는지 확인하시고, 예약금 입금계좌와 동일하게 
+1005-504-674760 우리은행(주) 이사대학 ${tempDeposit} 입금해주시면 됩니다!
+입금 후 입금자명 말씀해주시면 확인후에 계약 확정나십니다!
+
+*운송건에 대한 보상 혹은 환불 시 리뷰는 작성하실 수 없다는 점 미리 고지드립니다.
+
+내용 확인해주시고 이에 동의하신다면 입금해주시면 감사합니다!
+
+입금 후 연락이 없으시면 예약이 완료되지 않습니다. 꼭 연락 부탁드립니다!`;
+
+            await navigator.clipboard.writeText(text);
+            message.success("텍스트가 복사되었습니다!");
+        }else if(paymentMethod.value === '카드') {
+            const text = `https://docs.google.com/forms/d/e/1FAIpQLSeKRh3z0T2A_imQ5R-dgjdpd_WhYrU8AIcHLl1dEk8eeDHyEg/viewform?usp=sharing
+
+송부드린 계약서, 약관 확인해주시고 동의하시면
+보내드리는 카드결제 링크 통해 
+${totalAmountFormatted} 결제해주시면됩니다!
+결제 후 연락이 없으시면 예약이 완료되지 않습니다. 꼭 연락 부탁드립니다!`;
+
+            await navigator.clipboard.writeText(text);
+            message.success("텍스트가 복사되었습니다!");
+        }
+
         } catch (error) {
             console.error("복사 실패:", error);
             message.error("복사하는 중 문제가 발생했습니다.");
@@ -158,16 +195,26 @@ const AdditionalFunctions = () => {
                     onClick={() => handleShowImage("ladder_price", "사다리 요금표")}>
                     사다리 요금표
                 </Button>
-                {/*<Button*/}
-                {/*    className="px-5 py-3 bg-gradient-to-r from-gray-400 to-gray-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:from-gray-500 hover:to-gray-700 transition-transform transform hover:scale-105 duration-300"*/}
-                {/*    icon={<PictureOutlined/>}*/}
-                {/*    onClick={handleShowPicture}>*/}
-                {/*    이미지/녹음*/}
-                {/*</Button>*/}
+                <Button
+                    className="px-5 py-3 bg-gradient-to-r from-gray-400 to-gray-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:from-gray-500 hover:to-gray-700 transition-transform transform hover:scale-105 duration-300"
+                    icon={<PictureOutlined/>}
+                    onClick={handleShowPicture}>
+                    이미지/녹음
+                </Button>
             </div>
 
             <Modal
-                title="총액 및 계약금 입력"
+                title={
+                    <div className="w-full">
+                        <span className="text-lg font-semibold ml-1">총액 및 계약금 입력</span>
+                        {paymentMethod && (
+                            <span
+                                className="text-blue-700 font-semibold">
+                                (결제 방법: {paymentMethod.value})
+                            </span>
+                        )}
+                    </div>
+                }
                 open={isInputModalVisible}
                 onOk={handleInputModalOk}
                 onCancel={handleInputModalCancel}

@@ -206,7 +206,7 @@ export const usePostUploadImageAndVoice = () => {
 
 export const useGetUploadImage = () => {
     return useMutation({
-        mutationFn: (searchParams) => getUploadImage(searchParams),
+        mutationFn: ({queryValue, page, size}) => getUploadImage({queryValue, page, size}),
         retry: false,
         onError: (error) => {
             const errorMessage = error.errorMessage || "이미지 조회를 하는데 문제가 발생했습니다.";
@@ -228,7 +228,7 @@ export const useGetCustomerUploadImage = () => {
 
 export const useGetUploadVoice = () => {
     return useMutation({
-        mutationFn: (searchParams) => getUploadVoice(searchParams),
+        mutationFn: ({queryValue, page, size}) => getUploadVoice({queryValue, page, size}),
         retry: false,
         onError: (error) => {
             const errorMessage = error.errorMessage || "녹음 조회를 하는데 문제가 발생했습니다.";

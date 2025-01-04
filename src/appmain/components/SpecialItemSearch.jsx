@@ -12,7 +12,7 @@ const SpecialItemSearch = ({
     const searchTermRef = useRef(null);
     const dropdownRef = useRef();
 
-    const normalizeString = (str) => str.replace(/[\d()]/g, "").trim().toLowerCase();
+    const normalizeString = (str) => str.trim().toLowerCase();
 
     const handleSpecialInputChange = (e) => {
         const value = e.target.value;
@@ -34,7 +34,7 @@ const SpecialItemSearch = ({
         const currentItem = value.slice(start, end).trim();
 
         if (start <= end && currentItem) {
-            const normalizeString = (str) => str.replace(/\s+/g, "").toLowerCase();
+            const normalizeString = (str) => str.trim().toLowerCase();
 
             const normalizedCurrent = normalizeString(currentItem);
 
@@ -105,14 +105,13 @@ const SpecialItemSearch = ({
                         break;
                     }
                 }
-
-                if (!isRegistered) {
-                }
             }
         });
 
+        // 삭제 로직 수정
         Object.keys(updatedSpecialItems).forEach((key) => {
-            if (!terms.some((term) => normalizeString(term) === normalizeString(key))) {
+            const isInTerms = terms.some((term) => normalizeString(term) === normalizeString(key));
+            if (!isInTerms) {
                 delete updatedSpecialItems[key];
             }
         });
@@ -121,6 +120,7 @@ const SpecialItemSearch = ({
         setSpecialItems(updatedSpecialItems);
         setSearchSpecialItemTerm(value);
     };
+
 
     const handleSelectSpecialItem = (specialItem) => {
         if (!specialItem) return;

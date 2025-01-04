@@ -40,9 +40,6 @@ const CustomerImage = () => {
                         <p className="text-gray-700">
                             <span className="font-semibold">화주 이름:</span> {data.customerName}
                         </p>
-                        <p className="text-gray-700">
-                            <span className="font-semibold">화주 번호:</span> {data.customerPhoneNumber}
-                        </p>
                     </div>
                 </div>
 
