@@ -57,6 +57,7 @@ const AdditionalFunctions = ({paymentMethod}) => {
         try {
         if (paymentMethod.value === '현금') {
             const text = `https://docs.google.com/forms/d/e/1FAIpQLSeKRh3z0T2A_imQ5R-dgjdpd_WhYrU8AIcHLl1dEk8eeDHyEg/viewform?usp=sharing
+            
 송부드린 견적, 계약서 확인해주시고 동의하시면
 1005-504-674760 우리은행 (주)이사대학
 총액 ${totalAmountFormatted} 중 이사 중개 계약금 ${contractDepositFormatted} 입금해주시고
