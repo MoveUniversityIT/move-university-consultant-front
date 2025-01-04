@@ -51,19 +51,23 @@ const CustomerImage = () => {
                                 hoverable
                                 className="shadow-md rounded-lg overflow-hidden"
                                 cover={
-                                    <div className="relative w-full h-60 bg-gray-100">
+                                    <div className="relative w-full aspect-w-1 aspect-h-1 bg-gray-100">
                                         <Image
                                             alt={`이미지 ${index + 1}`}
                                             src={url}
-                                            className="h-full w-full object-cover"
+                                            className="absolute inset-0 h-full w-full object-cover"
+                                            style={{
+                                                objectFit: 'cover',
+                                                objectPosition: 'center',
+                                            }}
                                         />
                                     </div>
                                 }
+                                bodyStyle={{ display: 'none' }}
                             />
                         ))}
                     </div>
                 </Image.PreviewGroup>
-
             </div>
         </div>
     );
