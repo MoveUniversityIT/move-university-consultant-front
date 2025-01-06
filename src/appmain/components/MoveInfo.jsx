@@ -251,7 +251,12 @@ const MoveInfo = ({
                     setLoadCityCode(locationList.address[0]?.address?.b_code?.trim() || null);
                 }
             } else {
-                setIsLoadLocationError(true);
+                if(!_.isEmpty(loadLocation)) {
+                    setIsLoadLocationError(true);
+                }else {
+                    setIsLoadLocationError(false);
+                }
+
                 handleLoadCoordinates({x: null, y: null});
                 setLoadCityCode(null);
                 setDistance(0);
@@ -605,6 +610,9 @@ const MoveInfo = ({
         setUnloadAddressList([]);
         setSliderValue(5);
         setDispatchCosts({});
+
+        setIsLoadLocationError(false);
+        setIsUnloadLocationError(false);
     };
 
     const handleSave = () => {
@@ -925,6 +933,12 @@ const MoveInfo = ({
             setSearchItemTerm(reservationData?.searchItemTerm ?? '');
             setSearchSpecialItemTerm(reservationData?.searchSpecialItemTerm ?? '');
             setUnregisterWord([]);
+
+            setIsLoadLocationError(false);
+            setIsUnloadLocationError(false);
+
+            setLoadAddressList([]);
+            setUnloadAddressList([]);
         }
     }, [reservationData]);
 
@@ -1254,6 +1268,7 @@ const MoveInfo = ({
                     onSelectAddress={handleAddressSelect(setUnloadLocation, setShowUnloadAddressList, 'unload')}
                     setSkipAddressChangeEvent={setSkipAddressChangeEvent}
                     tabIndex={2}
+                    isLocationError={isUnloadLocationError}
                 />
 
                 <div className="flex items-center gap-4">

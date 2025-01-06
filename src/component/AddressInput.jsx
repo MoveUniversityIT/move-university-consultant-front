@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
-import {Form, Input} from 'antd';
+import {Form, Input, Tooltip} from 'antd';
+import {ExclamationCircleOutlined} from "@ant-design/icons";
 
 const AddressInput = ({
                           label,
@@ -12,7 +13,8 @@ const AddressInput = ({
                           onSelectAddress,
                           setShowAddressList,
                           setSkipAddressChangeEvent,
-                          tabIndex
+                          tabIndex,
+                          isLocationError
                       }) => {
     const [selectedIndex, setSelectedIndex] = useState(-1);
 
@@ -64,8 +66,23 @@ const AddressInput = ({
                         }}
                         onBlur={() => setShowAddressList(false)}
                         className="w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200"
+                        style={{ paddingRight: isLocationError ? '40px' : '10px' }}
                         tabIndex={tabIndex}
                     />
+
+                    {isLocationError && (
+                        <Tooltip title="유효하지 않은 주소" className="cursor-pointer">
+                            <ExclamationCircleOutlined
+                                style={{
+                                    position: 'absolute',
+                                    right: '10px',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    color: 'red',
+                                }}
+                            />
+                        </Tooltip>
+                    )}
 
                     {showAddressList && addressList.length > 0 && (
                         <ul
