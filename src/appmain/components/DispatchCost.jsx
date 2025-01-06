@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from "react";
-import {Button, Card, Checkbox, Divider, Form, List, Slider, Spin, message} from "antd";
+import React, {useEffect, useRef, useState} from "react";
+import {Button, Card, Checkbox, Divider, Drawer, Form, List, message, Slider, Spin, Tooltip} from "antd";
 import {useCalcConsultants} from "@hook/useConsultant";
-import {CopyOutlined} from "@ant-design/icons";
+import {CopyOutlined, ZoomInOutlined} from "@ant-design/icons";
 import DispatchAmountListText from "@component/DispatchAmountListText";
 
 const dataLabel = {
@@ -51,6 +51,7 @@ const processDispatchData = (dispatchData) => {
                 totalLadderPrice: 0,
             },
             estimate: {
+                depositAdjustmentRate: 0,
                 baseCost: 0,
                 deposit: 0,
                 minDeposit: 0,
@@ -116,6 +117,7 @@ const processDispatchData = (dispatchData) => {
             totalLadderPrice: dispatchData[0]?.totalLadderPrice?.toLocaleString() || 0,
         },
         estimate: {
+            depositAdjustmentRate: dispatchData[0]?.estimatePrice?.depositAdjustmentRate || 0,
             baseCost: dispatchData[0]?.estimatePrice?.baseCost || 0,
             deposit: dispatchData[0]?.estimatePrice?.deposit || 0,
             minDeposit: dispatchData[0]?.estimatePrice?.minDeposit || 0,
@@ -155,6 +157,20 @@ const DispatchCost = ({
             name: '포장이사'
         }
     });
+
+    const isAnyCheckBoxSelected = Object.values(checkBox).some(item => item.checked);
+
+    const textRef = useRef(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
+
     const {mutateAsync: consultantMutateAsync} = useCalcConsultants();
 
     // minDeposit + (slider value - 1) * ((maxDeposit - minDeposit) / (10 -1))
@@ -239,8 +255,10 @@ const DispatchCost = ({
             }
         }
 
+        const adjustedDeposit = (calcEstimate - estimate.totalCalcPrice) * (estimate.depositAdjustmentRate + 1);
+
         setEstimatePrice(calcEstimate);
-        setDepositPrice(calcEstimate - estimate.totalCalcPrice);
+        setDepositPrice(adjustedDeposit);
         setSurtax(Math.round(calcEstimate * 0.1));
     };
 
@@ -418,7 +436,14 @@ const DispatchCost = ({
                         moveTypeName: name,
                         isAlone: true,
                         employHelperPeople: consultantDataForm.employHelperPeople.map((item, index) =>
-                            index === 0 ? transPortHelper : item
+                            index === 0
+                                ? transPortHelper
+                                : key === 4 && index === 1
+                                    ? {
+                                        helperType: "PACKING_CLEANING",
+                                        peopleCount: 1,
+                                    }
+                                    : item
                         ),
                     };
 
@@ -430,6 +455,14 @@ const DispatchCost = ({
                     ...consultantDataForm,
                     moveTypeId: key,
                     moveTypeName: name,
+                    employHelperPeople: consultantDataForm.employHelperPeople.map((item, index) =>
+                        key === 4 && index === 1 ?
+                            {
+                                helperType: "PACKING_CLEANING",
+                                peopleCount: 1,
+                            }
+                            : item
+                    ),
                 };
 
                 dispatchAmountListMutate(key, updatedForm);
@@ -450,6 +483,21 @@ const DispatchCost = ({
             },
         }));
     }
+
+    const handleCopy = () => {
+        if (textRef.current) {
+            const htmlString = textRef.current.innerHTML
+                .replace(/<br\s*\/?>/gi, '\n')
+                .replace(/<\/?[^>]+(>|$)/g, '');
+
+            const parser = new DOMParser();
+            const decodedString = parser.parseFromString(htmlString, 'text/html').body.textContent;
+
+            navigator.clipboard.writeText(decodedString).then(() => {
+                message.success('견적 금액이 복사되었습니다!');
+            });
+        }
+    };
 
     useEffect(() => {
         const primaryData = processDispatchData(dispatchAmount);
@@ -553,18 +601,26 @@ const DispatchCost = ({
             <Card title={
                 <div className="flex justify-between items-center">
                     <span>견적 자판기</span>
-                    {/*<Button*/}
-                    {/*    className="px-5 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"*/}
-                    {/*    icon={<CopyOutlined/>}*/}
-                    {/*    onClick={() => {*/}
-                    {/*        const summaryText = generateSummary(dispatchAmountList);*/}
-                    {/*        navigator.clipboard.writeText(summaryText).then(() => {*/}
-                    {/*            message.success("견적 금액이 복사되었습니다!");*/}
-                    {/*        });*/}
-                    {/*    }}*/}
-                    {/*>*/}
-                    {/*    견적금액 복사*/}
-                    {/*</Button>*/}
+                    {!isAnyCheckBoxSelected ? (
+                        <Tooltip title="아래의 체크박스 선택 후 사용할 수 있습니다." placement="top">
+                            <Button
+                                className="px-5 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
+                                icon={<ZoomInOutlined />}
+                                onClick={showModal}
+                                disabled
+                            >
+                                추가 견적 상세
+                            </Button>
+                        </Tooltip>
+                    ) : (
+                        <Button
+                            className="px-5 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
+                            icon={<ZoomInOutlined />}
+                            onClick={showModal}
+                        >
+                            추가 견적 상세
+                        </Button>
+                    )}
                 </div>
             }
                   className="shadow-md rounded-md flex-1"
@@ -597,46 +653,94 @@ const DispatchCost = ({
                     </div>
                 </div>
                 <Divider/>
-                {/*<div className="grid grid-cols-3 gap-4 pl-4 pr-4 border rounded-md">*/}
-                {/*    <Checkbox*/}
-                {/*        onChange={(e) => handleCheckSave(1, e.target.checked, "단순운송")}*/}
-                {/*        className="text-gray-700"*/}
-                {/*        disabled={!isFormValid}*/}
-                {/*        checked={checkBox[1].checked}*/}
-                {/*    >*/}
-                {/*        단순운송*/}
-                {/*    </Checkbox>*/}
-                {/*    <Checkbox*/}
-                {/*        onChange={(e) => handleCheckSave(2, e.target.checked, "일반이사")}*/}
-                {/*        className="text-gray-700"*/}
-                {/*        disabled={!isFormValid}*/}
-                {/*        checked={checkBox[2].checked}*/}
-                {/*    >*/}
-                {/*        일반이사*/}
-                {/*    </Checkbox>*/}
-                {/*    <Checkbox*/}
-                {/*        onChange={(e) => handleCheckSave(3, e.target.checked, "반포장이사")}*/}
-                {/*        className="text-gray-700"*/}
-                {/*        disabled={!isFormValid}*/}
-                {/*        checked={checkBox[3].checked}*/}
-                {/*    >*/}
-                {/*        반포장이사*/}
-                {/*    </Checkbox>*/}
-                {/*    <Checkbox*/}
-                {/*        onChange={(e) => handleCheckSave(4, e.target.checked, "포장이사")}*/}
-                {/*        className="text-gray-700"*/}
-                {/*        disabled={!isFormValid}*/}
-                {/*        checked={checkBox[4].checked}*/}
-                {/*    >*/}
-                {/*        포장이사*/}
-                {/*    </Checkbox>*/}
-                {/*</div>*/}
-                {/*<div className="max-h-[70px] overflow-y-auto overflow-x-hidden">*/}
-                {/*    <DispatchAmountListText*/}
-                {/*        consultantDataForm={consultantDataForm}*/}
-                {/*        dispatchAmountList={dispatchAmountList}*/}
-                {/*    />*/}
-                {/*</div>*/}
+                <div className="relative">
+                    {/*<div*/}
+                    {/*    className={`absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10 transition-opacity duration-500 ${*/}
+                    {/*        isFormValid ? "opacity-0 pointer-events-none" : "opacity-100"*/}
+                    {/*    }`}*/}
+                    {/*>*/}
+                    {/*    <div*/}
+                    {/*        className="text-sm text-gray-700 font-semibold transform transition-transform duration-500 ease-in-out"*/}
+                    {/*        style={{*/}
+                    {/*            transform: isFormValid ? "translateY(-20px)" : "translateY(0)",*/}
+                    {/*        }}*/}
+                    {/*    >*/}
+                    {/*        배차 금액 조회를 해야 사용할 수 있습니다.*/}
+                    {/*    </div>*/}
+                    {/*</div>*/}
+                    <div
+                        className={`absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10 transition-opacity duration-500 ${
+                            isAnyCheckBoxSelected ? "opacity-0 pointer-events-none" : "opacity-100"
+                        }`}
+                    >
+                        <div
+                            className="text-sm text-gray-700 font-semibold transform transition-transform duration-500 ease-in-out"
+                            style={{
+                                transform: isAnyCheckBoxSelected ? "translateY(-20px)" : "translateY(0)",
+                            }}
+                        >
+                            업데이트 예정
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4 pl-4 pr-4 border rounded-md">
+                        <Checkbox
+                            onChange={(e) => handleCheckSave(1, e.target.checked, "단순운송")}
+                            className="text-gray-700"
+                            disabled={!isFormValid}
+                            checked={checkBox[1].checked}
+                        >
+                            단순운송
+                        </Checkbox>
+                        <Checkbox
+                            onChange={(e) => handleCheckSave(2, e.target.checked, "일반이사")}
+                            className="text-gray-700"
+                            disabled={!isFormValid}
+                            checked={checkBox[2].checked}
+                        >
+                            일반이사
+                        </Checkbox>
+                        <Checkbox
+                            onChange={(e) => handleCheckSave(3, e.target.checked, "반포장이사")}
+                            className="text-gray-700"
+                            disabled={!isFormValid}
+                            checked={checkBox[3].checked}
+                        >
+                            반포장이사
+                        </Checkbox>
+                        <Checkbox
+                            onChange={(e) => handleCheckSave(4, e.target.checked, "포장이사")}
+                            className="text-gray-700"
+                            disabled={!isFormValid}
+                            checked={checkBox[4].checked}
+                        >
+                            포장이사
+                        </Checkbox>
+                    </div>
+                </div>
+                <Drawer
+                    title={
+                        <div className="flex justify-between items-center">
+                            <span>추가 견적 상세</span>
+                            <Button
+                                className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
+                                icon={<CopyOutlined/>}
+                                onClick={handleCopy}
+                            >
+                                견적금액 복사
+                            </Button>
+                        </div>
+                    }
+                    placement="right"
+                    onClose={closeModal}
+                    open={isModalOpen}
+                    width={400}
+                >
+                    <DispatchAmountListText
+                        ref={textRef}
+                        consultantDataForm={consultantDataForm}
+                        dispatchAmountList={dispatchAmountList}
+                    />
+                </Drawer>
             </Card>
         </div>
     );

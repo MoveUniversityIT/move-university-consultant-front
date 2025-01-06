@@ -84,6 +84,7 @@ const MoveInfo = ({
     const [loadHouseholdMembers, setLoadHouseholdMembers] = useState(0);
     const [loadCustomers, setLoadCustomers] = useState([]);
     const [showLoadAddressList, setShowLoadAddressList] = useState(false);
+    const [isLoadLocationError, setIsLoadLocationError] = useState(false);
 
     const [unloadLocation, setUnloadLocation] = useState('');
     const [unloadCityCode, setUnloadCityCode] = useState(null);
@@ -94,6 +95,7 @@ const MoveInfo = ({
     const [unloadHouseholdMembers, setUnloadHouseholdMembers] = useState(0);
     const [unloadCustomers, setUnloadCustomers] = useState([]);
     const [showUnloadAddressList, setShowUnloadAddressList] = useState(false);
+    const [isUnloadLocationError, setIsUnloadLocationError] = useState(false);
 
     const [isTogether, setIsTogether] = useState(false);
     const [isAlone, setIsAlone] = useState(false);
@@ -240,6 +242,7 @@ const MoveInfo = ({
     useEffect(() => {
         if (locationSearch?.locationType === "load") {
             if (locationList) {
+                setIsLoadLocationError(false);
                 setLoadAddressList(locationList.address || []);
 
                 if (locationSearch.address === locationList.address[0]?.address?.address_name) {
@@ -248,12 +251,15 @@ const MoveInfo = ({
                     setLoadCityCode(locationList.address[0]?.address?.b_code?.trim() || null);
                 }
             } else {
+                setIsLoadLocationError(true);
                 handleLoadCoordinates({x: null, y: null});
                 setLoadCityCode(null);
+                setDistance(0);
                 setLoadAddressList([]);
             }
         } else if (locationSearch?.locationType === "unload") {
             if (locationList) {
+                setIsUnloadLocationError(false);
                 setUnloadAddressList(locationList.address || []);
 
                 if (locationSearch.address === locationList.address[0]?.address?.address_name) {
@@ -262,8 +268,15 @@ const MoveInfo = ({
                     setUnloadCityCode(locationList.address[0]?.address?.b_code?.trim() || null);
                 }
             } else {
+                if(!_.isEmpty(unloadLocation)) {
+                    setIsUnloadLocationError(true);
+                }else {
+                    setIsUnloadLocationError(false);
+                }
+
                 handleUnloadCoordinates({x: null, y: null});
                 setUnloadCityCode(null);
+                setDistance(0);
                 setUnloadAddressList([]);
             }
         }
@@ -1207,6 +1220,7 @@ const MoveInfo = ({
                             onSelectAddress={handleAddressSelect(setLoadLocation, setShowLoadAddressList, 'load')}
                             setSkipAddressChangeEvent={setSkipAddressChangeEvent}
                             tabIndex={1}
+                            isLocationError={isLoadLocationError}
                         />
                     </div>
                 </div>
