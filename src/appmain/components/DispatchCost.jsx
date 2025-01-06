@@ -255,7 +255,11 @@ const DispatchCost = ({
             }
         }
 
-        const adjustedDeposit = (calcEstimate - estimate.totalCalcPrice) * (estimate.depositAdjustmentRate + 1);
+        const adjustedDeposit =
+            (calcEstimate - estimate.totalCalcPrice) * (estimate.depositAdjustmentRate + 1) >= calcEstimate
+                ? calcEstimate
+                : (calcEstimate - estimate.totalCalcPrice) * (estimate.depositAdjustmentRate + 1);
+
 
         setEstimatePrice(calcEstimate);
         setDepositPrice(adjustedDeposit);
