@@ -175,20 +175,20 @@ const DispatchCost = ({
         setSliderValue(value);
 
         // 중간값 계산
-        const interpolate = (min, mid, max, currentValue, minValue, maxValue) => {
-            if (currentValue === minValue) return min;
-            if (currentValue === maxValue) return max;
-            if (currentValue === Math.floor((minValue + maxValue) / 2)) return mid;
-
-            const midPoint = Math.floor((minValue + maxValue) / 2);
-
-            // 선형 보간 공식
-            if (currentValue < midPoint) {
-                return min + ((mid - min) / (midPoint - minValue)) * (currentValue - minValue);
-            } else {
-                return mid + ((max - mid) / (maxValue - midPoint)) * (currentValue - midPoint);
-            }
-        };
+        // const interpolate = (min, mid, max, currentValue, minValue, maxValue) => {
+        //     if (currentValue === minValue) return min;
+        //     if (currentValue === maxValue) return max;
+        //     if (currentValue === Math.floor((minValue + maxValue) / 2)) return mid;
+        //
+        //     const midPoint = Math.floor((minValue + maxValue) / 2);
+        //
+        //     // 선형 보간 공식
+        //     if (currentValue < midPoint) {
+        //         return min + ((mid - min) / (midPoint - minValue)) * (currentValue - minValue);
+        //     } else {
+        //         return mid + ((max - mid) / (maxValue - midPoint)) * (currentValue - midPoint);
+        //     }
+        // };
 
         const minEstimate = Math.round(estimate.baseCost * 1.15);
         const midEstimate = estimate.estimatePrice;
@@ -264,46 +264,93 @@ const DispatchCost = ({
         setEstimatePrice(calcEstimate);
         setDepositPrice(adjustedDeposit);
         setSurtax(Math.round(calcEstimate * 0.1));
+
+        setDispatchAmountList((prevMap = {}) => {
+            const updatedMap = { ...prevMap };
+
+            Object.keys(updatedMap).forEach((key) => {
+                const currentList = updatedMap[key] || [];
+
+                if (currentList.length > 0) {
+                    const { estimate, totalCalcPrice } = currentList[0];
+                    // handleSubEstimatePrice 호출
+                    handleSubEstimatePrice(key, estimate, totalCalcPrice, value);
+                }
+            });
+
+            return updatedMap;
+        });
     };
 
-    const handleSubEstimatePrice = (key, estimate, totalCalcPrice) => {
-        let calcEstimate = estimate.estimatePrice;
+    const handleSubEstimatePrice = (key, estimate, totalCalcPrice, value) => {
+        console.log(key, estimate, totalCalcPrice, value);
+        let calcEstimate;
 
-        // 반올림 처리
-        calcEstimate = Math.round(calcEstimate * 100) / 100;
+        // value를 기반으로 calcEstimate 계산
+        if (value === 5) {
+            calcEstimate = estimate.estimatePrice;
 
-        // 30만 미만일 경우 5천원 단위로 반올림
-        if (calcEstimate < 300000) {
-            calcEstimate = Math.round(calcEstimate / 5000) * 5000;
-        }
-        // 30만 이상 ~ 130만 미만일 경우 1만원 단위로 반올림
-        else if (calcEstimate < 1300000) {
-            calcEstimate = Math.round(calcEstimate / 10000) * 10000;
+            // 반올림 처리
+            calcEstimate = Math.round(calcEstimate * 100) / 100;
 
-            const thousandWon = Math.floor(calcEstimate / 100000); // 10만 단위
-            const tenThousandWon = calcEstimate % 100000; // 10만 단위 잔여값
+            if (calcEstimate < 300000) {
+                calcEstimate = Math.round(calcEstimate / 5000) * 5000;
+            } else if (calcEstimate < 1300000) {
+                calcEstimate = Math.round(calcEstimate / 10000) * 10000;
 
-            if (tenThousandWon > 60000 || tenThousandWon <= 10000 || tenThousandWon === 0) {
-                if (60000 < tenThousandWon && tenThousandWon < 100000) {
-                    calcEstimate = (calcEstimate - tenThousandWon) + 80000;
-                } else {
-                    calcEstimate = (thousandWon - 1) * 100000 + 80000;
+                const thousandWon = Math.floor(calcEstimate / 100000);
+                const tenThousandWon = calcEstimate % 100000;
+
+                if (tenThousandWon > 60000 || tenThousandWon <= 10000 || tenThousandWon === 0) {
+                    if (60000 < tenThousandWon && tenThousandWon < 100000) {
+                        calcEstimate = (calcEstimate - tenThousandWon) + 80000;
+                    } else {
+                        calcEstimate = (thousandWon - 1) * 100000 + 80000;
+                    }
+                } else if (tenThousandWon > 10000 && tenThousandWon <= 60000) {
+                    calcEstimate = Math.floor(calcEstimate / 100000) * 100000 + 40000;
                 }
 
-            } else if (tenThousandWon > 10000 && tenThousandWon <= 60000) {
-                calcEstimate = Math.floor(calcEstimate / 100000) * 100000 + 40000;
+                if (calcEstimate <= 980000) {
+                    calcEstimate += 5000;
+                }
+
+                calcEstimate = Math.round(calcEstimate);
+            } else {
+                calcEstimate = Math.round(calcEstimate / 50000) * 50000;
             }
+        } else if (1 <= value && value < 5) {
+            const minEstimate = Math.round(estimate.baseCost * 1.15);
+            const midEstimate = estimate.estimatePrice;
+
+            calcEstimate = minEstimate + ((midEstimate - minEstimate) / (5 - 1)) * (value - 1);
+            calcEstimate = Math.round(calcEstimate / 5000) * 5000;
 
             if (calcEstimate <= 980000) {
-                calcEstimate += 5000;
+                calcEstimate = Math.round(calcEstimate / 5000) * 5000;
+            } else {
+                calcEstimate = Math.round(calcEstimate / 10000) * 10000;
             }
+        } else if (5 < value && value <= 10) {
+            const midEstimate = estimate.estimatePrice;
+            const maxEstimate = Math.round(estimate.estimatePrice * 1.5);
 
-            calcEstimate = Math.round(calcEstimate);
+            calcEstimate = midEstimate + ((maxEstimate - midEstimate) / (10 - 5)) * (value - 5);
+
+            if (calcEstimate <= 980000) {
+                calcEstimate = Math.round(calcEstimate / 5000) * 5000;
+            } else {
+                calcEstimate = Math.round(calcEstimate / 10000) * 10000;
+            }
         }
-        // 130만 이상의 경우 5만원 단위 반올림
-        else {
-            calcEstimate = Math.round(calcEstimate / 50000) * 50000;
-        }
+
+        // 기타 계산 및 상태 업데이트
+        const roundingUnit = 5000;
+        const calculatedDeposit =
+            Math.round((calcEstimate - totalCalcPrice) * (estimate.depositAdjustmentRate + 1) / roundingUnit) * roundingUnit;
+
+        const adjustedDeposit =
+            calculatedDeposit >= calcEstimate ? calcEstimate : calculatedDeposit;
 
         setDispatchAmountList((prevMap = {}) => {
             const currentList = prevMap[key] || [];
@@ -311,14 +358,20 @@ const DispatchCost = ({
 
             return {
                 ...prevMap,
-                [key]: [...prevMap[key].map((item, idx) => (idx === index
-                    ? {
-                        ...item[0],
-                        calcEstimate,
-                        calcDeposit: calcEstimate - totalCalcPrice,
-                        calcSurtax: Math.round(calcEstimate * 0.1),
-                    }
-                    : item[0]))]
+                [key]: [
+                    ...prevMap[key].map((item, idx) =>
+                        idx === index
+                            ? {
+                                ...item[0],
+                                estimate,
+                                totalCalcPrice,
+                                calcEstimate,
+                                calcDeposit: adjustedDeposit,
+                                calcSurtax: Math.round(calcEstimate * 0.1),
+                            }
+                            : item[0]
+                    ),
+                ],
             };
         });
     };
@@ -404,7 +457,7 @@ const DispatchCost = ({
                     };
                 });
 
-                handleSubEstimatePrice(key, data[0].estimatePrice, data[0].totalCalcPrice);
+                handleSubEstimatePrice(key, data[0].estimatePrice, data[0].totalCalcPrice, 5);
             }
         });
     }
@@ -728,18 +781,32 @@ const DispatchCost = ({
                 </div>
                 <Divider/>
                 <div className="relative">
+                    {/*<div*/}
+                    {/*    className={`absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10 transition-opacity duration-500 ${*/}
+                    {/*        isFormValid ? "opacity-0 pointer-events-none" : "opacity-100"*/}
+                    {/*    }`}*/}
+                    {/*>*/}
+                    {/*    <div*/}
+                    {/*        className="text-sm text-gray-700 font-semibold transform transition-transform duration-500 ease-in-out"*/}
+                    {/*        style={{*/}
+                    {/*            transform: isFormValid ? "translateY(-20px)" : "translateY(0)",*/}
+                    {/*        }}*/}
+                    {/*    >*/}
+                    {/*        배차 금액을 조회해야 기능이 활성화됩니다.*/}
+                    {/*    </div>*/}
+                    {/*</div>*/}
                     <div
                         className={`absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10 transition-opacity duration-500 ${
-                            isFormValid ? "opacity-0 pointer-events-none" : "opacity-100"
+                            false ? "opacity-0 pointer-events-none" : "opacity-100"
                         }`}
                     >
                         <div
                             className="text-sm text-gray-700 font-semibold transform transition-transform duration-500 ease-in-out"
                             style={{
-                                transform: isFormValid ? "translateY(-20px)" : "translateY(0)",
+                                transform: false ? "translateY(-20px)" : "translateY(0)",
                             }}
                         >
-                            배차 금액을 조회해야 기능이 활성화됩니다.
+                            업데이트 예정
                         </div>
                     </div>
                     <div className="grid grid-cols-3 gap-4 pl-4 pr-4 border rounded-md">
