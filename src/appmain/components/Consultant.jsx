@@ -54,6 +54,16 @@ const Consultant = () => {
     const [dispatchCosts, setDispatchCosts] = useState({})
     const [moveTypeCheckBoxes, setMoveTypeCheckBoxes] = useState({});
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
+
     if (isLoading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 space-y-4">
@@ -85,7 +95,7 @@ const Consultant = () => {
     return (
         <div className="pt-14 relative">
             <div
-                className="h-full grid gap-2 p-2 mx-auto overflow-x-auto"
+                className={`h-full grid gap-2 p-2 mx-auto overflow-x-auto ${isModalOpen ? '!mr-[650px]' : ''}`}
                 style={{
                     marginRight: isCollapsed ? "0" : "650px",
                     gridTemplateColumns: "minmax(240px, 1.2fr) minmax(550px, 2.5fr) minmax(400px, 2.5fr) minmax(190px, 1.3fr)",
@@ -149,6 +159,10 @@ const Consultant = () => {
                               setConsultantDataForm={setConsultantDataForm}
                               isFormValid={isFormValid}
                               setIsFormValid={setIsFormValid}
+                              dokchaPrices={consultant?.dokchaPrices}
+                              isModalOpen={isModalOpen}
+                              showModal={showModal}
+                              closeModal={closeModal}
                 />
                 <AdditionalFunctions consultantData={consultant} items={items} paymentMethod={paymentMethod} />
 

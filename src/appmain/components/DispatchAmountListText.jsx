@@ -1,60 +1,47 @@
 import React from 'react';
+import DispatchAmountItem from "@component/DispatchAmountItem";
 
-const descriptions = {
-    단순운송: {
-        description: "- 트럭에서 상하차, 짐 고정만 해드리는 서비스입니다.",
-        description2: "- 트럭에서 상하차, 짐 고정만 해드리는 서비스입니다.",
-        description3: "- 트럭에서 상하차, 짐 고정만 해드리는 서비스입니다."
-    },
-    일반이사: {
-        description: "- 고객님께서 짐을 모두 포장해두시고 운반, 운송, 도착지 큰짐 배치까지 도와드리는 서비스입니다.",
-        description2: "- 고객님께서 짐을 모두 포장해두시고 기사님 두분이 가셔서 운송, 도착지 큰짐 배치까지 도와드리는 서비스입니다.",
-        description3: "- 고객님께서 짐을 모두 포장해두시고 기사님들이 가셔서 운송, 도착지 큰짐 배치까지 도와드리는 서비스입니다."
-    },
-    반포장이사: {
-        description: "- 이사에 필요한 자재들을 들고가서 포장, 운반, 큰짐 배치까지 도와드리는 서비스입니다.",
-        description2: "- 이사에 필요한 자재들을 들고 기사님 두분이 가셔서 포장, 운반, 큰짐 배치까지 도와드리는 함께하는 이사 서비스입니다.",
-        description3: "- 이사에 필요한 자재들을 들고가서 기사님들이 가셔서 포장, 운반, 큰짐 배치까지 도와드리는 함께하는 이사 서비스입니다."
-    },
-    포장이사: {
-        description:
-            "- 포장인부와 정리인부가 이사에 필요한 자재들을 들고 가서 포장, 운반, 가구 배치, 도착지에서 잔짐 정리, 간단한 청소까지 해드리는 서비스입니다.",
-        description2:
-            "- 포장인부와 정리인부가 이사에 필요한 자재들을 들고 가서 포장, 운반, 가구 배치, 도착지에서 잔짐 정리, 간단한 청소까지 해드리는 서비스입니다.",
-        description3:
-            "- 포장인부와 정리인부가 이사에 필요한 자재들을 들고 가서 포장, 운반, 가구 배치, 도착지에서 잔짐 정리, 간단한 청소까지 해드리는 서비스입니다.",
-    },
-};
-
-const DispatchAmountItem = ({ moveTypeName, vehicleCount, calcEstimate, helpers }) => {
-    let typeDescription = "";
-    let helpersText = "";
-    let title = "";
-
-    if(vehicleCount === 1) {
-        typeDescription = helpers ? descriptions[moveTypeName]?.description2 : descriptions[moveTypeName]?.description || "";
-        helpersText = helpers ? `2인 ` : "";
-        title = helpers ? `1톤 ${vehicleCount}대 분량 고객님과 함께 하는 ${moveTypeName}` : `1톤 ${vehicleCount}대 분량 ${helpersText}${moveTypeName}`;
-    }else {
-        typeDescription = descriptions[moveTypeName]?.description3 || "";
-        helpersText = `${vehicleCount}인 `;
-        title = `1톤 ${vehicleCount}대 분량 ${helpersText}${moveTypeName}`;
+const sumHelperCount = (helperPeople) => {
+    const totalCount = {
+        male: 0,
+        female: 0
     }
 
-    return (
-        <div className="mt-4 mb-4 text-gray-600 whitespace-pre-wrap">
-            &lt;{title}&gt;
-            <br />
-            {typeDescription}
-            <br />
-            견적 금액: {calcEstimate?.toLocaleString()}원
-            <br />
-            <br />
-        </div>
-    );
+    if(!helperPeople || helperPeople.length < 1) {
+        return totalCount;
+    }
+
+    helperPeople.forEach(person => {
+        if (person.gender === 'male') {
+            totalCount.male += person.peopleCount;
+        } else if (person.gender === 'female') {
+            totalCount.female += person.peopleCount;
+        }
+    });
+
+    return totalCount;
+}
+
+const formatHelperCountText = (helperCount) => {
+    const { male, female } = helperCount;
+
+    if (male === 0 && female === 0) {
+        return "없음";
+    }
+
+    const maleText = male > 0 ? `남${male}` : "";
+    const femaleText = female > 0 ? `여${female}` : "";
+
+    return [maleText, femaleText].filter(Boolean).join(" ");
 };
 
-const DispatchAmountListText = React.forwardRef(({ consultantDataForm, dispatchAmountList }, ref) => {
+const DispatchAmountListText = React.forwardRef(({ consultantDataForm, dispatchAmountList, onUpdate }, ref) => {
+    const loadHelperCount = sumHelperCount(consultantDataForm?.loadHelperPeople);
+    const unloadHelperCount = sumHelperCount(consultantDataForm?.unloadHelperPeople);
+
+    const loadHelperText = formatHelperCountText(loadHelperCount);
+    const unloadHelperText = formatHelperCountText(unloadHelperCount);
+
     return (
         <div ref={ref}>
             {Object.keys(dispatchAmountList).length > 0 && (
@@ -65,7 +52,7 @@ const DispatchAmountListText = React.forwardRef(({ consultantDataForm, dispatchA
                         =============================================<br />
                         <br />
                         도로 거리: {consultantDataForm?.distance ?? 0}km, 출발지: [{consultantDataForm?.loadMethodName}] [도움:
-                        없음], 도착지: [{consultantDataForm?.unloadMethodName}] [도움: 없음] 기준으로 안내해드리겠습니다.
+                        {loadHelperText}], 도착지: [{consultantDataForm?.unloadMethodName}] [도움: {unloadHelperText}] 기준으로 안내해드리겠습니다.
                         <br />
                         <br />
                         =============================================<br />
@@ -77,10 +64,12 @@ const DispatchAmountListText = React.forwardRef(({ consultantDataForm, dispatchA
                             ? dispatchAmount.map((amount, idx) => (
                                 <DispatchAmountItem
                                     key={`${index}-${idx}`}
+                                    id={`${index}-${idx}`}
                                     moveTypeName={amount.moveTypeName}
                                     vehicleCount={amount.vehicleCount}
                                     calcEstimate={amount.calcEstimate}
                                     helpers={amount.helpers}
+                                    onTextChange={onUpdate}
                                 />
                             ))
                             : null

@@ -12,10 +12,9 @@ import {
     FaUserShield,
     FaSatelliteDish,
     FaBullhorn,
-    FaChalkboardTeacher
+    FaChalkboardTeacher, FaFileExcel
 } from "react-icons/fa";
 import {hasAccess} from "@/appcore/utils/utils";
-
 
 const CustomHeader = ({notices}) => {
     const dispatch = useDispatch();
@@ -52,7 +51,7 @@ const CustomHeader = ({notices}) => {
                 <nav className="flex items-center space-x-6 overflow-visible">
                     <div
                         className="relative flex items-center space-x-2 text-gray-800 hover:text-orange-500 text-sm whitespace-nowrap hover:cursor-pointer"
-                    onClick={goToNotice}>
+                        onClick={goToNotice}>
                         <FaBullhorn className="w-5 h-5"/>
                         {notices?.unreadCount > 0 && (
                             <span
@@ -72,8 +71,13 @@ const CustomHeader = ({notices}) => {
                         <FaTruck className="w-5 h-5"/>
                         <span>이사공차</span>
                     </a>
-                    <a href="https://www.moveuniversity.co.kr/main" target="_blank"
+                    <a href="https://docs.google.com/spreadsheets/d/1k7L-GHgRuF1annI_ROWABfhQrePJnFHNp_xQFFo40VY/edit?usp=sharing" target="_blank"
                        className="flex items-center space-x-2 text-gray-800 hover:text-green-600 text-sm whitespace-nowrap">
+                        <FaFileExcel className="w-5 h-5"/>
+                        <span>연차시트</span>
+                    </a>
+                    <a href="https://www.moveuniversity.co.kr/main" target="_blank"
+                       className="flex items-center space-x-2 text-gray-800 hover:text-yellow-500 text-sm whitespace-nowrap">
                         <FaSatelliteDish className="w-5 h-5"/>
                         <span>이사대학 올인원(통신)</span>
                     </a>
@@ -93,7 +97,7 @@ const CustomHeader = ({notices}) => {
                            className="flex items-center space-x-2 text-gray-800 hover:text-red-600 text-sm whitespace-nowrap">
                             {isAdminPage ? (
                                 <>
-                                    <FaChalkboardTeacher className="w-5 h-5" />
+                                    <FaChalkboardTeacher className="w-5 h-5"/>
                                     <span>상담봇</span>
                                 </>
                             ) : (

@@ -78,7 +78,7 @@ const Reservation = ({onLoad, onNew, reservations}) => {
                     renderItem={(reservation) => (
                         <List.Item
                             key={reservation.reservationId}
-                            className="w-full bg-gradient-to-r from-gray-50 to-white rounded-lg mb-2 p-4 border border-gray-200 shadow-sm hover:border-transparent hover:shadow-xl hover:bg-gradient-to-r hover:from-blue-100 hover:to-blue-50 transition-all duration-300 flex flex-col items-center transform"
+                            className="w-full bg-gradient-to-r h-32 from-gray-50 to-white rounded-lg mb-2 p-4 border border-gray-200 shadow-sm hover:border-transparent hover:shadow-xl hover:bg-gradient-to-r hover:from-blue-100 hover:to-blue-50 transition-all duration-300 flex flex-col items-center transform"
                         >
 
                         <div className="flex flex-col gap-1">

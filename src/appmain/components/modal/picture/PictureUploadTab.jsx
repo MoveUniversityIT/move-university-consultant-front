@@ -244,17 +244,19 @@ const PictureUploadTab = () => {
                     getValueFromEvent={(e) => e && e.fileList}
                     className="mb-4 w-full"
                 >
-                    <Upload
-                        listType="picture-card"
-                        fileList={fileList}
-                        beforeUpload={beforeUpload}
-                        onRemove={onRemove}
-                        multiple={true}
-                        onPreview={handlePreview}
-                        className="w-full"
-                    >
-                        {fileList.length >= 8 ? null : uploadButton}
-                    </Upload>
+                    <div className="max-h-[130px] overflow-y-auto border p-2 rounded-lg">
+                        <Upload
+                            listType="picture-card"
+                            fileList={fileList}
+                            beforeUpload={beforeUpload}
+                            onRemove={onRemove}
+                            multiple={true}
+                            onPreview={handlePreview}
+                            className="w-full"
+                        >
+                            {fileList.length >= 30 ? null : uploadButton}
+                        </Upload>
+                    </div>
                 </Form.Item>
 
                 <Form.Item wrapperCol={{offset: 4, span: 16}} className="mt-6 text-center">

@@ -134,7 +134,8 @@ const DispatchCost = ({
                           items, setItems, dispatchAmount, isDispatchAmount, paymentMethod,
                           estimate, setEstimate, sliderValue, setSliderValue, depositPrice,
                           setDepositPrice, estimatePrice, setEstimatePrice, surtax, setSurtax,
-                          setSearchItemTerm, consultantDataForm, isFormValid
+                          setSearchItemTerm, consultantDataForm, isFormValid, dokchaPrices,
+    isModalOpen, showModal, closeModal
                       }) => {
     const [calcData, setCalcData] = useState({});
     const [tempTotalCbm, setTempTotalCbm] = useState(0);
@@ -161,17 +162,13 @@ const DispatchCost = ({
     const isAnyCheckBoxSelected = Object.values(checkBox).some(item => item.checked);
 
     const textRef = useRef(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const showModal = () => {
-        setIsModalOpen(true);
-    };
-
-    const closeModal = () => {
-        setIsModalOpen(false);
-    };
 
     const {mutateAsync: consultantMutateAsync} = useCalcConsultants();
+
+    const dokchaPrice = (distance) => {
+        console.log("독차가", dokchaPrices);
+    }
 
     // minDeposit + (slider value - 1) * ((maxDeposit - minDeposit) / (10 -1))
     const handleSliderChange = (value) => {
@@ -255,11 +252,14 @@ const DispatchCost = ({
             }
         }
 
-        const adjustedDeposit =
-            (calcEstimate - estimate.totalCalcPrice) * (estimate.depositAdjustmentRate + 1) >= calcEstimate
-                ? calcEstimate
-                : (calcEstimate - estimate.totalCalcPrice) * (estimate.depositAdjustmentRate + 1);
+        const roundingUnit = 5000;
+        const calculatedDeposit =
+            Math.round((calcEstimate - estimate.totalCalcPrice) * (estimate.depositAdjustmentRate + 1) / roundingUnit) * roundingUnit;
 
+        const adjustedDeposit =
+            calculatedDeposit >= calcEstimate
+                ? calcEstimate
+                : calculatedDeposit;
 
         setEstimatePrice(calcEstimate);
         setDepositPrice(adjustedDeposit);
@@ -421,6 +421,30 @@ const DispatchCost = ({
                     };
 
                     await dispatchAmountListMutate(key, updatedForm1);
+                } else if(key === 4) {
+                    const transPortHelper = {
+                        helperType: "TRANSPORT",
+                        peopleCount: 1,
+                    };
+
+                    const updatedForm2 = {
+                        ...consultantDataForm,
+                        moveTypeId: key,
+                        moveTypeName: name,
+                        isAlone: true,
+                        employHelperPeople: consultantDataForm.employHelperPeople.map((item, index) =>
+                            index === 0
+                                ? transPortHelper
+                                : key === 4 && index === 1
+                                    ? {
+                                        helperType: "PACKING_CLEANING",
+                                        peopleCount: 1,
+                                    }
+                                    : item
+                        ),
+                    };
+
+                    await dispatchAmountListMutate(key, updatedForm2);
                 } else {
                     const updatedForm1 = {
                         ...consultantDataForm,
@@ -490,17 +514,62 @@ const DispatchCost = ({
 
     const handleCopy = () => {
         if (textRef.current) {
-            const htmlString = textRef.current.innerHTML
-                .replace(/<br\s*\/?>/gi, '\n')
-                .replace(/<\/?[^>]+(>|$)/g, '');
+            let textToCopy = '';
 
-            const parser = new DOMParser();
-            const decodedString = parser.parseFromString(htmlString, 'text/html').body.textContent;
+            // 자식 노드를 순회하면서 텍스트와 입력 필드 값을 추출
+            const traverseNodes = (node) => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    // 텍스트 노드의 내용을 추가
+                    textToCopy += node.textContent.trim();
+                } else if (node.nodeType === Node.ELEMENT_NODE) {
+                    if (node.tagName === 'INPUT' || node.tagName === 'TEXTAREA') {
+                        // 입력 필드의 값을 추가
+                        textToCopy += node.value.trim();
+                    } else if (node.tagName === 'BR') {
+                        // 줄바꿈 추가
+                        textToCopy += '\n';
+                    } else if (node.classList.contains('flex')) {
+                        // 견적 금액 div를 한 줄로 처리
+                        const inlineText = Array.from(node.childNodes)
+                            .map((child) => {
+                                if (child.nodeType === Node.TEXT_NODE) return child.textContent.trim();
+                                if (child.tagName === 'INPUT') return child.value.trim();
+                                if (child.tagName === 'SPAN') return child.textContent.trim();
+                                return '';
+                            })
+                            .join(' '); // 한 줄로 결합
+                        textToCopy += inlineText + '\n';
+                    } else {
+                        // 자식 노드를 재귀적으로 탐색
+                        Array.from(node.childNodes).forEach(traverseNodes);
+                    }
+                }
+            };
 
-            navigator.clipboard.writeText(decodedString).then(() => {
-                message.success('견적 금액이 복사되었습니다!');
+            // `textRef`의 모든 자식 노드를 탐색
+            Array.from(textRef.current.childNodes).forEach(traverseNodes);
+
+            // 클립보드에 복사
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                message.success('견적 내용이 복사되었습니다!');
             });
         }
+    };
+
+
+    const handleTextChange = (id, field, value) => {
+        setDispatchAmountList((prevList) => {
+            const [groupId, itemIndex] = id.split("-").map(Number);
+            const updatedGroup = [...prevList[groupId]];
+            updatedGroup[itemIndex] = {
+                ...updatedGroup[itemIndex],
+                [field]: value, // 특정 필드 업데이트
+            };
+            return {
+                ...prevList,
+                [groupId]: updatedGroup, // 수정된 그룹으로 리스트 업데이트
+            };
+        });
     };
 
     useEffect(() => {
@@ -541,6 +610,7 @@ const DispatchCost = ({
             }
         });
         setDispatchAmountList({});
+        closeModal();
     }, [consultantDataForm]);
 
     return (
@@ -658,32 +728,18 @@ const DispatchCost = ({
                 </div>
                 <Divider/>
                 <div className="relative">
-                    {/*<div*/}
-                    {/*    className={`absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10 transition-opacity duration-500 ${*/}
-                    {/*        isFormValid ? "opacity-0 pointer-events-none" : "opacity-100"*/}
-                    {/*    }`}*/}
-                    {/*>*/}
-                    {/*    <div*/}
-                    {/*        className="text-sm text-gray-700 font-semibold transform transition-transform duration-500 ease-in-out"*/}
-                    {/*        style={{*/}
-                    {/*            transform: isFormValid ? "translateY(-20px)" : "translateY(0)",*/}
-                    {/*        }}*/}
-                    {/*    >*/}
-                    {/*        배차 금액 조회를 해야 사용할 수 있습니다.*/}
-                    {/*    </div>*/}
-                    {/*</div>*/}
                     <div
                         className={`absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10 transition-opacity duration-500 ${
-                            isAnyCheckBoxSelected ? "opacity-0 pointer-events-none" : "opacity-100"
+                            isFormValid ? "opacity-0 pointer-events-none" : "opacity-100"
                         }`}
                     >
                         <div
                             className="text-sm text-gray-700 font-semibold transform transition-transform duration-500 ease-in-out"
                             style={{
-                                transform: isAnyCheckBoxSelected ? "translateY(-20px)" : "translateY(0)",
+                                transform: isFormValid ? "translateY(-20px)" : "translateY(0)",
                             }}
                         >
-                            업데이트 예정
+                            배차 금액 조회를 해야 사용할 수 있습니다.
                         </div>
                     </div>
                     <div className="grid grid-cols-3 gap-4 pl-4 pr-4 border rounded-md">
@@ -737,12 +793,14 @@ const DispatchCost = ({
                     placement="right"
                     onClose={closeModal}
                     open={isModalOpen}
-                    width={400}
+                    width={650}
+                    mask={false}
                 >
                     <DispatchAmountListText
                         ref={textRef}
                         consultantDataForm={consultantDataForm}
                         dispatchAmountList={dispatchAmountList}
+                        onUpdate={handleTextChange}
                     />
                 </Drawer>
             </Card>
