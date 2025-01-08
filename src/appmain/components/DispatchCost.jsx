@@ -253,8 +253,10 @@ const DispatchCost = ({
         }
 
         const roundingUnit = 5000;
+        // const calculatedDeposit =
+        //     Math.round((calcEstimate - estimate.totalCalcPrice) * (estimate.depositAdjustmentRate + 1) / roundingUnit) * roundingUnit;
         const calculatedDeposit =
-            Math.round((calcEstimate - estimate.totalCalcPrice) * (estimate.depositAdjustmentRate + 1) / roundingUnit) * roundingUnit;
+            Math.round((calcEstimate - estimate.totalCalcPrice) / roundingUnit) * roundingUnit;
 
         const adjustedDeposit =
             calculatedDeposit >= calcEstimate
