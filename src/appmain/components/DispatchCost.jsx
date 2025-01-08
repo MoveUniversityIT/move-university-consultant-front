@@ -411,7 +411,7 @@ const DispatchCost = ({
 
     const handleCheckSave = async (key, checked, name) => {
         if (checked) {
-            if (Number(tempTotalCbm) <= 10) {
+            if (Number(tempTotalCbm) <= 10 && consultantDataForm.vehicleCount < 2) {
                 if (key === 1) {
                     const updatedForm1 = {
                         ...consultantDataForm,
@@ -739,7 +739,7 @@ const DispatchCost = ({
                                 transform: isFormValid ? "translateY(-20px)" : "translateY(0)",
                             }}
                         >
-                            배차 금액 조회를 해야 사용할 수 있습니다.
+                            배차 금액을 조회해야 기능이 활성화됩니다.
                         </div>
                     </div>
                     <div className="grid grid-cols-3 gap-4 pl-4 pr-4 border rounded-md">
