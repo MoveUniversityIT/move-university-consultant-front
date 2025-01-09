@@ -53,6 +53,7 @@ const Consultant = () => {
     const [consultantDataForm, setConsultantDataForm] = useState(null);
     const [dispatchCosts, setDispatchCosts] = useState({})
     const [moveTypeCheckBoxes, setMoveTypeCheckBoxes] = useState({});
+    const [dokchaPrice, setDokchaPrice] = useState(0);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -133,6 +134,7 @@ const Consultant = () => {
                     moveTypeCheckBoxes={moveTypeCheckBoxes}
                     isFormValid={isFormValid}
                     setIsFormValid={setIsFormValid}
+                    setDokchaPrice={setDokchaPrice}
                 />
                 <DispatchCost items={items}
                               setItems={setItems}
@@ -159,7 +161,7 @@ const Consultant = () => {
                               setConsultantDataForm={setConsultantDataForm}
                               isFormValid={isFormValid}
                               setIsFormValid={setIsFormValid}
-                              dokchaPrices={consultant?.dokchaPrices}
+                              dokchaPrice={dokchaPrice}
                               isModalOpen={isModalOpen}
                               showModal={showModal}
                               closeModal={closeModal}

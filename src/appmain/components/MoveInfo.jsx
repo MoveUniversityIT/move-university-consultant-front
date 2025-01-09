@@ -35,6 +35,13 @@ const gongchaMethods = ["사다리", "엘레베이터", "계단", "1층"];
 const gongchaMoveTypes = ["단순운송", "일반이사", "반포장이사", "포장이사", "이모까지", "익스프레스", "보관이사"];
 const gongchaPaymentTypes = ["현금", "카드", "현금영수증", "세금계산서"];
 
+const getPriceByDistance = (dokchaPrices, distance) => {
+    const priceInfo = dokchaPrices.find(price =>
+        distance >= price.minDistance && distance < price.maxDistance
+    );
+    return priceInfo ? priceInfo.price : 0;
+}
+
 const MoveInfo = ({
                       consultantData,
                       items,
@@ -60,7 +67,8 @@ const MoveInfo = ({
                       setDispatchCosts,
                       moveTypeCheckBoxes,
                       isFormValid,
-                      setIsFormValid
+                      setIsFormValid,
+                      setDokchaPrice
                   }) => {
     const queryClient = useQueryClient();
 
@@ -260,6 +268,7 @@ const MoveInfo = ({
                 handleLoadCoordinates({x: null, y: null});
                 setLoadCityCode(null);
                 setDistance(0);
+                setDokchaPrice(0);
                 setLoadAddressList([]);
             }
         } else if (locationSearch?.locationType === "unload") {
@@ -282,6 +291,7 @@ const MoveInfo = ({
                 handleUnloadCoordinates({x: null, y: null});
                 setUnloadCityCode(null);
                 setDistance(0);
+                setDokchaPrice(0);
                 setUnloadAddressList([]);
             }
         }
@@ -290,7 +300,9 @@ const MoveInfo = ({
 
     useEffect(() => {
         if (roadDistanceData && roadDistanceData.distance !== "undefined") {
-            setDistance(Math.round(roadDistanceData.distance));
+            const newDistance = Math.round(roadDistanceData.distance);
+            setDistance(newDistance);
+            setDokchaPrice(getPriceByDistance(consultantData?.dokchaPrices, newDistance));
         }
     }, [roadDistanceData]);
 
@@ -549,6 +561,7 @@ const MoveInfo = ({
         setReservationId(null);
         setClient({key: 0, value: '이사대학'});
         setDistance(0);
+        setDokchaPrice(0);
 
         setLoadLocation('');
         setLoadCityCode(null);

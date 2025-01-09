@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import DispatchAmountItem from "@component/DispatchAmountItem";
 
 const sumHelperCount = (helperPeople) => {
@@ -41,6 +41,10 @@ const DispatchAmountListText = React.forwardRef(({ consultantDataForm, dispatchA
 
     const loadHelperText = formatHelperCountText(loadHelperCount);
     const unloadHelperText = formatHelperCountText(unloadHelperCount);
+
+    useEffect(() => {
+        console.log("Slide Text", dispatchAmountList);
+    }, [dispatchAmountList]);
 
     return (
         <div ref={ref}>

@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import {Button, Card, Checkbox, Divider, Drawer, Form, List, message, Slider, Spin, Tooltip} from "antd";
 import {useCalcConsultants} from "@hook/useConsultant";
-import {CopyOutlined, ZoomInOutlined} from "@ant-design/icons";
+import {CopyOutlined, ZoomInOutlined, ZoomOutOutlined} from "@ant-design/icons";
 import DispatchAmountListText from "@component/DispatchAmountListText";
 
 const dataLabel = {
@@ -33,14 +33,14 @@ const unitLabel = {
     totalLadderPrice: "원"
 };
 
-const processDispatchData = (dispatchData) => {
+const processDispatchData = (dispatchData, dokchaPrice) => {
     if (!dispatchData || dispatchData.length === 0) {
         return {
             calcData: {
                 totalItemCbm: 0,
                 totalWeight: 0,
                 vehicleName: "",
-                dokcha: 0,
+                dokcha: dokchaPrice || 0,
                 vehicleCount: 0,
                 vehicleRoundingHalfUp: 0,
                 transportHelperCount: 0,
@@ -72,7 +72,7 @@ const processDispatchData = (dispatchData) => {
             totalItemCbm: dispatchData[0]?.totalItemCbm || 0,
             totalWeight: dispatchData[0]?.totalWeight || 0,
             vehicleName: dispatchData[0]?.vehicleName || "",
-            dokcha: dispatchData[0]?.dokcha || 0,
+            dokcha: dispatchData[0]?.dokcha || dokchaPrice || 0,
             vehicleCount: dispatchData[0]?.vehicleCount?.toLocaleString() || 0,
             vehicleRoundingHalfUp: dispatchData[0]?.vehicleRoundingHalfUp?.toLocaleString() || 0,
             transportHelperCount: dispatchData[0]?.helpers
@@ -134,10 +134,23 @@ const DispatchCost = ({
                           items, setItems, dispatchAmount, isDispatchAmount, paymentMethod,
                           estimate, setEstimate, sliderValue, setSliderValue, depositPrice,
                           setDepositPrice, estimatePrice, setEstimatePrice, surtax, setSurtax,
-                          setSearchItemTerm, consultantDataForm, isFormValid, dokchaPrices,
+                          setSearchItemTerm, consultantDataForm, isFormValid, dokchaPrice,
     isModalOpen, showModal, closeModal
                       }) => {
-    const [calcData, setCalcData] = useState({});
+    const [calcData, setCalcData] = useState({
+            totalItemCbm: 0,
+            totalWeight: 0,
+            vehicleName: "",
+            dokcha: 0,
+            vehicleCount: 0,
+            vehicleRoundingHalfUp: 0,
+            transportHelperCount: 0,
+            cleaningHelperCount: 0,
+            transportHelperPrice: 0,
+            cleaningHelperPrice: 0,
+            totalCalcPrice: 0,
+            totalLadderPrice: 0,
+        });
     const [tempTotalCbm, setTempTotalCbm] = useState(0);
     const [dispatchAmountList, setDispatchAmountList] = useState({});
     const [checkBox, setCheckBox] = useState({
@@ -165,10 +178,6 @@ const DispatchCost = ({
 
 
     const {mutateAsync: consultantMutateAsync} = useCalcConsultants();
-
-    const dokchaPrice = (distance) => {
-        console.log("독차가", dokchaPrices);
-    }
 
     // minDeposit + (slider value - 1) * ((maxDeposit - minDeposit) / (10 -1))
     const handleSliderChange = (value) => {
@@ -255,8 +264,8 @@ const DispatchCost = ({
         const roundingUnit = 5000;
         // const calculatedDeposit =
         //     Math.round((calcEstimate - estimate.totalCalcPrice) * (estimate.depositAdjustmentRate + 1) / roundingUnit) * roundingUnit;
-        const calculatedDeposit =
-            Math.round((calcEstimate - estimate.totalCalcPrice) / roundingUnit) * roundingUnit;
+        const calculatedDeposit = calcEstimate - estimate.totalCalcPrice;
+            // Math.round((calcEstimate - estimate.totalCalcPrice) / roundingUnit) * roundingUnit;
 
         const adjustedDeposit =
             calculatedDeposit >= calcEstimate
@@ -266,26 +275,9 @@ const DispatchCost = ({
         setEstimatePrice(calcEstimate);
         setDepositPrice(adjustedDeposit);
         setSurtax(Math.round(calcEstimate * 0.1));
-
-        setDispatchAmountList((prevMap = {}) => {
-            const updatedMap = { ...prevMap };
-
-            Object.keys(updatedMap).forEach((key) => {
-                const currentList = updatedMap[key] || [];
-
-                if (currentList.length > 0) {
-                    const { estimate, totalCalcPrice } = currentList[0];
-                    // handleSubEstimatePrice 호출
-                    handleSubEstimatePrice(key, estimate, totalCalcPrice, value);
-                }
-            });
-
-            return updatedMap;
-        });
     };
 
-    const handleSubEstimatePrice = (key, estimate, totalCalcPrice, value) => {
-        console.log(key, estimate, totalCalcPrice, value);
+    const handleSubEstimatePrice = (key, estimate, totalCalcPrice, value = 5, index = 0) => {
         let calcEstimate;
 
         // value를 기반으로 calcEstimate 계산
@@ -348,16 +340,13 @@ const DispatchCost = ({
 
         // 기타 계산 및 상태 업데이트
         const roundingUnit = 5000;
-        const calculatedDeposit =
-            Math.round((calcEstimate - totalCalcPrice) * (estimate.depositAdjustmentRate + 1) / roundingUnit) * roundingUnit;
+        const calculatedDeposit = calcEstimate - totalCalcPrice
+            // Math.round((calcEstimate - totalCalcPrice) * (estimate.depositAdjustmentRate + 1) / roundingUnit) * roundingUnit;
 
         const adjustedDeposit =
             calculatedDeposit >= calcEstimate ? calcEstimate : calculatedDeposit;
 
         setDispatchAmountList((prevMap = {}) => {
-            const currentList = prevMap[key] || [];
-            const index = currentList.length - 1;
-
             return {
                 ...prevMap,
                 [key]: [
@@ -376,6 +365,98 @@ const DispatchCost = ({
                 ],
             };
         });
+    };
+
+    const handleRefreshSubEstimate = (value) => {
+        let tempDispatchAmountList = { ...dispatchAmountList };
+
+        Object.entries(dispatchAmountList).forEach(([key, items]) => {
+            tempDispatchAmountList[key] = items.map((item, index) => {
+                // 방어 코드: estimate 유효성 확인
+                if (!item.estimate || !item.estimate.estimatePrice) {
+                    console.warn(`Invalid estimate for item at key: ${key}, index: ${index}`);
+                    return item; // 기존 item 반환
+                }
+
+                let calcEstimate;
+
+                // value를 기반으로 calcEstimate 계산
+                if (value === 5) {
+                    calcEstimate = item.estimate.estimatePrice;
+
+                    // 반올림 처리
+                    calcEstimate = Math.round(calcEstimate * 100) / 100;
+
+                    if (calcEstimate < 300000) {
+                        calcEstimate = Math.round(calcEstimate / 5000) * 5000;
+                    } else if (calcEstimate < 1300000) {
+                        calcEstimate = Math.round(calcEstimate / 10000) * 10000;
+
+                        const thousandWon = Math.floor(calcEstimate / 100000);
+                        const tenThousandWon = calcEstimate % 100000;
+
+                        if (tenThousandWon > 60000 || tenThousandWon <= 10000 || tenThousandWon === 0) {
+                            if (60000 < tenThousandWon && tenThousandWon < 100000) {
+                                calcEstimate = (calcEstimate - tenThousandWon) + 80000;
+                            } else {
+                                calcEstimate = (thousandWon - 1) * 100000 + 80000;
+                            }
+                        } else if (tenThousandWon > 10000 && tenThousandWon <= 60000) {
+                            calcEstimate = Math.floor(calcEstimate / 100000) * 100000 + 40000;
+                        }
+
+                        if (calcEstimate <= 980000) {
+                            calcEstimate += 5000;
+                        }
+
+                        calcEstimate = Math.round(calcEstimate);
+                    } else {
+                        calcEstimate = Math.round(calcEstimate / 50000) * 50000;
+                    }
+                } else if (1 <= value && value < 5) {
+                    const minEstimate = Math.round(item.estimate.baseCost * 1.15);
+                    const midEstimate = item.estimate.estimatePrice;
+
+                    calcEstimate = minEstimate + ((midEstimate - minEstimate) / (5 - 1)) * (value - 1);
+                    calcEstimate = Math.round(calcEstimate / 5000) * 5000;
+
+                    if (calcEstimate <= 980000) {
+                        calcEstimate = Math.round(calcEstimate / 5000) * 5000;
+                    } else {
+                        calcEstimate = Math.round(calcEstimate / 10000) * 10000;
+                    }
+                } else if (5 < value && value <= 10) {
+                    const midEstimate = item.estimate.estimatePrice;
+                    const maxEstimate = Math.round(item.estimate.estimatePrice * 1.5);
+
+                    calcEstimate = midEstimate + ((maxEstimate - midEstimate) / (10 - 5)) * (value - 5);
+
+                    if (calcEstimate <= 980000) {
+                        calcEstimate = Math.round(calcEstimate / 5000) * 5000;
+                    } else {
+                        calcEstimate = Math.round(calcEstimate / 10000) * 10000;
+                    }
+                }
+
+                // 기타 계산
+                const roundingUnit = 5000;
+                const calculatedDeposit = calcEstimate - item.totalCalcPrice;
+
+                const adjustedDeposit =
+                    calculatedDeposit >= calcEstimate ? calcEstimate : calculatedDeposit;
+
+                return {
+                    ...item,
+                    estimate: item.estimate,
+                    totalCalcPrice: item.totalCalcPrice,
+                    calcEstimate,
+                    calcDeposit: adjustedDeposit,
+                    calcSurtax: Math.round(calcEstimate * 0.1),
+                };
+            });
+        });
+
+        setDispatchAmountList({ ...tempDispatchAmountList });
     };
 
     const handleCheckboxChange = (itemName, itemCount, key, checked) => {
@@ -446,7 +527,7 @@ const DispatchCost = ({
         });
     };
 
-    const dispatchAmountListMutate = async (key, updatedForm) => {
+    const dispatchAmountListMutate = async (key, updatedForm, index = 0) => {
         await consultantMutateAsync(updatedForm, {
             onSuccess: async (data) => {
                 setDispatchAmountList((prevMap = {}) => {
@@ -459,7 +540,7 @@ const DispatchCost = ({
                     };
                 });
 
-                handleSubEstimatePrice(key, data[0].estimatePrice, data[0].totalCalcPrice, 5);
+                handleSubEstimatePrice(key, data[0].estimatePrice, data[0].totalCalcPrice, sliderValue, index);
             }
         });
     }
@@ -531,7 +612,7 @@ const DispatchCost = ({
                     };
 
                     await dispatchAmountListMutate(key, updatedForm1);
-                    await dispatchAmountListMutate(key, updatedForm2);
+                    await dispatchAmountListMutate(key, updatedForm2, 1);
                 }
             } else {
                 const updatedForm = {
@@ -592,7 +673,7 @@ const DispatchCost = ({
                                 if (child.tagName === 'SPAN') return child.textContent.trim();
                                 return '';
                             })
-                            .join(' '); // 한 줄로 결합
+                            .join(''); // 한 줄로 결합
                         textToCopy += inlineText + '\n';
                     } else {
                         // 자식 노드를 재귀적으로 탐색
@@ -628,7 +709,18 @@ const DispatchCost = ({
     };
 
     useEffect(() => {
-        const primaryData = processDispatchData(dispatchAmount);
+        setCalcData(prev => ({
+            ...prev,
+            dokcha: dokchaPrice
+        }))
+    }, [dokchaPrice]);
+
+    useEffect(() => {
+        handleRefreshSubEstimate(sliderValue);
+    }, [sliderValue]);
+
+    useEffect(() => {
+        const primaryData = processDispatchData(dispatchAmount, dokchaPrice);
         setCalcData(primaryData.calcData);
         setEstimate(primaryData.estimate);
     }, [dispatchAmount]);
@@ -735,19 +827,18 @@ const DispatchCost = ({
                             <Button
                                 className="px-5 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
                                 icon={<ZoomInOutlined />}
-                                onClick={showModal}
                                 disabled
                             >
-                                추가 견적 상세
+                                추가 견적 상세 보기
                             </Button>
                         </Tooltip>
                     ) : (
                         <Button
                             className="px-5 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
-                            icon={<ZoomInOutlined />}
-                            onClick={showModal}
+                            icon={isModalOpen ? <ZoomOutOutlined /> : <ZoomInOutlined />}
+                            onClick={isModalOpen ? closeModal : showModal}
                         >
-                            추가 견적 상세
+                            {isModalOpen ? '추가 견적 상세 닫기' : '추가 견적 상세 보기'}
                         </Button>
                     )}
                 </div>
@@ -783,32 +874,18 @@ const DispatchCost = ({
                 </div>
                 <Divider/>
                 <div className="relative">
-                    {/*<div*/}
-                    {/*    className={`absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10 transition-opacity duration-500 ${*/}
-                    {/*        isFormValid ? "opacity-0 pointer-events-none" : "opacity-100"*/}
-                    {/*    }`}*/}
-                    {/*>*/}
-                    {/*    <div*/}
-                    {/*        className="text-sm text-gray-700 font-semibold transform transition-transform duration-500 ease-in-out"*/}
-                    {/*        style={{*/}
-                    {/*            transform: isFormValid ? "translateY(-20px)" : "translateY(0)",*/}
-                    {/*        }}*/}
-                    {/*    >*/}
-                    {/*        배차 금액을 조회해야 기능이 활성화됩니다.*/}
-                    {/*    </div>*/}
-                    {/*</div>*/}
                     <div
                         className={`absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10 transition-opacity duration-500 ${
-                            false ? "opacity-0 pointer-events-none" : "opacity-100"
+                            isFormValid ? "opacity-0 pointer-events-none" : "opacity-100"
                         }`}
                     >
                         <div
                             className="text-sm text-gray-700 font-semibold transform transition-transform duration-500 ease-in-out"
                             style={{
-                                transform: false ? "translateY(-20px)" : "translateY(0)",
+                                transform: isFormValid ? "translateY(-20px)" : "translateY(0)",
                             }}
                         >
-                            업데이트 예정
+                            배차 금액을 조회해야 기능이 활성화됩니다.
                         </div>
                     </div>
                     <div className="grid grid-cols-3 gap-4 pl-4 pr-4 border rounded-md">

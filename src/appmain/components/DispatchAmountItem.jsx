@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 
 /**
  * title, description - 1대, 도움 인원이 없는 경우
@@ -108,6 +108,10 @@ const DispatchAmountItem = ({ moveTypeName, vehicleCount, calcEstimate, helpers,
         onTextChange(id, 'calcEstimate', updatedEstimate);
     };
 
+    useEffect(() => {
+        setEstimate(calcEstimate || 0);
+    }, [calcEstimate])
+
     return (
         <div className="mt-4 mb-4 text-gray-600 whitespace-pre-wrap">
             {title}
@@ -115,7 +119,7 @@ const DispatchAmountItem = ({ moveTypeName, vehicleCount, calcEstimate, helpers,
             {description}
             <br />
             <div className="flex items-center space-x-2">
-                <span>견적 금액:</span>
+                <span>견적 금액: </span>
                 <input
                     type="text"
                     value={estimate.toLocaleString()}

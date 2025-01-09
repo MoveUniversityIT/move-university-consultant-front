@@ -54,9 +54,9 @@ const Notice = ({notices, setNotices}) => {
                                 notice.readYn === 'N' && (
                                     <Button
                                         type="primary"
-                                        icon={<CheckCircleOutlined />}
+                                        icon={<CheckCircleOutlined/>}
                                         onClick={() => handleConfirm(notice)}
-                                        style={{ marginLeft: 'auto' }}
+                                        style={{marginLeft: 'auto'}}
                                     >
                                         확인
                                     </Button>
@@ -70,16 +70,18 @@ const Notice = ({notices, setNotices}) => {
                                 {notice.content}
                             </p>
                             <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap'}}>
-                                {notice?.fileUrls.map((src, index) => (
-                                    <Image
-                                        key={index}
-                                        width={200}
-                                        height={200}
-                                        src={src}
-                                        alt={`Image ${index + 1}`}
-                                        style={{ borderRadius: '8px' }}
-                                    />
-                                ))}
+                                <Image.PreviewGroup>
+                                    {notice?.fileUrls.map((src, index) => (
+                                        <Image
+                                            key={index}
+                                            width={200}
+                                            height={200}
+                                            src={src}
+                                            alt={`Image ${index + 1}`}
+                                            style={{borderRadius: '8px'}}
+                                        />
+                                    ))}
+                                </Image.PreviewGroup>
                             </div>
                         </Card>
                     </List.Item>
