@@ -40,7 +40,7 @@ const processDispatchData = (dispatchData, dokchaPrice) => {
                 totalItemCbm: 0,
                 totalWeight: 0,
                 vehicleName: "",
-                dokcha: dokchaPrice || 0,
+                dokcha: dokchaPrice?.toLocaleString() || 0,
                 vehicleCount: 0,
                 vehicleRoundingHalfUp: 0,
                 transportHelperCount: 0,
@@ -72,7 +72,7 @@ const processDispatchData = (dispatchData, dokchaPrice) => {
             totalItemCbm: dispatchData[0]?.totalItemCbm || 0,
             totalWeight: dispatchData[0]?.totalWeight || 0,
             vehicleName: dispatchData[0]?.vehicleName || "",
-            dokcha: dispatchData[0]?.dokcha || dokchaPrice || 0,
+            dokcha: dispatchData[0]?.dokcha?.toLocaleString() || dokchaPrice?.toLocaleString() || 0,
             vehicleCount: dispatchData[0]?.vehicleCount?.toLocaleString() || 0,
             vehicleRoundingHalfUp: dispatchData[0]?.vehicleRoundingHalfUp?.toLocaleString() || 0,
             transportHelperCount: dispatchData[0]?.helpers
