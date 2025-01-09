@@ -711,7 +711,7 @@ const DispatchCost = ({
     useEffect(() => {
         setCalcData(prev => ({
             ...prev,
-            dokcha: dokchaPrice
+            dokcha: dokchaPrice?.toLocaleString()
         }))
     }, [dokchaPrice]);
 
