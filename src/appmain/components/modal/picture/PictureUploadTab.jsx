@@ -79,9 +79,9 @@ const PictureUploadTab = () => {
             return false;
         }
 
-        const isLt20M = file.size / 1024 / 1024 < 20;
-        if (!isLt20M) {
-            message.error('파일은 20MB보다 작아야 합니다.');
+        const isLt80M = file.size / 1024 / 1024 < 80;
+        if (!isLt80M) {
+            message.error('파일은 80MB보다 작아야 합니다.');
             return false;
         }
 
