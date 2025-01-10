@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Spin} from "antd";
+import {Button, message, Spin} from "antd";
 import Reservation from "@component/Reservation";
 import MoveInfo from "@component/MoveInfo";
 import DispatchCost from "@component/DispatchCost";
@@ -83,14 +83,27 @@ const Consultant = () => {
     }
 
     if (consultantMetaError) {
-        //TODO - 모든인원 한번 초기화 로직 넣어서 초기화 시켜야함
-        dispatch(resetState())
-
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-100">
-                <p className="text-xl text-red-500">오류가 발생했습니다. 다시 시도해주세요.</p>
-            </div>
-        );
+        message.open({
+            type: "error",
+            content: (
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span>로그인 정보가 정상적이지 않습니다. 로그아웃 후 다시 시도해주세요.</span>
+                    <Button
+                        type="text"
+                        className="px-2 py-1 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-200"
+                        onClick={() => message.destroy("logoutError")}
+                    >
+                        닫기
+                    </Button>
+                </div>
+            ),
+            key: "logoutError",
+            duration: 0, // 자동 닫기 비활성화
+            style: {
+                marginTop: "20px",
+                zIndex: 1000,
+            },
+        });
     }
 
     return (
@@ -166,7 +179,7 @@ const Consultant = () => {
                               showModal={showModal}
                               closeModal={closeModal}
                 />
-                <AdditionalFunctions consultantData={consultant} items={items} paymentMethod={paymentMethod} />
+                <AdditionalFunctions consultantData={consultant} items={items} paymentMethod={paymentMethod}/>
 
                 {hasAdminAccess && (
                     <>

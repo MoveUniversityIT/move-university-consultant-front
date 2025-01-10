@@ -34,9 +34,9 @@ API.interceptors.request.use(
             config.headers["Authorization"] = `Bearer ${accessToken}`;
         }
 
-        if (!accessToken) {
-            RootStore.dispatch(toggleLoginState(false));
-        }
+        // if (!accessToken) {
+        //     RootStore.dispatch(toggleLoginState(false));
+        // }
 
         return config;
     },
@@ -57,7 +57,7 @@ API.interceptors.response.use(
                 // 상태 초기화
                 RootStore.dispatch(toggleAccessToken(""));
                 RootStore.dispatch(toggleRefreshToken(""));
-                RootStore.dispatch(toggleLoginState(false));
+                // RootStore.dispatch(toggleLoginState(false));
                 return Promise.reject(error.response?.data);
             }
 
@@ -88,14 +88,14 @@ API.interceptors.response.use(
                     // 초기화 로직 추가
                     RootStore.dispatch(toggleAccessToken(""));
                     RootStore.dispatch(toggleRefreshToken(""));
-                    RootStore.dispatch(toggleLoginState(false));
+                    // RootStore.dispatch(toggleLoginState(false));
 
                     return Promise.reject(refreshError);
                 }
             }else if(error.config.url.includes("/user/token/refresh")) {
                 RootStore.dispatch(toggleAccessToken(""));
                 RootStore.dispatch(toggleRefreshToken(""));
-                RootStore.dispatch(toggleLoginState(false));
+                // RootStore.dispatch(toggleLoginState(false));
 
                 return Promise.reject(error.response?.data);
             }
@@ -112,7 +112,7 @@ API.interceptors.response.use(
                     // 초기화 로직 보장
                     RootStore.dispatch(toggleAccessToken(""));
                     RootStore.dispatch(toggleRefreshToken(""));
-                    RootStore.dispatch(toggleLoginState(false));
+                    // RootStore.dispatch(toggleLoginState(false));
                     return Promise.reject(err);
                 });
         }

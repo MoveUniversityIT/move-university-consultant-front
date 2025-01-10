@@ -42,10 +42,6 @@ const DispatchAmountListText = React.forwardRef(({ consultantDataForm, dispatchA
     const loadHelperText = formatHelperCountText(loadHelperCount);
     const unloadHelperText = formatHelperCountText(unloadHelperCount);
 
-    useEffect(() => {
-        console.log("Slide Text", dispatchAmountList);
-    }, [dispatchAmountList]);
-
     return (
         <div ref={ref}>
             {Object.keys(dispatchAmountList).length > 0 && (
@@ -96,9 +92,6 @@ const DispatchAmountListText = React.forwardRef(({ consultantDataForm, dispatchA
                         <br />
                         ★만약에 타업체와 계약을 하고 싶다고 하시더라도 저희쪽으로 마지막 문의를 주시면 더 좋은 가격 혹은
                         서비스 드릴 수 있는지 다시 한번 확인해보겠습니다 감사합니다★<br />
-                        <br />
-                        1톤 한대 일반이사, 반포장이사의 경우는, 1인, 2인 금액 두가지로 안내 / 포장이사의 경우는 이모1을 추가한
-                        상태로 안내.<br />
                         <br />
                     </div>
                 </>

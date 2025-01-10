@@ -27,8 +27,6 @@ const ProtectedRoute = ({ requiredRoles, children }) => {
             message.warning("해당 페이지에 접근할 권한이 없습니다.");
             return <Navigate to={"/consultant"} />;
         }
-    }else {
-        dispatch(resetState())
     }
 
     return children;
