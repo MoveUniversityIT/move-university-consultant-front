@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {Button, Divider, Form, Input, message, Upload} from "antd";
 import {usePostNotice} from "@hook/useAdmin";
-import {PlusOutlined} from "@ant-design/icons";
+import {CloudUploadOutlined, PlusOutlined} from "@ant-design/icons";
 import dayjs from "dayjs";
 import {usePostUploadImageAndVoice} from "@hook/useConsultant";
 
@@ -9,6 +9,7 @@ const PictureUploadTab = () => {
     const [form] = Form.useForm();
     const [fileList, setFileList] = useState([]);
     const {mutate: postUploadImageAndVoice} = usePostUploadImageAndVoice();
+    const [isUploading, setIsUploading] = useState(false);
 
     const formatPhoneNumber = (value) => {
         const numericValue = value.replace(/\D/g, "");
@@ -157,6 +158,8 @@ const PictureUploadTab = () => {
             }
         });
 
+        setIsUploading(true);
+
         postUploadImageAndVoice(uploadForm, {
             onSuccess: (data) => {
                 const successMessage = data?.message || "정상적으로 처리되었습니다.";
@@ -168,8 +171,20 @@ const PictureUploadTab = () => {
 
                 form.resetFields();
                 setFileList([]);
-            }
+                setIsUploading(false);
+            },
+            onError: () => {
+                message.error({
+                    content: "업로드 중 문제가 발생했습니다.",
+                    key: 'imgVoiceUpload',
+                    duration: 2,
+                });
+
+                setIsUploading(false);
+            },
         })
+
+
     };
 
     const uploadButton = (
@@ -261,6 +276,9 @@ const PictureUploadTab = () => {
 
                 <Form.Item wrapperCol={{offset: 4, span: 16}} className="mt-6 text-center">
                     <Button
+                        icon={<CloudUploadOutlined />}
+                        loading={isUploading}
+                        disabled={isUploading}
                         type="primary"
                         htmlType="submit"
                         className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg"
