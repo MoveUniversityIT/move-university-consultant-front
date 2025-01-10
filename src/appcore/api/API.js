@@ -55,8 +55,8 @@ API.interceptors.response.use(
 
             if (!refreshToken) {
                 // 상태 초기화
-                RootStore.dispatch(toggleAccessToken(""));
-                RootStore.dispatch(toggleRefreshToken(""));
+                // RootStore.dispatch(toggleAccessToken(""));
+                // RootStore.dispatch(toggleRefreshToken(""));
                 // RootStore.dispatch(toggleLoginState(false));
                 return Promise.reject(error.response?.data);
             }
@@ -86,15 +86,15 @@ API.interceptors.response.use(
                     processQueue(refreshError, null);
 
                     // 초기화 로직 추가
-                    RootStore.dispatch(toggleAccessToken(""));
-                    RootStore.dispatch(toggleRefreshToken(""));
+                    // RootStore.dispatch(toggleAccessToken(""));
+                    // RootStore.dispatch(toggleRefreshToken(""));
                     // RootStore.dispatch(toggleLoginState(false));
 
                     return Promise.reject(refreshError);
                 }
             }else if(error.config.url.includes("/user/token/refresh")) {
-                RootStore.dispatch(toggleAccessToken(""));
-                RootStore.dispatch(toggleRefreshToken(""));
+                // RootStore.dispatch(toggleAccessToken(""));
+                // RootStore.dispatch(toggleRefreshToken(""));
                 // RootStore.dispatch(toggleLoginState(false));
 
                 return Promise.reject(error.response?.data);
@@ -110,8 +110,8 @@ API.interceptors.response.use(
                 })
                 .catch((err) => {
                     // 초기화 로직 보장
-                    RootStore.dispatch(toggleAccessToken(""));
-                    RootStore.dispatch(toggleRefreshToken(""));
+                    // RootStore.dispatch(toggleAccessToken(""));
+                    // RootStore.dispatch(toggleRefreshToken(""));
                     // RootStore.dispatch(toggleLoginState(false));
                     return Promise.reject(err);
                 });
