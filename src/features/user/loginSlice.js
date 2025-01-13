@@ -7,6 +7,7 @@ const initialState= {
     loginState: false,
     accessToken: '',
     refreshToken: '',
+    userList: [],
     roles: []
 }
 
@@ -29,6 +30,9 @@ const loginSlice = createSlice({
         toggleRefreshToken: (state, action) => {
             state.refreshToken = action.payload;
         },
+        toggleUserList: (state, action) => {
+            state.userList = action.payload;
+        },
         toggleRoles: (state, action) => {
             state.roles = action.payload;
         },
@@ -36,5 +40,5 @@ const loginSlice = createSlice({
     }
 });
 
-export const { toggleUserId, toggleUserName, toggleLoginState, toggleAccessToken, toggleRefreshToken, toggleRoles, resetState } = loginSlice.actions;
+export const { toggleUserId, toggleUserName, toggleLoginState, toggleAccessToken, toggleRefreshToken, toggleUserList, toggleRoles, resetState } = loginSlice.actions;
 export default loginSlice.reducer;

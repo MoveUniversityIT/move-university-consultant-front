@@ -173,6 +173,8 @@ const MoveInfo = ({
     const [isMemoModalVisible, setIsMemoModalVisible] = useState(false);
     const [memo, setMemo] = useState("");
 
+    const userList = useSelector((state) => state.login.userList);
+
     const {mutate: reservationMutate} = useSaveReservation();
 
     // 공차 담당자 조회(UUID)
@@ -246,7 +248,6 @@ const MoveInfo = ({
         setShowList(false);
     };
 
-
     useEffect(() => {
         if (locationSearch?.locationType === "load") {
             if (locationList) {
@@ -259,9 +260,9 @@ const MoveInfo = ({
                     setLoadCityCode(locationList.address[0]?.address?.b_code?.trim() || null);
                 }
             } else {
-                if(!_.isEmpty(loadLocation)) {
+                if (!_.isEmpty(loadLocation)) {
                     setIsLoadLocationError(true);
-                }else {
+                } else {
                     setIsLoadLocationError(false);
                 }
 
@@ -282,9 +283,9 @@ const MoveInfo = ({
                     setUnloadCityCode(locationList.address[0]?.address?.b_code?.trim() || null);
                 }
             } else {
-                if(!_.isEmpty(unloadLocation)) {
+                if (!_.isEmpty(unloadLocation)) {
                     setIsUnloadLocationError(true);
-                }else {
+                } else {
                     setIsUnloadLocationError(false);
                 }
 
@@ -1675,7 +1676,7 @@ const MoveInfo = ({
                 <div className="flex space-x-2">
                     <Button
                         className="px-4 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
-                        icon={<FiTruck />}
+                        icon={<FiTruck/>}
                         onClick={() => {
                             if (!dispatchAmount || dispatchAmount.length < 1) {
                                 message.error({
@@ -1698,7 +1699,7 @@ const MoveInfo = ({
                     </Button>
                     <Button
                         className="px-4 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-200"
-                        icon={<SaveOutlined />}
+                        icon={<SaveOutlined/>}
                         onClick={handleSave}
                     >
                         저장

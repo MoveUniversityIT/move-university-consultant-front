@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Button, message, Spin} from "antd";
 import Reservation from "@component/Reservation";
 import MoveInfo from "@component/MoveInfo";
@@ -33,6 +33,8 @@ const Consultant = () => {
 
     // 물품
     const [items, setItems] = useState({});
+    const [selectUserId, setSelectUserId] = useState(null);
+    const [selectReservationList, setSelectReservationList] = useState([]);
 
     const [estimate, setEstimate] = useState({
         baseCost: dispatchAmount?.estimatePrice?.baseCost || 0,
@@ -55,6 +57,18 @@ const Consultant = () => {
     const [dokchaPrice, setDokchaPrice] = useState(0);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    useEffect(() => {
+        setSelectUserId(userId);
+    }, [userId]);
+
+    useEffect(() => {
+        setSelectReservationList(reservations);
+    }, [reservations]);
+
+    useEffect(() => {
+
+    }, []);
 
     const showModal = () => {
         setIsModalOpen(true);
@@ -82,27 +96,27 @@ const Consultant = () => {
     }
 
     if (consultantMetaError) {
-        message.open({
-            type: "error",
-            content: (
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span>로그인 정보가 정상적이지 않습니다. 로그아웃 후 다시 시도해주세요.</span>
-                    <Button
-                        type="text"
-                        className="px-2 py-1 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-200"
-                        onClick={() => message.destroy("logoutError")}
-                    >
-                        닫기
-                    </Button>
-                </div>
-            ),
-            key: "logoutError",
-            duration: 0, // 자동 닫기 비활성화
-            style: {
-                marginTop: "20px",
-                zIndex: 1000,
-            },
-        });
+        // message.open({
+        //     type: "error",
+        //     content: (
+        //         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        //             <span>로그인 정보가 정상적이지 않습니다. 로그아웃 후 다시 시도해주세요.</span>
+        //             <Button
+        //                 type="text"
+        //                 className="px-2 py-1 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-200"
+        //                 onClick={() => message.destroy("logoutError")}
+        //             >
+        //                 닫기
+        //             </Button>
+        //         </div>
+        //     ),
+        //     key: "logoutError",
+        //     duration: 0, // 자동 닫기 비활성화
+        //     style: {
+        //         marginTop: "20px",
+        //         zIndex: 1000,
+        //     },
+        // });
     }
 
     return (
@@ -117,7 +131,7 @@ const Consultant = () => {
                 <Reservation
                     onLoad={loadReservation}
                     onNew={resetMoveInfo}
-                    reservations={reservations}
+                    reservations={selectReservationList}
                 />
                 <MoveInfo
                     consultantData={consultant}

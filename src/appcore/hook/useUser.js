@@ -17,7 +17,7 @@ import {
     toggleLoginState,
     toggleRefreshToken,
     toggleRoles,
-    toggleUserId,
+    toggleUserId, toggleUserList,
     toggleUserName
 } from "@/features/user/loginSlice";
 import RootStore from "@/appcore/rootStore";
@@ -37,6 +37,7 @@ export const useLogin = () => {
                 RootStore.dispatch(toggleRefreshToken(data?.refreshToken)),
                 RootStore.dispatch(toggleUserId(data?.userId)),
                 RootStore.dispatch(toggleUserName(data?.userName)),
+                RootStore.dispatch(toggleUserList(data?.userList)),
                 RootStore.dispatch(toggleLoginState(true)),
             ]);
 
@@ -68,7 +69,7 @@ export const useRegisterUser = () => {
 export const useReservation = (userId) => {
     return useQuery({
         queryKey: ['reservation', userId],
-        queryFn: ({queryKey}) => getReservation(),
+        queryFn: () => getReservation(),
         retry: false
     })
 }

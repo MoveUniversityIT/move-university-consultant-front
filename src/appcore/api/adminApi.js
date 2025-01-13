@@ -47,3 +47,10 @@ export const patchNotice = async (noticeForm) => {
 
     return response?.data;
 }
+
+// 다른 회원 예약 조회
+export const getUserReservation = async (userId) => {
+    const response = await API.get(`/admin/user/reservation?userId=${userId}`);
+
+    return response?.data;
+}

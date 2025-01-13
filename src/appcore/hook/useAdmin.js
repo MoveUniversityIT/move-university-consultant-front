@@ -1,8 +1,10 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
 import {
     getDifficulty,
-    getDifficultyList, getNotice,
-    getUserManagement, patchNotice,
+    getDifficultyList,
+    getNotice,
+    getUserManagement, getUserReservation,
+    patchNotice,
     patchUserInfo,
     postDifficulty,
     postNotice
@@ -94,6 +96,17 @@ export const useDeleteNotice = () => {
         retry: false,
         onError: (error) => {
             const errorMessage = error.errorMessage || "공지사항 등록에 실패했습니다.";
+            alert(`API 요청 오류: ${errorMessage}`)
+        },
+    })
+}
+
+export const useMtReservation = () => {
+    return useMutation({
+        mutationFn: (userId) => getUserReservation(userId),
+        retry: false,
+        onError: (error) => {
+            const errorMessage = error.errorMessage || "회원 예약 정보를 가져오는데 실패했습니다.";
             alert(`API 요청 오류: ${errorMessage}`)
         },
     })

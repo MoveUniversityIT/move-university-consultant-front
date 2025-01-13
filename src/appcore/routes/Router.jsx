@@ -1,108 +1,130 @@
-import React, {useState} from "react";
-import {createBrowserRouter, Navigate, RouterProvider} from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { createBrowserRouter, Navigate, RouterProvider, Outlet } from "react-router-dom";
+import { useSelector } from "react-redux";
 import LoginForm from "@/component/LoginForm";
 import Consultant from "@component/Consultant";
-import {useSelector} from "react-redux";
 import ProtectedRoute from "@/appcore/routes/ProtectedRoute";
 import RegisterForm from "@/component/RegisterForm";
 import AdminDashboard from "@component/admin/AdminDashboard";
 import CustomLayout from "@/common/component/CustomLayout";
 import Community from "@component/Community";
 import CustomerImage from "@component/CustomerImage";
-import {WebSocketProvider} from "@/appcore/context/WebSocketContext";
 import CustomerVoice from "@component/CustomerVoice";
 import MapsTest from "@component/MapsTest";
+import MobilePage from "@component/MobilePage";
+import LoadingSpinner from "@component/LoadingSpinner";
 
 const Router = () => {
     const isLogin = useSelector((state) => state.login.loginState);
     const [notices, setNotices] = useState({notices: [], unreadCount: 0});
+    const [isMobile, setIsMobile] = useState(null);
+
+    // 모바일 여부 체크
+    useEffect(() => {
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        const mobileRegex = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
+
+        setIsMobile(mobileRegex.test(userAgent));
+    }, []);
+
+    const MobileRedirectWrapper = ({ children }) => {
+        if (isMobile === null) {
+            return <LoadingSpinner />;
+        }
+        if (isMobile) {
+            return <Navigate to="/mobile" replace />;
+        }
+        return children;
+    };
 
     const router = createBrowserRouter(
         [
             {
                 path: "/",
-                element: isLogin ? <Navigate to="/consultant" replace/> : <LoginForm/>,
+                element: (
+                    <MobileRedirectWrapper>
+                        {isLogin ? <Navigate to="/consultant" replace /> : <LoginForm />}
+                    </MobileRedirectWrapper>
+                ),
             },
             {
                 path: "/",
                 element: (
-                    <CustomLayout notices={notices} setNotices={setNotices}/>
+                    <MobileRedirectWrapper>
+                        <CustomLayout notices={notices} setNotices={setNotices}/>
+                    </MobileRedirectWrapper>
                 ),
                 children: [
                     {
                         path: "consultant",
                         element: (
-                            <WebSocketProvider>
-                                <ProtectedRoute requiredRoles={["ROLE_MANAGER", "ROLE_ADMIN", "ROLE_EMPLOYEE"]}>
-                                    <Consultant/>
-                                </ProtectedRoute>
-                            </WebSocketProvider>
-                        )
+                            <ProtectedRoute requiredRoles={["ROLE_MANAGER", "ROLE_ADMIN", "ROLE_EMPLOYEE"]}>
+                                <Consultant />
+                            </ProtectedRoute>
+                        ),
                     },
                     {
                         path: "notice",
                         element: (
-                            <WebSocketProvider>
-                                <ProtectedRoute requiredRoles={["ROLE_MANAGER", "ROLE_ADMIN", "ROLE_EMPLOYEE"]}>
-                                    <Community notices={notices} setNotices={setNotices}/>
-                                </ProtectedRoute>
-                            </WebSocketProvider>
-                        )
+                            <ProtectedRoute requiredRoles={["ROLE_MANAGER", "ROLE_ADMIN", "ROLE_EMPLOYEE"]}>
+                                <Community notices={notices} setNotices={setNotices}/>
+                            </ProtectedRoute>
+                        ),
                     },
                     {
                         path: "admin",
                         element: (
-                            <WebSocketProvider>
-                                <ProtectedRoute requiredRoles={["ROLE_ADMIN"]}>
-                                    <AdminDashboard/>
-                                </ProtectedRoute>
-                            </WebSocketProvider>
+                            <ProtectedRoute requiredRoles={["ROLE_ADMIN"]}>
+                                <AdminDashboard />
+                            </ProtectedRoute>
                         ),
-                    }
-                ]
+                    },
+                ],
             },
             {
                 path: "/customer-image",
-                element: <CustomerImage />
+                element: (
+                    <MobileRedirectWrapper>
+                        <CustomerImage />
+                    </MobileRedirectWrapper>
+                ),
             },
             {
                 path: "/customer-voice",
-                element: <CustomerVoice />
+                element: (
+                    <MobileRedirectWrapper>
+                        <CustomerVoice />
+                    </MobileRedirectWrapper>
+                ),
             },
             {
                 path: "/register",
                 element: (
-                    <WebSocketProvider>
-                        <RegisterForm/>
-                    </WebSocketProvider>
+                    <MobileRedirectWrapper>
+                        <RegisterForm />
+                    </MobileRedirectWrapper>
                 ),
             },
             {
                 path: "/maps",
                 element: (
-                    <MapsTest />
+                    <MobileRedirectWrapper>
+                        <MapsTest />
+                    </MobileRedirectWrapper>
                 ),
             },
             {
+                path: "/mobile",
+                element: <MobilePage />,
+            },
+            {
                 path: "*",
-                element: <Navigate to="/" replace/>,
+                element: <Navigate to="/" replace />,
             },
-        ],
-        {
-            future: {
-                v7_relativeSplatPath: true, // 상대 경로 처리 방식 변경
-                v7_skipActionErrorRevalidation: true, // action 처리 후 경로 재검증 스킵
-                v7_startTransition: true, // React의 startTransition API 활성화
-                v7_fetcherPersist: true, // fetcher의 상태 유지 동작 변경
-                v7_normalizeFormMethod: true, // formMethod를 대문자로 정규화
-                v7_partialHydration: true, // RouterProvider의 부분적 하이드레이션 활성화
-            },
-        }
+        ]
     );
 
-    return (
-        <RouterProvider router={router}/>
-    );
+    return <RouterProvider router={router} />;
 };
 
 export default Router;
