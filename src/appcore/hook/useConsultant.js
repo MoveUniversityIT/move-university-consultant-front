@@ -12,7 +12,7 @@ import {
     getSpecialDay,
     getUploadImage, getUploadVoice,
     patchUpdateDateFeeRate,
-    postSaveItem,
+    postSaveItem, postSimpleEstimate,
     postSpecialDate,
     postUploadImageAndVoice
 } from "@api/consultantApi";
@@ -243,6 +243,18 @@ export const useGetCustomerUploadVoice = () => {
         retry: false,
         onError: (error) => {
             const errorMessage = error.errorMessage || "이미지 조회를 하는데 문제가 발생했습니다.";
+            message.error(errorMessage);
+        }
+    })
+}
+
+// 모바일 배차금액 조회
+export const usePostSimpleEstimate = () => {
+    return useMutation({
+        mutationFn: (searchParams) => postSimpleEstimate(searchParams),
+        retry: false,
+        onError: (error) => {
+            const errorMessage = error.errorMessage || "배차금액을 조회하는데 문제가 발생했습니다.";
             message.error(errorMessage);
         }
     })

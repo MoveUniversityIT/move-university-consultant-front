@@ -207,3 +207,12 @@ export const getCustomerUploadVoice = async (searchParams) => {
 
     return response?.data;
 }
+
+// 모바일 간편 조회
+export const postSimpleEstimate = async (searchParams) => {
+    const response = await API.post(
+        '/consultant/price/simple-calculate', searchParams
+    )
+
+    return response?.data;
+}

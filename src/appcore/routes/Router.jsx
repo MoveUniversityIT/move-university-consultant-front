@@ -51,9 +51,7 @@ const Router = () => {
             {
                 path: "/",
                 element: (
-                    <MobileRedirectWrapper>
-                        <CustomLayout notices={notices} setNotices={setNotices}/>
-                    </MobileRedirectWrapper>
+                    <CustomLayout notices={notices} setNotices={setNotices}/>
                 ),
                 children: [
                     {
@@ -91,33 +89,25 @@ const Router = () => {
             {
                 path: "/customer-image",
                 element: (
-                    <MobileRedirectWrapper>
-                        <CustomerImage/>
-                    </MobileRedirectWrapper>
+                    <CustomerImage/>
                 ),
             },
             {
                 path: "/customer-voice",
                 element: (
-                    <MobileRedirectWrapper>
-                        <CustomerVoice/>
-                    </MobileRedirectWrapper>
+                    <CustomerVoice/>
                 ),
             },
             {
                 path: "/register",
                 element: (
-                    <MobileRedirectWrapper>
-                        <RegisterForm/>
-                    </MobileRedirectWrapper>
+                    <RegisterForm/>
                 ),
             },
             {
                 path: "/maps",
                 element: (
-                    <MobileRedirectWrapper>
-                        <MapsTest/>
-                    </MobileRedirectWrapper>
+                    <MapsTest/>
                 ),
             },
             {
