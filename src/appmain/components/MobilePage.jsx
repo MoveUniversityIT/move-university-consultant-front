@@ -88,15 +88,6 @@ const MobilePage = () => {
         }));
     }
 
-    // 필드 유효성 검사
-    useEffect(() => {
-        if (loadLocation && unloadLocation && moveType && !isLoadLocationError && !isUnloadLocationError) {
-            setIsFormValid(true);
-        } else {
-            setIsFormValid(false);
-        }
-    }, [loadLocation, unloadLocation, moveType, isLoadLocationError, isUnloadLocationError]);
-
     useEffect(() => {
         if (locationSearch?.locationType === "load") {
             if (locationList) {
@@ -207,31 +198,77 @@ const MobilePage = () => {
         setDepositPrice(adjustedDeposit);
     };
 
-    const handleSubmit = () => {
-        if(!isFormValid) {
+    const validateForm = () => {
+        if (!loadLocation) {
             message.error({
-                content: '정보를 입력해주세요.',
-                key: 'estimateValid',
+                content: '상차지를 입력해주세요.',
+                key: 'loadLocationError',
                 duration: 2,
             });
-
-            return
+            return false;
         }
 
-        postSimpleEstimate({
-            loadLocation,
-            unloadLocation,
-            moveTypeId: moveType,
-            loadCityCode,
-            unloadCityCode,
-            locationInfo,
-            isAddFee,
-            distance
-        }, {
-            onSuccess: (data) => {
-                calcEstimatePrice(data?.estimatePrice);
+        if (!unloadLocation) {
+            message.error({
+                content: '하차지를 입력해주세요.',
+                key: 'unloadLocationError',
+                duration: 2,
+            });
+            return false;
+        }
+
+        if (!moveType) {
+            message.error({
+                content: '이사종류를 선택해주세요.',
+                key: 'moveTypeError',
+                duration: 2,
+            });
+            return false;
+        }
+
+        if (isLoadLocationError) {
+            message.error({
+                content: '상차지 정보가 올바르지 않습니다.',
+                key: 'isLoadLocationError',
+                duration: 2,
+            });
+            return false;
+        }
+
+        if (isUnloadLocationError) {
+            message.error({
+                content: '하차지 정보가 올바르지 않습니다.',
+                key: 'isUnloadLocationError',
+                duration: 2,
+            });
+            return false;
+        }
+
+        return true;
+    };
+
+    const handleSubmit = () => {
+        if (!validateForm()) {
+            return; // 유효성 검사가 실패하면 처리 중단
+        }
+
+        postSimpleEstimate(
+            {
+                loadLocation,
+                unloadLocation,
+                moveTypeId: moveType,
+                loadCityCode,
+                unloadCityCode,
+                locationInfo,
+                isAddFee,
+                distance,
+            },
+            {
+                onSuccess: (data) => {
+                    calcEstimatePrice(data?.estimatePrice);
+                }
             }
-        })
+        );
     };
 
     return (
