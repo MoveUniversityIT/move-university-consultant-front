@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { createBrowserRouter, Navigate, RouterProvider, Outlet } from "react-router-dom";
-import { useSelector } from "react-redux";
+import React, {useEffect, useState} from "react";
+import {createBrowserRouter, Navigate, RouterProvider, Outlet} from "react-router-dom";
+import {useSelector} from "react-redux";
 import LoginForm from "@/component/LoginForm";
 import Consultant from "@component/Consultant";
 import ProtectedRoute from "@/appcore/routes/ProtectedRoute";
@@ -13,6 +13,7 @@ import CustomerVoice from "@component/CustomerVoice";
 import MapsTest from "@component/MapsTest";
 import MobilePage from "@component/MobilePage";
 import LoadingSpinner from "@component/LoadingSpinner";
+import {WebSocketProvider} from "@/appcore/context/WebSocketContext";
 
 const Router = () => {
     const isLogin = useSelector((state) => state.login.loginState);
@@ -27,12 +28,12 @@ const Router = () => {
         setIsMobile(mobileRegex.test(userAgent));
     }, []);
 
-    const MobileRedirectWrapper = ({ children }) => {
+    const MobileRedirectWrapper = ({children}) => {
         if (isMobile === null) {
-            return <LoadingSpinner />;
+            return <LoadingSpinner/>;
         }
         if (isMobile) {
-            return <Navigate to="/mobile" replace />;
+            return <Navigate to="/mobile" replace/>;
         }
         return children;
     };
@@ -43,7 +44,7 @@ const Router = () => {
                 path: "/",
                 element: (
                     <MobileRedirectWrapper>
-                        {isLogin ? <Navigate to="/consultant" replace /> : <LoginForm />}
+                        {isLogin ? <Navigate to="/consultant" replace/> : <LoginForm/>}
                     </MobileRedirectWrapper>
                 ),
             },
@@ -58,25 +59,31 @@ const Router = () => {
                     {
                         path: "consultant",
                         element: (
-                            <ProtectedRoute requiredRoles={["ROLE_MANAGER", "ROLE_ADMIN", "ROLE_EMPLOYEE"]}>
-                                <Consultant />
-                            </ProtectedRoute>
+                            <WebSocketProvider>
+                                <ProtectedRoute requiredRoles={["ROLE_MANAGER", "ROLE_ADMIN", "ROLE_EMPLOYEE"]}>
+                                    <Consultant/>
+                                </ProtectedRoute>
+                            </WebSocketProvider>
                         ),
                     },
                     {
                         path: "notice",
                         element: (
-                            <ProtectedRoute requiredRoles={["ROLE_MANAGER", "ROLE_ADMIN", "ROLE_EMPLOYEE"]}>
-                                <Community notices={notices} setNotices={setNotices}/>
-                            </ProtectedRoute>
+                            <WebSocketProvider>
+                                <ProtectedRoute requiredRoles={["ROLE_MANAGER", "ROLE_ADMIN", "ROLE_EMPLOYEE"]}>
+                                    <Community notices={notices} setNotices={setNotices}/>
+                                </ProtectedRoute>
+                            </WebSocketProvider>
                         ),
                     },
                     {
                         path: "admin",
                         element: (
-                            <ProtectedRoute requiredRoles={["ROLE_ADMIN"]}>
-                                <AdminDashboard />
-                            </ProtectedRoute>
+                            <WebSocketProvider>
+                                <ProtectedRoute requiredRoles={["ROLE_ADMIN"]}>
+                                    <AdminDashboard/>
+                                </ProtectedRoute>
+                            </WebSocketProvider>
                         ),
                     },
                 ],
@@ -85,7 +92,7 @@ const Router = () => {
                 path: "/customer-image",
                 element: (
                     <MobileRedirectWrapper>
-                        <CustomerImage />
+                        <CustomerImage/>
                     </MobileRedirectWrapper>
                 ),
             },
@@ -93,7 +100,7 @@ const Router = () => {
                 path: "/customer-voice",
                 element: (
                     <MobileRedirectWrapper>
-                        <CustomerVoice />
+                        <CustomerVoice/>
                     </MobileRedirectWrapper>
                 ),
             },
@@ -101,7 +108,7 @@ const Router = () => {
                 path: "/register",
                 element: (
                     <MobileRedirectWrapper>
-                        <RegisterForm />
+                        <RegisterForm/>
                     </MobileRedirectWrapper>
                 ),
             },
@@ -109,22 +116,22 @@ const Router = () => {
                 path: "/maps",
                 element: (
                     <MobileRedirectWrapper>
-                        <MapsTest />
+                        <MapsTest/>
                     </MobileRedirectWrapper>
                 ),
             },
             {
                 path: "/mobile",
-                element: <MobilePage />,
+                element: <MobilePage/>,
             },
             {
                 path: "*",
-                element: <Navigate to="/" replace />,
+                element: <Navigate to="/" replace/>,
             },
         ]
     );
 
-    return <RouterProvider router={router} />;
+    return <RouterProvider router={router}/>;
 };
 
 export default Router;

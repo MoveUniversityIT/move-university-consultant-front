@@ -98,18 +98,22 @@ const AdminNotice = () => {
             title: <div style={{textAlign: 'center', fontWeight: 'bold'}}>제목</div>,
             dataIndex: 'title',
             key: 'title',
-            width: '15%',
+            // width: '15%',
             render: (text) => (
                 <div
                     style={{
                         textAlign: 'center',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
+                        overflowY: 'auto',
                         textOverflow: 'ellipsis',
-                        display: 'flex',
-                        alignItems: 'center', // 세로 정렬: 이미지와 같은 라인에 맞춤
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2, // 두 줄까지만 보여줌
+                        WebkitBoxOrient: 'vertical',
+                        alignItems: 'center',
                         justifyContent: 'center',
-                        height: '100%', // 전체 높이 맞춤
+                        height: '100%',
+                        maxHeight: '3.6em',
+                        lineHeight: '1.8em',
+                        whiteSpace: 'pre-wrap'
                     }}
                 >
                     {text}
@@ -145,7 +149,7 @@ const AdminNotice = () => {
             title: <div style={{textAlign: 'center', fontWeight: 'bold'}}>이미지</div>,
             dataIndex: 'fileUrls',
             key: 'fileUrls',
-            width: '10%',
+            // width: '10%',
             render: (fileUrls) => (
                 <div
                     style={{
@@ -177,7 +181,7 @@ const AdminNotice = () => {
             title: <div style={{textAlign: 'center', fontWeight: 'bold'}}>생성일</div>,
             dataIndex: 'createdAt',
             key: 'createdAt',
-            width: '10%',
+            // width: '10%',
             render: (createdAt) => (
                 <div
                     style={{
@@ -200,7 +204,7 @@ const AdminNotice = () => {
             title: <div style={{textAlign: 'center', fontWeight: 'bold'}}>수정일</div>,
             dataIndex: 'updatedAt',
             key: 'updatedAt',
-            width: '10%',
+            // width: '10%',
             render: (updatedAt) =>
                 updatedAt ? (
                     <div
@@ -236,7 +240,7 @@ const AdminNotice = () => {
         {
             title: <div style={{textAlign: 'center', fontWeight: 'bold'}}>액션</div>,
             key: 'action',
-            width: '10%',
+            // width: '10%',
             render: (_, record) => (
                 <div
                     style={{
@@ -299,9 +303,9 @@ const AdminNotice = () => {
                     type="default"
                     icon={
                         loading ? (
-                            <Spin size="small" />
+                            <Spin size="small"/>
                         ) : (
-                            <ReloadOutlined />
+                            <ReloadOutlined/>
                         )
                     }
                     onClick={handleRefresh}
@@ -329,11 +333,16 @@ const AdminNotice = () => {
                 공지사항 등록
             </Button>
 
-            <Table columns={columns}
-                   dataSource={notices}
-                   rowKey="noticeId"
-                   size="small"
-            />
+            <div className="flex-1 overflow-y-auto">
+                <Table
+                    columns={columns}
+                    dataSource={notices}
+                    rowKey="noticeId"
+                    size="small"
+                    scroll={{y: 'calc(100% - 10px)'}}
+                    style={{tableLayout: 'fixed', width: '100%'}}
+                />
+            </div>
 
             <Modal
                 title={editingNotice ? "공지사항 수정" : "공지사항 등록"}
@@ -411,7 +420,7 @@ const AdminNotice = () => {
 
             <Modal
                 title={
-                    <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '18px', color: '#333' }}>
+                    <div style={{textAlign: 'center', fontWeight: 'bold', fontSize: '18px', color: '#333'}}>
                         공지사항 읽지 않은 사용자 목록
                     </div>
                 }
