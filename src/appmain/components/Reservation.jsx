@@ -5,7 +5,7 @@ import {useQueryClient} from "@tanstack/react-query";
 import {PlusOutlined} from "@ant-design/icons";
 import dayjs from "dayjs";
 
-const Reservation = ({onLoad, onNew, reservations, isReservationLoading}) => {
+const Reservation = ({onLoad, onNew, reservations, isReservationLoading, userOption}) => {
     const queryClient = useQueryClient();
     const {mutate: reservationMutate} = useDeleteReservation();
 
@@ -49,7 +49,7 @@ const Reservation = ({onLoad, onNew, reservations, isReservationLoading}) => {
     // 검색어가 변경될 때 페이지를 첫 페이지로 초기화
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm]);
+    }, [searchTerm, userOption]);
 
     return (
         <Card

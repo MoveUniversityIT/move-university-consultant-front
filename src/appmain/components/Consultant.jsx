@@ -1,11 +1,11 @@
 import React, {useEffect, useState} from "react";
-import {Button, message, Spin} from "antd";
+import {Spin} from "antd";
 import Reservation from "@component/Reservation";
 import MoveInfo from "@component/MoveInfo";
 import DispatchCost from "@component/DispatchCost";
 import AdditionalFunctions from "@component/AdditionalFunctions";
 import {useConsultantMetadata} from "@hook/useConsultant";
-import {useDispatch, useSelector} from "react-redux";
+import {useSelector} from "react-redux";
 import {useReservation} from "@hook/useUser";
 import AdminDispatchPrice from "@component/admin/AdminDispatchPrice";
 import {hasAccess} from "@/appcore/utils/utils";
@@ -136,6 +136,7 @@ const Consultant = () => {
                     onNew={resetMoveInfo}
                     reservations={selectReservationList}
                     isReservationLoading={isReservationLoading}
+                    userOption={userOption}
                 />
                 <MoveInfo
                     consultantData={consultant}
