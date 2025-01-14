@@ -70,6 +70,7 @@ export const useReservation = ({userOption, hasAdminAccess}) => {
     return useQuery({
         queryKey: ['reservation', userOption],
         queryFn: () => getReservation({userOption, hasAdminAccess}),
+        staleTime: 0,
         retry: false
     })
 }

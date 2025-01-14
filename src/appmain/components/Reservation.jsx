@@ -3,6 +3,7 @@ import {Button, Card, Input, List, Modal, Pagination, Spin} from "antd";
 import {useDeleteReservation} from "@hook/useUser";
 import {useQueryClient} from "@tanstack/react-query";
 import {PlusOutlined} from "@ant-design/icons";
+import dayjs from "dayjs";
 
 const Reservation = ({onLoad, onNew, reservations, isReservationLoading}) => {
     const queryClient = useQueryClient();
@@ -58,7 +59,7 @@ const Reservation = ({onLoad, onNew, reservations, isReservationLoading}) => {
             <div>
                 <Button
                     className="px-5 py-3 mb-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
-                    icon={<PlusOutlined />}
+                    icon={<PlusOutlined/>}
                     block
                     onClick={onNew}>
                     새로 만들기
@@ -72,10 +73,10 @@ const Reservation = ({onLoad, onNew, reservations, isReservationLoading}) => {
                 />
             </div>
 
-            <div className="flex-1 overflow-y-auto mb-4" style={{minHeight: "700px"}}>
+            <div className="flex-1 overflow-y-auto mb-4 h-[700px]" style={{minHeight: "700px"}}>
                 {isReservationLoading ? (
-                    <div className="flex justify-center items-center min-h-[700px]">
-                        <Spin size="large" />
+                    <div className="flex justify-center items-center min-h-[700px] max-h-[700px]">
+                        <Spin size="large"/>
                     </div>
                 ) : (
                     <List
@@ -83,9 +84,22 @@ const Reservation = ({onLoad, onNew, reservations, isReservationLoading}) => {
                         renderItem={(reservation) => (
                             <List.Item
                                 key={reservation.reservationId}
-                                className="w-full bg-gradient-to-r h-32 from-gray-50 to-white rounded-lg mb-2 p-4 border border-gray-200 shadow-sm hover:border-transparent hover:shadow-xl hover:bg-gradient-to-r hover:from-blue-100 hover:to-blue-50 transition-all duration-300 flex flex-col items-center transform"
+                                className="w-full bg-gradient-to-r mb-2 overflow-y-auto from-gray-50 to-white rounded-lg p-4 border border-gray-200 shadow-sm hover:border-transparent hover:shadow-xl hover:bg-gradient-to-r hover:from-blue-100 hover:to-blue-50 transition-all duration-300 flex flex-col items-center transform"
                             >
-                                <div className="flex flex-col gap-1">
+                                <div className="flex flex-col gap-1 block">
+                                    {reservation?.createdAt && (
+                                        <p className="text-sm text-gray-600 flex">
+                                    <span
+                                        className="font-semibold text-center bg-gray-100 px-2 rounded flex items-center justify-center">
+                                        등록일:
+                                    </span>
+                                            <span className="ml-2">
+                                            {dayjs(reservation.createdAt).format('YYYY년 MM월 DD일')}
+                                                <br/>
+                                                {dayjs(reservation.createdAt).format('A HH시 mm분').replace('AM', '오전').replace('PM', '오후')}
+                                        </span>
+                                        </p>
+                                    )}
                                     <p className="text-sm text-gray-600 flex">
                                     <span className="font-semibold text-center bg-gray-100 px-2 rounded">
                                         요청일:
@@ -110,7 +124,7 @@ const Reservation = ({onLoad, onNew, reservations, isReservationLoading}) => {
                                 <div className="flex justify-end gap-2 border-t pt-2 mt-1">
                                     <Button
                                         size="small"
-                                        className="px-4 py-3 mb-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
+                                        className="px-4 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
                                         onClick={() =>
                                             confirmAction(
                                                 "불러오기 확인",
@@ -123,7 +137,7 @@ const Reservation = ({onLoad, onNew, reservations, isReservationLoading}) => {
                                     </Button>
                                     <Button
                                         size="small"
-                                        className="px-4 py-3 mb-2 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-200"
+                                        className="px-4 py-3 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-200"
                                         onClick={() =>
                                             confirmAction(
                                                 "삭제 확인",

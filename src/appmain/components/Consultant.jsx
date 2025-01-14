@@ -73,10 +73,6 @@ const Consultant = () => {
         setSelectReservationList(reservations);
     }, [reservations]);
 
-    useEffect(() => {
-
-    }, []);
-
     const showModal = () => {
         setIsModalOpen(true);
     };

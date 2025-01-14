@@ -2,12 +2,15 @@ import React, {useEffect, useState} from 'react';
 import {Button, Checkbox, Form, message, Select, Typography} from "antd";
 import AddressInput from "@/component/AddressInput";
 import _ from "lodash";
-import {useAddressSearch, usePostSimpleEstimate, useRoadDistance} from "@hook/useConsultant";
+import {useAddressSearch, useMuCalcConsultant, usePostSimpleEstimate, useRoadDistance} from "@hook/useConsultant";
+import dayjs from "dayjs";
+import CustomDatePicker from "@/component/CustomDatePicker";
 
 const {Option} = Select;
 const {Title, Paragraph} = Typography;
 
 const MobilePage = () => {
+    const [consultantDataForm, setConsultantDataForm] = useState(null);
     const [moveType, setMoveType] = useState(null);
 
     const [loadLocation, setLoadLocation] = useState('');
@@ -21,6 +24,9 @@ const MobilePage = () => {
     const [unloadCityCode, setUnloadCityCode] = useState(null);
     const [showUnloadAddressList, setShowUnloadAddressList] = useState(false);
     const [unloadAddressList, setUnloadAddressList] = useState([]);
+
+    const [dateCheckList, setDateCheckList] = useState([]);
+    const [requestDate, setRequestDate] = useState(dayjs(new Date()));
 
     const [isAddFee, setIsAddFee] = useState(false);
 
@@ -41,10 +47,20 @@ const MobilePage = () => {
 
     const [isFormValid, setIsFormValid] = useState(false);
 
-    const {mutate: postSimpleEstimate} = usePostSimpleEstimate();
+    const {mutate: postCalcConsultant} = useMuCalcConsultant();
 
     const [estimatePrice, setEstimatePrice] = useState(0);
     const [depositPrice, setDepositPrice] = useState(0);
+
+    const handleDateChange = (isNoHandsSon) => (date) => {
+        if (isNoHandsSon) {
+            setDateCheckList(["NO_HANDS_SON"]);
+        } else {
+            setDateCheckList([]);
+        }
+
+        setRequestDate(date);
+    };
 
     const handleLocationChange = (setLocation, setShowList, locationType) => (e) => {
         if (skipAddressChangeEvent) {
@@ -144,10 +160,8 @@ const MobilePage = () => {
         }
     }, [roadDistanceData]);
 
-    const calcEstimatePrice = (estimate) => {
-        const minEstimate = Math.round(estimate.baseCost * 1.15);
-        const midEstimate = estimate.estimatePrice;
-        const maxEstimate = Math.round(estimate.estimatePrice * 1.5);
+    const calcEstimatePrice = (data) => {
+        const estimate = data?.estimatePrice;
 
         let calcEstimate = estimate.estimatePrice;
 
@@ -188,7 +202,7 @@ const MobilePage = () => {
         }
 
         setEstimatePrice(calcEstimate);
-        setDepositPrice(estimate.totalCalcPrice);
+        setDepositPrice(data?.totalCalcPrice);
     };
 
     const validateForm = () => {
@@ -242,92 +256,168 @@ const MobilePage = () => {
 
     const handleSubmit = () => {
         if (!validateForm()) {
-            return; // 유효성 검사가 실패하면 처리 중단
+            return;
         }
 
-        postSimpleEstimate(
-            {
-                loadLocation,
-                unloadLocation,
-                moveTypeId: moveType,
-                loadCityCode,
-                unloadCityCode,
-                locationInfo,
-                isAddFee,
-                distance,
-            },
+        const formData = {
+            loadLocationName: loadLocation,
+            loadCityCode: loadCityCode.substring(0, 6),
+            loadSubCityCode: loadCityCode.substring(6),
+            loadMethodId: 1,
+            loadMethodName: '엘레베이터',
+            loadFloorNumber: 1,
+            loadHelperPeople: [],
+            unloadLocationName: unloadLocation,
+            unloadCityCode: unloadCityCode.substring(0, 6),
+            unloadSubCityCode: unloadCityCode.substring(6),
+            unloadMethodId: 1,
+            unloadMethodName: '엘레베이터',
+            unloadFloorNumber: 1,
+            unloadHelperPeople: [],
+            moveTypeId: moveType,
+            vehicleId: 1,
+            vehicleName: '단순운송',
+            vehicleCount: 1,
+            distance,
+
+            requestDate: requestDate.format("YYYY-MM-DD") || null,
+            // requestTime: requestTime.format("HH:mm") || null,
+            requestTime: '08:00',
+
+            storageMoveTypeId: null,
+            storageMoveTypeName: null,
+            storageLoadRequestDate: null,
+            storageLoadRequestTime: null,
+            storageUnloadRequestDate: null,
+            storageUnloadRequestTime: null,
+
+            specialItems: {},
+            employHelperPeople: [
+                {
+                    helperType: "TRANSPORT",
+                    peopleCount: 1,
+                },
+                {
+                    helperType: "PACKING_CLEANING",
+                    peopleCount: 0,
+                }
+            ],
+            isTogether: false,
+            isAlone: true
+        };
+
+        // 단순운송
+        if (moveType === '1' || moveType === '2') {
+            formData.items = {
+                '박스(포장됨)': {
+                    'additionalPrice': 0,
+                    'baseAdditionalFee': 0,
+                    'disassemblyAdditionalFee': 0,
+                    'installationAdditionalFee': 0,
+                    'isDisassembly': "N",
+                    'isInstallation': "N",
+                    'itemCbm': 0.27,
+                    'itemCount': 30,
+                    'itemId': 149,
+                    'itemName': "박스(포장됨)",
+                    'requiredIsDisassembly': "N",
+                    'requiredIsInstallation': "N",
+                    'weight': 30
+                }
+            }
+
+            formData.totalItemCbm = 8.1
+        } else if (moveType === '3' || moveType === '4') {
+            formData.items = {
+                '박스(포장됨)': {
+                    'additionalPrice': 0,
+                    'baseAdditionalFee': 0,
+                    'disassemblyAdditionalFee': 0,
+                    'installationAdditionalFee': 0,
+                    'isDisassembly': "N",
+                    'isInstallation': "N",
+                    'itemCbm': 0.27,
+                    'itemCount': 15,
+                    'itemId': 149,
+                    'itemName': "박스(포장됨)",
+                    'requiredIsDisassembly': "N",
+                    'requiredIsInstallation': "N",
+                    'weight': 30
+                },
+                '박스(필요)': {
+                    'additionalPrice': 0,
+                    'baseAdditionalFee': 0,
+                    'disassemblyAdditionalFee': 0,
+                    'installationAdditionalFee': 0,
+                    'isDisassembly': "N",
+                    'isInstallation': "N",
+                    'itemCbm': 0.27,
+                    'itemCount': 15,
+                    'itemId': 150,
+                    'itemName': "박스(필요)",
+                    'requiredIsDisassembly': "N",
+                    'requiredIsInstallation': "N",
+                    'weight': 30
+                },
+            }
+
+            formData.totalItemCbm = 8.1;
+        }
+
+
+        postCalcConsultant(formData,
             {
                 onSuccess: (data) => {
-                    calcEstimatePrice(data?.estimatePrice);
+                    calcEstimatePrice(data[0]);
+                },
+                onError: (data) => {
+
                 }
             }
         );
     };
 
     return (
-        <div style={{
-            backgroundColor: "#f7f7f7",
-            minHeight: "100vh",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            padding: "10px 20px"
-        }}>
-            <div style={{
-                width: "100%",
-                maxWidth: "500px",
-                minHeight: "90vh",
-                padding: "20px",
-                backgroundColor: "#fff",
-                borderRadius: "10px",
-                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-            }}>
-                <Title level={3} style={{textAlign: "center", marginBottom: "20px", color: "#333"}}>
+        <div className="bg-gray-100 min-h-screen flex justify-center items-center px-4">
+            <div className="w-full max-w-2xl min-h-[90vh] p-8 bg-white rounded-lg shadow-lg">
+                <h3 className="text-center text-3xl font-bold text-gray-800 mb-8">
                     이사 정보 입력
-                </Title>
+                </h3>
 
-                <Form.Item
-                    label="상차지"
-                >
-                    <AddressInput
-                        location={loadLocation}
-                        setCityCode={setLoadCityCode}
-                        handleCoordinates={handleLoadCoordinates}
-                        handleLocationChange={handleLocationChange(setLoadLocation, setShowLoadAddressList, 'load')}
-                        addressList={loadAddressList}
-                        showAddressList={showLoadAddressList}
-                        setShowAddressList={setShowLoadAddressList}
-                        onSelectAddress={handleAddressSelect(setLoadLocation, setShowLoadAddressList, 'load')}
-                        setSkipAddressChangeEvent={setSkipAddressChangeEvent}
-                        tabIndex={1}
-                        isLocationError={isLoadLocationError}
-                    />
-                </Form.Item>
+                <AddressInput
+                    label='상차지'
+                    location={loadLocation}
+                    setCityCode={setLoadCityCode}
+                    handleCoordinates={handleLoadCoordinates}
+                    handleLocationChange={handleLocationChange(setLoadLocation, setShowLoadAddressList, 'load')}
+                    addressList={loadAddressList}
+                    showAddressList={showLoadAddressList}
+                    setShowAddressList={setShowLoadAddressList}
+                    onSelectAddress={handleAddressSelect(setLoadLocation, setShowLoadAddressList, 'load')}
+                    setSkipAddressChangeEvent={setSkipAddressChangeEvent}
+                    tabIndex={1}
+                    isLocationError={isLoadLocationError}
+                />
 
-                {/* 하차지 */}
-                <Form.Item
-                    label="하차지"
-                >
-                    <AddressInput
-                        location={unloadLocation}
-                        setCityCode={setUnloadCityCode}
-                        handleCoordinates={handleUnloadCoordinates}
-                        handleLocationChange={handleLocationChange(setUnloadLocation, setShowUnloadAddressList, 'unload')}
-                        addressList={unloadAddressList}
-                        showAddressList={showUnloadAddressList}
-                        setShowAddressList={setShowUnloadAddressList}
-                        onSelectAddress={handleAddressSelect(setUnloadLocation, setShowUnloadAddressList, 'unload')}
-                        setSkipAddressChangeEvent={setSkipAddressChangeEvent}
-                        tabIndex={2}
-                        isLocationError={isUnloadLocationError}
-                    />
-                </Form.Item>
+                <AddressInput
+                    label='하차지'
+                    location={unloadLocation}
+                    setCityCode={setUnloadCityCode}
+                    handleCoordinates={handleUnloadCoordinates}
+                    handleLocationChange={handleLocationChange(setUnloadLocation, setShowUnloadAddressList, 'unload')}
+                    addressList={unloadAddressList}
+                    showAddressList={showUnloadAddressList}
+                    setShowAddressList={setShowUnloadAddressList}
+                    onSelectAddress={handleAddressSelect(setUnloadLocation, setShowUnloadAddressList, 'unload')}
+                    setSkipAddressChangeEvent={setSkipAddressChangeEvent}
+                    tabIndex={2}
+                    isLocationError={isUnloadLocationError}
+                />
 
-                {/* 이사종류 */}
-                <Form.Item
-                    label="이사종류"
-                >
+                <div className="flex items-center w-full mb-4">
+                    <label className="w-14 text-gray-700 font-medium">거래처:</label>
                     <Select
+                        className="w-full border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                         placeholder="이사종류를 선택하세요"
                         value={moveType}
                         onChange={setMoveType}
@@ -337,51 +427,44 @@ const MobilePage = () => {
                         <Option value="3">반포장이사</Option>
                         <Option value="4">포장이사</Option>
                     </Select>
-                </Form.Item>
+                </div>
 
-                {/* 추가사항 */}
-                <Form.Item label="추가사항">
-                    <Checkbox
-                        checked={isAddFee}
-                        onChange={(e) => setIsAddFee(e.target.checked)}
-                    >계단, 동승 등</Checkbox>
-                </Form.Item>
+                <CustomDatePicker
+                    label="요청일"
+                    dateCheckList={dateCheckList}
+                    requestDate={requestDate}
+                    handleDateChange={handleDateChange}
+                />
 
-                {/* 제출 버튼 */}
-                <div style={{marginTop: "20px"}}>
-                    <Button
-                        type="primary"
-                        block
-                        style={{height: "45px", fontSize: "16px"}}
+                <div className="mt-4">
+                    <button
+                        className="w-full py-2 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
                         onClick={handleSubmit}
                     >
                         견적 금액 조회
-                    </Button>
+                    </button>
                 </div>
 
-                <div style={{marginTop: "30px", padding: "10px", backgroundColor: "#f0f0f0", borderRadius: "5px"}}>
-                    <div className='font-bold text-xl'>
-                        <span>배차 금액: </span>
-                        <span className='text-green-500'> {depositPrice?.toLocaleString()}원</span>
+                <div className="mt-8 p-6 bg-white rounded-md shadow-md border border-gray-200">
+                    <div className="flex items-center justify-between">
+                        <h4 className="font-semibold text-gray-700">배차 금액</h4>
+                        <p className="text-lg font-semibold text-green-500">{depositPrice?.toLocaleString()}원</p>
                     </div>
-                    <div className='font-bold text-xl mb-2'>
-                        <span>견적 금액: </span>
-                        <span className='text-blue-600'> {estimatePrice?.toLocaleString()}원</span>
+                    <div className="flex items-center justify-between mt-4">
+                        <h4 className="font-semibold text-gray-700">견적 금액</h4>
+                        <p className="text-lg font-semibold text-blue-600">{estimatePrice?.toLocaleString()}원</p>
                     </div>
-                    <Paragraph>
-                        대략적 배차가 <br/>
-                        상담봇 견적레버 5기준
-                    </Paragraph>
-                    <ul>
+                    <hr className="my-4 border-gray-300"/>
+                    <ul className="space-y-2 text-gray-600 list-disc list-inside">
+                        <li>기본 물품 기준 배차가</li>
+                        <li>상담봇 견적레버 5기준</li>
                         <li>1톤 한대 기준</li>
-                        <li>여러 대면 대당 금액 조금씩 증가</li>
-                        <li>이사 몰리는 날은 금액 상승</li>
-                        <li>좋지 않은 지역은 금액 상승</li>
-                        <li>인부 필요 시 금액 상승</li>
+                        <li>여러 대면 대당 금액 증가필요</li>
+                        <li>인부 필요시 금액 상승</li>
                     </ul>
-                    <Paragraph>
-                        <strong>정확한 금액은 상담봇2 참조</strong>
-                    </Paragraph>
+                    <p className="mt-6 text-center text-lg text-gray-500">
+                        <strong className="text-gray-700">정확한 금액은 상담봇2 참조</strong>
+                    </p>
                 </div>
             </div>
         </div>

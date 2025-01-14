@@ -761,7 +761,26 @@ const DispatchCost = ({
 
     return (
         <div className="flex flex-col h-full">
-            <Card title="배차 금액" className="shadow-md rounded-md">
+            <Card title="배차 금액" className="shadow-md rounded-md relative">
+                {dispatchAmount && (
+                    <div
+                        className={`absolute mt-1 top-2 font-bold text-sm flex items-center justify-center ${
+                            dispatchAmount[0]?.ltl ? "text-red-500" : "text-blue-500"
+                        }`}
+                        style={{
+                            marginLeft: "4.5rem",
+                            backgroundColor: dispatchAmount[0]?.ltl
+                                ? "rgba(255, 235, 238, 0.8)"
+                                : "rgba(235, 245, 255, 0.8)",
+                            borderRadius: "4px",
+                            padding: "4px 8px",
+                            lineHeight: "1.5",
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                        }}
+                    >
+                        {dispatchAmount[0]?.ltl ? "혼적" : "독차"}
+                    </div>
+                )}
                 <div className="relative">
                     {isDispatchAmount && (
                         <div className="absolute inset-0 flex justify-center items-center bg-white bg-opacity-75 z-10">
@@ -825,7 +844,7 @@ const DispatchCost = ({
                         <Tooltip title="아래의 체크박스 선택 후 사용할 수 있습니다." placement="top">
                             <Button
                                 className="px-5 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
-                                icon={<ZoomInOutlined />}
+                                icon={<ZoomInOutlined/>}
                                 disabled
                             >
                                 추가 견적 상세 보기

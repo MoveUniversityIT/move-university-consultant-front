@@ -7,7 +7,7 @@ let isRefreshing = false;
 let failedQueue = [];
 
 const processQueue = (error, token = null) => {
-    while (failedQueue.length > 0) {
+    while (failedQueue && failedQueue?.length > 0) {
         const { resolve, reject } = failedQueue.shift();
         if (error) {
             reject(error);

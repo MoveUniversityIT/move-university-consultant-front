@@ -82,6 +82,14 @@ export const useCalcConsultant = (consultantDataForm, enabled) => {
     );
 };
 
+// 배차 금액 조회
+export const useMuCalcConsultant = () => {
+    return useMutation({
+        mutationFn: (consultantDataForm) => getCalcConsultant(consultantDataForm),
+        retry: false
+    })
+}
+
 // 배차 금액 조회(여러 항목)
 export const useCalcConsultants = () => {
     return useMutation({
