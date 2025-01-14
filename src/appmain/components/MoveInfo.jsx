@@ -1237,7 +1237,7 @@ const MoveInfo = ({
                 <div className="flex gap-1 items-center mb-2">
                     <div className="flex items-center w-2/5">
                         <label className="w-12 text-gray-700 font-medium">담당자:</label>
-                        {userList.length > 0 && (
+                        {userList?.length > 0 && (
                             <Select
                                 placeholder="예: 담당자"
                                 className="min-w-24 border border-gray-300 rounded-lg"
@@ -1246,12 +1246,12 @@ const MoveInfo = ({
                                     setUserOption({userId: option?.value, userName: option?.children});
                                 }}
                             >
-                                {userList.map((user, index) => (
+                                {userList?.map((user, index) => (
                                     <Option key={index} value={user?.userId}>{user?.userName}</Option>
                                 ))}
                             </Select>
                         )}
-                        {userList.length === 0 && (
+                        {userList?.length === 0 && (
                             <div>
                                 <Select
                                     placeholder="예: 담당자"
