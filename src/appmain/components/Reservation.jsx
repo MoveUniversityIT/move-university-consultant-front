@@ -1,10 +1,10 @@
 import React, {useState, useEffect} from "react";
-import {Button, Card, Input, List, Modal, Pagination} from "antd";
+import {Button, Card, Input, List, Modal, Pagination, Spin} from "antd";
 import {useDeleteReservation} from "@hook/useUser";
 import {useQueryClient} from "@tanstack/react-query";
 import {PlusOutlined} from "@ant-design/icons";
 
-const Reservation = ({onLoad, onNew, reservations}) => {
+const Reservation = ({onLoad, onNew, reservations, isReservationLoading}) => {
     const queryClient = useQueryClient();
     const {mutate: reservationMutate} = useDeleteReservation();
 
@@ -73,67 +73,72 @@ const Reservation = ({onLoad, onNew, reservations}) => {
             </div>
 
             <div className="flex-1 overflow-y-auto mb-4" style={{minHeight: "700px"}}>
-                <List
-                    dataSource={paginatedReservations}
-                    renderItem={(reservation) => (
-                        <List.Item
-                            key={reservation.reservationId}
-                            className="w-full bg-gradient-to-r h-32 from-gray-50 to-white rounded-lg mb-2 p-4 border border-gray-200 shadow-sm hover:border-transparent hover:shadow-xl hover:bg-gradient-to-r hover:from-blue-100 hover:to-blue-50 transition-all duration-300 flex flex-col items-center transform"
-                        >
-
-                        <div className="flex flex-col gap-1">
-                                <p className="text-sm text-gray-600 flex">
+                {isReservationLoading ? (
+                    <div className="flex justify-center items-center min-h-[700px]">
+                        <Spin size="large" />
+                    </div>
+                ) : (
+                    <List
+                        dataSource={paginatedReservations}
+                        renderItem={(reservation) => (
+                            <List.Item
+                                key={reservation.reservationId}
+                                className="w-full bg-gradient-to-r h-32 from-gray-50 to-white rounded-lg mb-2 p-4 border border-gray-200 shadow-sm hover:border-transparent hover:shadow-xl hover:bg-gradient-to-r hover:from-blue-100 hover:to-blue-50 transition-all duration-300 flex flex-col items-center transform"
+                            >
+                                <div className="flex flex-col gap-1">
+                                    <p className="text-sm text-gray-600 flex">
                                     <span className="font-semibold text-center bg-gray-100 px-2 rounded">
                                         요청일:
                                     </span>
-                                    <span className="ml-2">{reservation.requestDate}</span>
-                                </p>
-                                <p className="text-sm text-gray-600 flex">
+                                        <span className="ml-2">{reservation.requestDate}</span>
+                                    </p>
+                                    <p className="text-sm text-gray-600 flex">
                                     <span className="font-semibold text-center bg-gray-100 px-2 rounded">
                                         화주이름:
                                     </span>
-                                    <span className="ml-2">{reservation.customerName}</span>
-                                </p>
-                                <p className="text-sm text-gray-600 flex">
+                                        <span className="ml-2">{reservation.customerName}</span>
+                                    </p>
+                                    <p className="text-sm text-gray-600 flex">
                                     <span className="font-semibold text-center bg-gray-100 px-2 rounded">
                                         화주번호:
                                     </span>
-                                    <span className="ml-2">{reservation.customerPhoneNumber}</span>
-                                </p>
-                            </div>
+                                        <span className="ml-2">{reservation.customerPhoneNumber}</span>
+                                    </p>
+                                </div>
 
-                            {/* 버튼 */}
-                            <div className="flex justify-end gap-2 border-t pt-2 mt-1">
-                                <Button
-                                    size="small"
-                                    className="px-4 py-3 mb-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
-                                    onClick={() =>
-                                        confirmAction(
-                                            "불러오기 확인",
-                                            "정말로 이 데이터를 불러오시겠습니까?",
-                                            () => onLoad(reservation)
-                                        )
-                                    }
-                                >
-                                    불러오기
-                                </Button>
-                                <Button
-                                    size="small"
-                                    className="px-4 py-3 mb-2 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-200"
-                                    onClick={() =>
-                                        confirmAction(
-                                            "삭제 확인",
-                                            "정말로 이 데이터를 삭제하시겠습니까?",
-                                            () => handleDelete(reservation?.reservationId)
-                                        )
-                                    }
-                                >
-                                    삭제하기
-                                </Button>
-                            </div>
-                        </List.Item>
-                    )}
-                />
+                                {/* 버튼 */}
+                                <div className="flex justify-end gap-2 border-t pt-2 mt-1">
+                                    <Button
+                                        size="small"
+                                        className="px-4 py-3 mb-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
+                                        onClick={() =>
+                                            confirmAction(
+                                                "불러오기 확인",
+                                                "정말로 이 데이터를 불러오시겠습니까?",
+                                                () => onLoad(reservation)
+                                            )
+                                        }
+                                    >
+                                        불러오기
+                                    </Button>
+                                    <Button
+                                        size="small"
+                                        className="px-4 py-3 mb-2 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-200"
+                                        onClick={() =>
+                                            confirmAction(
+                                                "삭제 확인",
+                                                "정말로 이 데이터를 삭제하시겠습니까?",
+                                                () => handleDelete(reservation?.reservationId)
+                                            )
+                                        }
+                                    >
+                                        삭제하기
+                                    </Button>
+                                </div>
+                            </List.Item>
+                        )}
+                    />
+                )}
             </div>
 
             {/* Pagination */}
@@ -150,6 +155,7 @@ const Reservation = ({onLoad, onNew, reservations}) => {
             </div>
         </Card>
     );
+
 };
 
 export default Reservation;

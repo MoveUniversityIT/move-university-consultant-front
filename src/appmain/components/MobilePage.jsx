@@ -187,15 +187,8 @@ const MobilePage = () => {
             calcEstimate = Math.round(calcEstimate / 50000) * 50000;
         }
 
-        const calculatedDeposit = calcEstimate - estimate.totalCalcPrice;
-
-        const adjustedDeposit =
-            calculatedDeposit >= calcEstimate
-                ? calcEstimate
-                : calculatedDeposit;
-
         setEstimatePrice(calcEstimate);
-        setDepositPrice(adjustedDeposit);
+        setDepositPrice(estimate.totalCalcPrice);
     };
 
     const validateForm = () => {
@@ -367,10 +360,18 @@ const MobilePage = () => {
                 </div>
 
                 <div style={{marginTop: "30px", padding: "10px", backgroundColor: "#f0f0f0", borderRadius: "5px"}}>
-                    <Title level={4} style={{marginBottom: "10px"}}>
-                        견적 금액: {estimatePrice?.toLocaleString()}원
-                    </Title>
-                    <Paragraph>배차가 기준 상담봇 견적레버(5)</Paragraph>
+                    <div className='font-bold text-xl'>
+                        <span>배차 금액: </span>
+                        <span className='text-green-500'> {depositPrice?.toLocaleString()}원</span>
+                    </div>
+                    <div className='font-bold text-xl mb-2'>
+                        <span>견적 금액: </span>
+                        <span className='text-blue-600'> {estimatePrice?.toLocaleString()}원</span>
+                    </div>
+                    <Paragraph>
+                        대략적 배차가 <br/>
+                        상담봇 견적레버 5기준
+                    </Paragraph>
                     <ul>
                         <li>1톤 한대 기준</li>
                         <li>여러 대면 대당 금액 조금씩 증가</li>

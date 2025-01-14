@@ -1,6 +1,7 @@
 import axios from "axios";
 import RootStore from "@/appcore/rootStore";
-import { toggleAccessToken, toggleLoginState, toggleRefreshToken } from "@/features/user/loginSlice";
+import {toggleAccessToken, toggleRefreshToken} from "@/features/user/loginSlice";
+import {message} from "antd";
 
 let isRefreshing = false;
 let failedQueue = [];
@@ -113,6 +114,12 @@ API.interceptors.response.use(
                     // RootStore.dispatch(toggleAccessToken(""));
                     // RootStore.dispatch(toggleRefreshToken(""));
                     // RootStore.dispatch(toggleLoginState(false));
+
+                    message.error({
+                        content: "회원 정보가 만료되었습니다. 다시 로그인 후 시도해주세요.",
+                        key: 'refreshError',
+                        duration: 5,
+                    });
                     return Promise.reject(err);
                 });
         }

@@ -26,7 +26,6 @@ import {useSaveReservation, useSupabaseIntermediary, useSupabaseManager, useSupa
 import {useQueryClient} from "@tanstack/react-query";
 import SpecialItemSearch from "@component/SpecialItemSearch";
 import {InfoCircleOutlined, SaveOutlined} from "@ant-design/icons";
-import {useSelector} from "react-redux";
 import {FiTruck} from "react-icons/fi";
 
 const {Option} = Select;
@@ -36,7 +35,7 @@ const gongchaMoveTypes = ["단순운송", "일반이사", "반포장이사", "�
 const gongchaPaymentTypes = ["현금", "카드", "현금영수증", "세금계산서"];
 
 const getPriceByDistance = (dokchaPrices, distance) => {
-    const priceInfo = dokchaPrices.find(price =>
+    const priceInfo = dokchaPrices?.find(price =>
         distance >= price.minDistance && distance < price.maxDistance
     );
     return priceInfo ? priceInfo.price : 0;
@@ -68,12 +67,16 @@ const MoveInfo = ({
                       moveTypeCheckBoxes,
                       isFormValid,
                       setIsFormValid,
-                      setDokchaPrice
+                      setDokchaPrice,
+                      userId,
+                      userName,
+                      userOption,
+                      setUserOption,
+                      userList,
+                      hasAdminAccess
                   }) => {
     const queryClient = useQueryClient();
 
-    const userId = useSelector((state) => state.login.userId);
-    const userName = useSelector((state) => state.login.userName);
     const [reservationId, setReservationId] = useState(null);
     const [client, setClient] = useState({key: 0, value: '이사대학'});
     const [moveType, setMoveType] = useState(null);
@@ -145,12 +148,9 @@ const MoveInfo = ({
 
     const [totalItemCbm, setTotalItemCbm] = useState(0);
 
-    const [isCollapsed, setIsCollapsed] = useState(true);
-
     const [locationSearch, setLocationSearch] = useState({});
     const {data: locationList} = useAddressSearch(locationSearch);
 
-    const [calcConsultantData, setCalcConsultantData] = useState(null);
     const [dateCheckList, setDateCheckList] = useState([]);
     const [storageLoadDateCheckList, setStorageLoadDateCheckList] = useState([]);
     const [storageUnloadDateCheckList, setStorageUnloadDateCheckList] = useState([]);
@@ -173,12 +173,10 @@ const MoveInfo = ({
     const [isMemoModalVisible, setIsMemoModalVisible] = useState(false);
     const [memo, setMemo] = useState("");
 
-    const userList = useSelector((state) => state.login.userList);
-
     const {mutate: reservationMutate} = useSaveReservation();
 
     // 공차 담당자 조회(UUID)
-    const {data: supaManagerName} = useSupabaseManager({userId, userName});
+    const {data: supaManagerName} = useSupabaseManager(userOption);
     // 공차 거래처 조회
     const {data: supaIntermediaryName} = useSupabaseIntermediary(client?.value);
 
@@ -631,6 +629,7 @@ const MoveInfo = ({
 
     const handleSave = () => {
         const reservationData = {
+            userId: userOption?.userId,
             reservationId,
             client: JSON.stringify(client), // JSON 객체를 문자열로 변환
             distance,
@@ -676,7 +675,7 @@ const MoveInfo = ({
             estimateLever: sliderValue      // 견적 금액 레버
         };
 
-        reservationMutate(reservationData, {
+        reservationMutate({reservationData, hasAdminAccess}, {
             onSuccess: (data) => {
                 const successMessage = data?.reservationId ? "정상적으로 저장되었습니다." : "정상적으로 처리되지 않았습니다.";
                 message.success({
@@ -751,6 +750,61 @@ const MoveInfo = ({
             .join(', ');
 
         return resultText;
+    };
+
+    const handleSort = (key, orderKey) => {
+        const itemsArray = Object.values(items);
+
+        const targetItems = ["박스(포장됨)", "박스(필요)", "바구니(포장됨)", "바구니(필요)"];
+
+        // 정렬 수행
+        const sortedItems = _.orderBy(
+            itemsArray,
+            [
+                (item) => {
+                    const index = targetItems.indexOf(item.itemName);
+                    return index !== -1 ? index : -Infinity;
+                },
+                'additionalPrice', // 추가 요금
+                'itemCbm',        // CBM
+                'weight'          // 무게
+            ],
+            [
+                'asc',
+                orderKey,   // additionalPrice 기준
+                orderKey,   // itemCbm 기준
+                orderKey    // weight 기준
+            ]
+        );
+
+        // 정렬된 배열을 객체로 변환
+        const sortedItemsObject = sortedItems.reduce((acc, item) => {
+            acc[item.itemName] = item;
+            return acc;
+        }, {});
+
+        setItems(sortedItemsObject);
+
+        // 검색어 업데이트
+        const updatedSearchTerm = sortedItems
+            .map((item) => {
+                let tags = "";
+
+                if (item.requiredIsDisassembly === "Y" && item.requiredIsInstallation === "Y") {
+                    tags = "[분조]";
+                } else if (item.requiredIsDisassembly === "Y") {
+                    tags = "[분]";
+                } else if (item.requiredIsInstallation === "Y") {
+                    tags = "[조]";
+                }
+
+                const itemCount = item.itemCount && item.itemCount !== 1 ? item.itemCount : "";
+
+                return `${item.itemName}${tags}${itemCount}`;
+            })
+            .join(", ");
+
+        setSearchItemTerm(updatedSearchTerm);
     };
 
     const handleSaveGongcha = () => {
@@ -834,6 +888,16 @@ const MoveInfo = ({
 
         const shortItemTerm = mapShortItemNames(searchItemTerm);
         const searchItemTermAndSearchSpecialITemTerm = `${searchItemTerm}, ${searchSpecialItemTerm}`.replace(/,\s*$/, "");
+
+        if(supaManagerName?.length === 0) {
+            message.error({
+                content: '담당자가 공차에 등록되어있지 않습니다.',
+                key: 'errorGongcha',
+                duration: 2,
+            });
+
+            return;
+        }
 
         const gongchaData = {
             manager: supaManagerName[0]?.id,
@@ -955,18 +1019,6 @@ const MoveInfo = ({
             setUnloadAddressList([]);
         }
     }, [reservationData]);
-
-    // TODO - 나중에 여러 이사종류 표기할때 사용할 메서드
-    // useEffect(() => {
-    //     if (consultantDataForm) {
-    //         consultantDataForm["moveTypeIds"] = moveTypeCheckBoxes;
-    //
-    //         calcListsMutate(consultantDataForm, {
-    //             onSuccess: (data) => {
-    //             },
-    //         })
-    //     }
-    // }, [consultantDataForm]);
 
     useEffect(() => {
         if (isNewMoveInfo) {
@@ -1185,13 +1237,34 @@ const MoveInfo = ({
                 <div className="flex gap-1 items-center mb-2">
                     <div className="flex items-center w-2/5">
                         <label className="w-12 text-gray-700 font-medium">담당자:</label>
-                        <Select
-                            placeholder="예: 담당자"
-                            className="min-w-24 border border-gray-300 rounded-lg"
-                            value={userName}
-                        >
-                            <Option value={userName}>{userName}</Option>
-                        </Select>
+                        {userList.length > 0 && (
+                            <Select
+                                placeholder="예: 담당자"
+                                className="min-w-24 border border-gray-300 rounded-lg"
+                                value={userOption?.userId}
+                                onChange={(value, option) => {
+                                    setUserOption({userId: option?.value, userName: option?.children});
+                                }}
+                            >
+                                {userList.map((user, index) => (
+                                    <Option key={index} value={user?.userId}>{user?.userName}</Option>
+                                ))}
+                            </Select>
+                        )}
+                        {userList.length === 0 && (
+                            <div>
+                                <Select
+                                    placeholder="예: 담당자"
+                                    className="min-w-24 border border-gray-300 rounded-lg"
+                                    value={userOption?.userId}
+                                    onChange={(value, option) => {
+                                        setUserOption({userId: option?.value, userName: option?.children});
+                                    }}
+                                >
+                                    <Option value={userId}>{userName}</Option>
+                                </Select>
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex items-center w-2/5">
@@ -1559,6 +1632,7 @@ const MoveInfo = ({
                 moveType={moveType}
                 unregisterWord={unregisterWord}
                 setUnregisterWord={setUnregisterWord}
+                handleSort={handleSort}
                 tabIndex={3}
             />
             <SpecialItemSearch

@@ -3,7 +3,7 @@ import {
     deleteReservation,
     fetchIntermediaryrByName,
     fetchManagerByName,
-    getCheckEmail,
+    getCheckEmail, getManagerUUID,
     getNotices,
     getReservation,
     postLogin,
@@ -66,17 +66,17 @@ export const useRegisterUser = () => {
     })
 }
 
-export const useReservation = (userId) => {
+export const useReservation = ({userOption, hasAdminAccess}) => {
     return useQuery({
-        queryKey: ['reservation', userId],
-        queryFn: () => getReservation(),
+        queryKey: ['reservation', userOption],
+        queryFn: () => getReservation({userOption, hasAdminAccess}),
         retry: false
     })
 }
 
 export const useSaveReservation = () => {
     return useMutation( {
-        mutationFn: (moveInfo) => postReservation(moveInfo),
+        mutationFn: ({reservationData, hasAdminAccess}) => postReservation({reservationData, hasAdminAccess}),
         retry: false,
     })
 }

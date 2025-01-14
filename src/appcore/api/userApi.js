@@ -1,5 +1,6 @@
 import API from "@api/API";
 import {supabase} from "@/appcore/supabase/supabaseClient";
+import {useSupabaseManager} from "@hook/useUser";
 
 export const postLogin = async (loginForm) => {
     const response = await API.post('/user/login', loginForm)
@@ -17,16 +18,28 @@ export const postRegisterUser = async (registerForm) => {
     return response?.data;
 }
 
-export const getReservation = async () => {
-    const response = await API.get('/user/reservation');
+export const getReservation = async ({userOption, hasAdminAccess}) => {
+    if(hasAdminAccess) {
+        const response = await API.get(`/admin/reservation/${userOption?.userId}`);
 
-    return response?.data;
+        return response?.data;
+    }else {
+        const response = await API.get('/user/reservation');
+
+        return response?.data;
+    }
 }
 
-export const postReservation = async (moveInfo) => {
-    const response = await API.post('/user/reservation', moveInfo)
+export const postReservation = async ({reservationData, hasAdminAccess}) => {
+    if(hasAdminAccess) {
+        const response = await API.post(`/admin/reservation/${reservationData?.userId}`, reservationData);
 
-    return response?.data;
+        return response?.data;
+    }else {
+        const response = await API.post('/user/reservation', reservationData)
+
+        return response?.data;
+    }
 }
 
 export const deleteReservation = async (reservationId) => {
@@ -82,4 +95,3 @@ export const postReadNotice = async (noticeId) => {
 
     return response?.data;
 }
-

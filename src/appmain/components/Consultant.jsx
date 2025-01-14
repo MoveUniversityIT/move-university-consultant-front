@@ -12,6 +12,9 @@ import {hasAccess} from "@/appcore/utils/utils";
 
 const Consultant = () => {
     const userId = useSelector((state) => state.login.userId);
+    const userName = useSelector((state) => state.login.userName);
+    const userList = useSelector((state) => state.login.userList);
+
     const {isLoading, data: consultant, error: consultantMetaError} = useConsultantMetadata(userId);
     const [isMoveInfoLoading, setIsMoveInfoLoading] = useState(true);
     const [reservationData, setReservationData] = useState(null);
@@ -28,8 +31,12 @@ const Consultant = () => {
 
     const hasAdminAccess = hasAccess(roles, ["ROLE_ADMIN"]);
 
-    const dispatch = useDispatch();
-    const {data: reservations} = useReservation(userId);
+    const [userOption, setUserOption] = useState({
+        userId: userList?.find(user => user?.userId === userId)?.userId || userId,
+        userName: userList?.find(user => user?.userName === userName)?.userName || userName,
+    });
+
+    const {data: reservations, isLoading: isReservationLoading} = useReservation({userOption, hasAdminAccess});
 
     // 물품
     const [items, setItems] = useState({});
@@ -132,6 +139,7 @@ const Consultant = () => {
                     onLoad={loadReservation}
                     onNew={resetMoveInfo}
                     reservations={selectReservationList}
+                    isReservationLoading={isReservationLoading}
                 />
                 <MoveInfo
                     consultantData={consultant}
@@ -161,6 +169,12 @@ const Consultant = () => {
                     isFormValid={isFormValid}
                     setIsFormValid={setIsFormValid}
                     setDokchaPrice={setDokchaPrice}
+                    userId={userId}
+                    userName={userName}
+                    userOption={userOption}
+                    setUserOption={setUserOption}
+                    userList={userList}
+                    hasAdminAccess={hasAdminAccess}
                 />
                 <DispatchCost items={items}
                               setItems={setItems}

@@ -374,7 +374,6 @@ const DispatchCost = ({
             tempDispatchAmountList[key] = items.map((item, index) => {
                 // 방어 코드: estimate 유효성 확인
                 if (!item.estimate || !item.estimate.estimatePrice) {
-                    console.warn(`Invalid estimate for item at key: ${key}, index: ${index}`);
                     return item; // 기존 item 반환
                 }
 

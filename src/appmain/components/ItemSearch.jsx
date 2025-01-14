@@ -6,7 +6,7 @@ import {ArrowDownOutlined, ArrowUpOutlined, SortAscendingOutlined, SortDescendin
 const ItemSearch = ({
                         searchTerm, suggestions, collapseItems, items, setItems,
                         setSuggestions, setSearchTerm, tabIndex, moveType, unregisterWord,
-                        setUnregisterWord
+                        setUnregisterWord, handleSort
                     }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
@@ -565,62 +565,6 @@ const ItemSearch = ({
     const handleBlur = () => {
         setTimeout(() => setIsDropdownVisible(false), 100);
     };
-
-    const handleSort = (key, orderKey) => {
-        const itemsArray = Object.values(items);
-
-        const targetItems = ["박스(포장됨)", "박스(필요)", "바구니(포장됨)", "바구니(필요)"];
-
-        // 정렬 수행
-        const sortedItems = _.orderBy(
-            itemsArray,
-            [
-                (item) => {
-                    const index = targetItems.indexOf(item.itemName);
-                    return index !== -1 ? index : -Infinity;
-                },
-                'additionalPrice', // 추가 요금
-                'itemCbm',        // CBM
-                'weight'          // 무게
-            ],
-            [
-                'asc',
-                orderKey,   // additionalPrice 기준
-                orderKey,   // itemCbm 기준
-                orderKey    // weight 기준
-            ]
-        );
-
-        // 정렬된 배열을 객체로 변환
-        const sortedItemsObject = sortedItems.reduce((acc, item) => {
-            acc[item.itemName] = item;
-            return acc;
-        }, {});
-
-        setItems(sortedItemsObject);
-
-        // 검색어 업데이트
-        const updatedSearchTerm = sortedItems
-            .map((item) => {
-                let tags = "";
-
-                if (item.requiredIsDisassembly === "Y" && item.requiredIsInstallation === "Y") {
-                    tags = "[분조]";
-                } else if (item.requiredIsDisassembly === "Y") {
-                    tags = "[분]";
-                } else if (item.requiredIsInstallation === "Y") {
-                    tags = "[조]";
-                }
-
-                const itemCount = item.itemCount && item.itemCount !== 1 ? item.itemCount : "";
-
-                return `${item.itemName}${tags}${itemCount}`;
-            })
-            .join(", ");
-
-        setSearchTerm(updatedSearchTerm);
-    };
-
 
     return (
         <Form.Item className="relative !mb-2">
