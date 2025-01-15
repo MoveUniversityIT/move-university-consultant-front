@@ -415,7 +415,7 @@ const MobilePage = () => {
                 />
 
                 <div className="flex items-center w-full mb-4">
-                    <label className="w-14 text-gray-700 font-medium">거래처:</label>
+                    <label className="w-20 text-gray-700 font-medium">이사종류:</label>
                     <Select
                         className="w-full border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                         placeholder="이사종류를 선택하세요"
