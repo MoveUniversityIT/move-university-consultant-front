@@ -256,6 +256,15 @@ const MobilePage = () => {
             return false;
         }
 
+        if (!requestDate) {
+            message.error({
+                content: '요청일을 선택해주세요.',
+                key: 'requestDate',
+                duration: 2,
+            });
+            return false;
+        }
+
         return true;
     };
 
@@ -453,7 +462,7 @@ const MobilePage = () => {
                         <h4 className="font-semibold text-gray-700">배차 금액</h4>
                         <p className="text-lg font-semibold text-green-500">{depositPrice?.toLocaleString()}원</p>
                     </div>
-                    <div className="flex items-center justify-between mt-4">
+                    <div className="flex items-center justify-between mt-2">
                         <h4 className="font-semibold text-gray-700">견적 금액</h4>
                         <p className="text-lg font-semibold text-blue-600">{estimatePrice?.toLocaleString()}원</p>
                     </div>
