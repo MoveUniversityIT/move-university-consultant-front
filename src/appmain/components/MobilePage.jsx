@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Checkbox, Form, message, Select, Typography} from "antd";
+import {Button, Checkbox, Divider, Form, message, Select, Typography} from "antd";
 import AddressInput from "@/component/AddressInput";
 import _ from "lodash";
 import {useAddressSearch, useMuCalcConsultant, usePostSimpleEstimate, useRoadDistance} from "@hook/useConsultant";
@@ -103,6 +103,11 @@ const MobilePage = () => {
             _trigger: Math.random()
         }));
     }
+
+    useEffect(() => {
+        setEstimatePrice(0);
+        setDepositPrice(0);
+    }, [loadLocation, unloadLocation, requestDate, moveType]);
 
     useEffect(() => {
         if (locationSearch?.locationType === "load") {
@@ -266,14 +271,14 @@ const MobilePage = () => {
             loadMethodId: 1,
             loadMethodName: '엘레베이터',
             loadFloorNumber: 1,
-            loadHelperPeople: [],
+            loadHelperPeople: [{gender: "male", peopleCount: 1}],
             unloadLocationName: unloadLocation,
             unloadCityCode: unloadCityCode.substring(0, 6),
             unloadSubCityCode: unloadCityCode.substring(6),
             unloadMethodId: 1,
             unloadMethodName: '엘레베이터',
             unloadFloorNumber: 1,
-            unloadHelperPeople: [],
+            unloadHelperPeople: [{gender: "male", peopleCount: 1}],
             moveTypeId: moveType,
             vehicleId: 1,
             vehicleName: '단순운송',
@@ -281,7 +286,6 @@ const MobilePage = () => {
             distance,
 
             requestDate: requestDate.format("YYYY-MM-DD") || null,
-            // requestTime: requestTime.format("HH:mm") || null,
             requestTime: '08:00',
 
             storageMoveTypeId: null,
@@ -295,7 +299,7 @@ const MobilePage = () => {
             employHelperPeople: [
                 {
                     helperType: "TRANSPORT",
-                    peopleCount: 1,
+                    peopleCount: 0,
                 },
                 {
                     helperType: "PACKING_CLEANING",
@@ -303,7 +307,7 @@ const MobilePage = () => {
                 }
             ],
             isTogether: false,
-            isAlone: true
+            isAlone: false
         };
 
         // 단순운송
@@ -370,9 +374,6 @@ const MobilePage = () => {
                 onSuccess: (data) => {
                     calcEstimatePrice(data[0]);
                 },
-                onError: (data) => {
-
-                }
             }
         );
     };
@@ -415,7 +416,7 @@ const MobilePage = () => {
                 />
 
                 <div className="flex items-center w-full mb-4">
-                    <label className="w-20 text-gray-700 font-medium">이사종류:</label>
+                    <label className="w-20 text-sm text-gray-700 font-medium">이사종류:</label>
                     <Select
                         className="w-full border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                         placeholder="이사종류를 선택하세요"
@@ -445,7 +446,9 @@ const MobilePage = () => {
                     </button>
                 </div>
 
-                <div className="mt-8 p-6 bg-white rounded-md shadow-md border border-gray-200">
+                <Divider />
+
+                <div className="mt-8 p-6 bg-white rounded-2xl shadow-md border border-gray-200">
                     <div className="flex items-center justify-between">
                         <h4 className="font-semibold text-gray-700">배차 금액</h4>
                         <p className="text-lg font-semibold text-green-500">{depositPrice?.toLocaleString()}원</p>
