@@ -135,22 +135,22 @@ const DispatchCost = ({
                           estimate, setEstimate, sliderValue, setSliderValue, depositPrice,
                           setDepositPrice, estimatePrice, setEstimatePrice, surtax, setSurtax,
                           setSearchItemTerm, consultantDataForm, isFormValid, dokchaPrice,
-    isModalOpen, showModal, closeModal
+                          isModalOpen, showModal, closeModal
                       }) => {
     const [calcData, setCalcData] = useState({
-            totalItemCbm: 0,
-            totalWeight: 0,
-            vehicleName: "",
-            dokcha: 0,
-            vehicleCount: 0,
-            vehicleRoundingHalfUp: 0,
-            transportHelperCount: 0,
-            cleaningHelperCount: 0,
-            transportHelperPrice: 0,
-            cleaningHelperPrice: 0,
-            totalCalcPrice: 0,
-            totalLadderPrice: 0,
-        });
+        totalItemCbm: 0,
+        totalWeight: 0,
+        vehicleName: "",
+        dokcha: 0,
+        vehicleCount: 0,
+        vehicleRoundingHalfUp: 0,
+        transportHelperCount: 0,
+        cleaningHelperCount: 0,
+        transportHelperPrice: 0,
+        cleaningHelperPrice: 0,
+        totalCalcPrice: 0,
+        totalLadderPrice: 0,
+    });
     const [tempTotalCbm, setTempTotalCbm] = useState(0);
     const [dispatchAmountList, setDispatchAmountList] = useState({});
     const [checkBox, setCheckBox] = useState({
@@ -265,7 +265,7 @@ const DispatchCost = ({
         // const calculatedDeposit =
         //     Math.round((calcEstimate - estimate.totalCalcPrice) * (estimate.depositAdjustmentRate + 1) / roundingUnit) * roundingUnit;
         const calculatedDeposit = calcEstimate - estimate.totalCalcPrice;
-            // Math.round((calcEstimate - estimate.totalCalcPrice) / roundingUnit) * roundingUnit;
+        // Math.round((calcEstimate - estimate.totalCalcPrice) / roundingUnit) * roundingUnit;
 
         const adjustedDeposit =
             calculatedDeposit >= calcEstimate
@@ -341,7 +341,7 @@ const DispatchCost = ({
         // 기타 계산 및 상태 업데이트
         const roundingUnit = 5000;
         const calculatedDeposit = calcEstimate - totalCalcPrice
-            // Math.round((calcEstimate - totalCalcPrice) * (estimate.depositAdjustmentRate + 1) / roundingUnit) * roundingUnit;
+        // Math.round((calcEstimate - totalCalcPrice) * (estimate.depositAdjustmentRate + 1) / roundingUnit) * roundingUnit;
 
         const adjustedDeposit =
             calculatedDeposit >= calcEstimate ? calcEstimate : calculatedDeposit;
@@ -368,7 +368,7 @@ const DispatchCost = ({
     };
 
     const handleRefreshSubEstimate = (value) => {
-        let tempDispatchAmountList = { ...dispatchAmountList };
+        let tempDispatchAmountList = {...dispatchAmountList};
 
         Object.entries(dispatchAmountList).forEach(([key, items]) => {
             tempDispatchAmountList[key] = items.map((item, index) => {
@@ -455,7 +455,7 @@ const DispatchCost = ({
             });
         });
 
-        setDispatchAmountList({ ...tempDispatchAmountList });
+        setDispatchAmountList({...tempDispatchAmountList});
     };
 
     const handleCheckboxChange = (itemName, itemCount, key, checked) => {
@@ -556,7 +556,7 @@ const DispatchCost = ({
                     };
 
                     await dispatchAmountListMutate(key, updatedForm1);
-                } else if(key === 4) {
+                } else if (key === 4) {
                     const transPortHelper = {
                         helperType: "TRANSPORT",
                         peopleCount: 1,
@@ -762,25 +762,6 @@ const DispatchCost = ({
     return (
         <div className="flex flex-col h-full">
             <Card title="배차 금액" className="shadow-md rounded-md relative">
-                {dispatchAmount && (
-                    <div
-                        className={`absolute mt-1 top-2 font-bold text-sm flex items-center justify-center ${
-                            dispatchAmount[0]?.ltl ? "text-red-500" : "text-blue-500"
-                        }`}
-                        style={{
-                            marginLeft: "4.5rem",
-                            backgroundColor: dispatchAmount[0]?.ltl
-                                ? "rgba(255, 235, 238, 0.8)"
-                                : "rgba(235, 245, 255, 0.8)",
-                            borderRadius: "4px",
-                            padding: "4px 8px",
-                            lineHeight: "1.5",
-                            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                        }}
-                    >
-                        {dispatchAmount[0]?.ltl ? "혼적" : "독차"}
-                    </div>
-                )}
                 <div className="relative">
                     {isDispatchAmount && (
                         <div className="absolute inset-0 flex justify-center items-center bg-white bg-opacity-75 z-10">
@@ -790,7 +771,14 @@ const DispatchCost = ({
                     <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                         {Object.entries(calcData).map(([key, value]) => (
                             <div key={key} className="flex justify-between items-center border p-2 rounded-md">
-                                <span className="font-bold text-gray-600">{dataLabel[key]}:</span>
+                                {!dispatchAmount && (
+                                    <span className="font-bold text-gray-600">{dataLabel[key]}:</span>
+                                )}
+                                {dispatchAmount && (
+                                    <span className="font-bold text-gray-600">
+                                        {dataLabel[key]}{key === 'totalCalcPrice' ? (dispatchAmount[0]?.ltl ? '(혼적)' : '(독차)') : ''}:
+                                    </span>
+                                )}
                                 <span className="text-gray-800">
                                     {value}
                                     {unitLabel[key] ? unitLabel[key] : ""}
@@ -853,7 +841,7 @@ const DispatchCost = ({
                     ) : (
                         <Button
                             className="px-5 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
-                            icon={isModalOpen ? <ZoomOutOutlined /> : <ZoomInOutlined />}
+                            icon={isModalOpen ? <ZoomOutOutlined/> : <ZoomInOutlined/>}
                             onClick={isModalOpen ? closeModal : showModal}
                         >
                             {isModalOpen ? '추가 견적 상세 닫기' : '추가 견적 상세 보기'}
