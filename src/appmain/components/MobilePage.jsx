@@ -170,40 +170,67 @@ const MobilePage = () => {
 
         let calcEstimate = estimate.estimatePrice;
 
+        const value = 3;
+
         // 반올림 처리
-        calcEstimate = Math.round(calcEstimate * 100) / 100;
+        if (value === 5) {
+            calcEstimate = Math.round(calcEstimate * 100) / 100;
 
-        // 30만 미만일 경우 5천원 단위로 반올림
-        if (calcEstimate < 300000) {
-            calcEstimate = Math.round(calcEstimate / 5000) * 5000;
-        }
-        // 30만 이상 ~ 130만 미만일 경우 1만원 단위로 반올림
-        else if (calcEstimate < 1300000) {
-            calcEstimate = Math.round(calcEstimate / 10000) * 10000;
+            // 30만 미만일 경우 5천원 단위로 반올림
+            if (calcEstimate < 300000) {
+                calcEstimate = Math.round(calcEstimate / 5000) * 5000;
+            }
+            // 30만 이상 ~ 130만 미만일 경우 1만원 단위로 반올림
+            else if (calcEstimate < 1300000) {
+                calcEstimate = Math.round(calcEstimate / 10000) * 10000;
 
-            const thousandWon = Math.floor(calcEstimate / 100000); // 10만 단위
-            const tenThousandWon = calcEstimate % 100000; // 10만 단위 잔여값
+                const thousandWon = Math.floor(calcEstimate / 100000); // 10만 단위
+                const tenThousandWon = calcEstimate % 100000; // 10만 단위 잔여값
 
-            if (tenThousandWon > 60000 || tenThousandWon <= 10000 || tenThousandWon === 0) {
-                if (60000 < tenThousandWon && tenThousandWon < 100000) {
-                    calcEstimate = (calcEstimate - tenThousandWon) + 80000;
-                } else {
-                    calcEstimate = (thousandWon - 1) * 100000 + 80000;
+                if (tenThousandWon > 60000 || tenThousandWon <= 10000 || tenThousandWon === 0) {
+                    if (60000 < tenThousandWon && tenThousandWon < 100000) {
+                        calcEstimate = (calcEstimate - tenThousandWon) + 80000;
+                    } else {
+                        calcEstimate = (thousandWon - 1) * 100000 + 80000;
+                    }
+
+                } else if (tenThousandWon > 10000 && tenThousandWon <= 60000) {
+                    calcEstimate = Math.floor(calcEstimate / 100000) * 100000 + 40000;
                 }
 
-            } else if (tenThousandWon > 10000 && tenThousandWon <= 60000) {
-                calcEstimate = Math.floor(calcEstimate / 100000) * 100000 + 40000;
+                if (calcEstimate <= 980000) {
+                    calcEstimate += 5000;
+                }
+
+                calcEstimate = Math.round(calcEstimate);
             }
+            // 130만 이상의 경우 5만원 단위 반올림
+            else {
+                calcEstimate = Math.round(calcEstimate / 50000) * 50000;
+            }
+        }else if( 1 <= value && value < 5) {
+            const minEstimate = Math.round(estimate?.baseCost * 1.15);
+            const midEstimate = estimate.estimatePrice;
+
+            calcEstimate = minEstimate + ((midEstimate - minEstimate) / (5 - 1)) * (value - 1);
+            calcEstimate = Math.round(calcEstimate / 5000) * 5000;
 
             if (calcEstimate <= 980000) {
-                calcEstimate += 5000;
+                calcEstimate = Math.round(calcEstimate / 5000) * 5000;
+            } else {
+                calcEstimate = Math.round(calcEstimate / 10000) * 10000;
             }
+        } else if (5 < value && value <= 10) {
+            const midEstimate = estimate.estimatePrice;
+            const maxEstimate = Math.round(estimate?.estimatePrice * 1.5);
 
-            calcEstimate = Math.round(calcEstimate);
-        }
-        // 130만 이상의 경우 5만원 단위 반올림
-        else {
-            calcEstimate = Math.round(calcEstimate / 50000) * 50000;
+            calcEstimate = midEstimate + ((maxEstimate - midEstimate) / (10 - 5)) * (value - 5);
+
+            if (calcEstimate <= 980000) {
+                calcEstimate = Math.round(calcEstimate / 5000) * 5000;
+            } else {
+                calcEstimate = Math.round(calcEstimate / 10000) * 10000;
+            }
         }
 
         setEstimatePrice(calcEstimate);
@@ -383,6 +410,13 @@ const MobilePage = () => {
                 onSuccess: (data) => {
                     calcEstimatePrice(data[0]);
                 },
+                onError: (error) => {
+                    message.error({
+                        content: error?.message,
+                        key: 'difficultyLevel',
+                        duration: 2,
+                    });
+                }
             }
         );
     };
@@ -469,7 +503,7 @@ const MobilePage = () => {
                     <hr className="my-4 border-gray-300"/>
                     <ul className="space-y-2 text-gray-600 list-disc list-inside">
                         <li>기본 물품 기준 배차가</li>
-                        <li>상담봇 견적레버 5기준</li>
+                        <li>상담봇 견적레버 3기준</li>
                         <li>1톤 한대 기준</li>
                         <li>여러 대면 대당 금액 증가필요</li>
                         <li>인부 필요시 금액 상승</li>
