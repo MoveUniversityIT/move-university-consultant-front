@@ -78,7 +78,7 @@ const MoveInfo = ({
     const queryClient = useQueryClient();
 
     const [reservationId, setReservationId] = useState(null);
-    const [client, setClient] = useState({key: 0, value: '이사대학'});
+    const [client, setClient] = useState(null);
     const [moveType, setMoveType] = useState(null);
     const [storageMoveType, setStorageMoveType] = useState(null);
 
@@ -558,7 +558,7 @@ const MoveInfo = ({
 
     const resetState = () => {
         setReservationId(null);
-        setClient({key: 0, value: '이사대학'});
+        setClient(null);
         setDistance(0);
         setDokchaPrice(0);
 
@@ -821,16 +821,6 @@ const MoveInfo = ({
             carry_type_start = 3;
         }
 
-        if (!dispatchAmount || dispatchAmount.length < 1) {
-            message.error({
-                content: "배차 금액 조회 후 다시 시도해주세요.",
-                key: 'saveGongcha',
-                duration: 3,
-            });
-
-            return;
-        }
-
         // 총 배차가격
         const totalCalcPrice = dispatchAmount[0]?.totalCalcPrice ?? 0;
 
@@ -959,7 +949,7 @@ const MoveInfo = ({
     useEffect(() => {
         if (reservationData) {
             setReservationId(reservationData?.reservationId ?? null)
-            setClient(reservationData?.client ?? {key: 0, value: '이사대학'});
+            setClient(reservationData?.client ?? null);
             setDistance(reservationData?.distance ?? 0);
 
             setLoadLocation(reservationData?.loadLocation ?? '');
@@ -1271,7 +1261,7 @@ const MoveInfo = ({
                         <label className="w-12 text-gray-700 font-medium">거래처:</label>
                         <Select
                             placeholder="예: 거래처"
-                            className="min-w-32 border border-gray-300 rounded-lg"
+                            className={`min-w-32 border rounded-lg`}
                             value={client}
                             onChange={(value, option) => {
                                 setClient({key: option.key, value});
@@ -1752,6 +1742,16 @@ const MoveInfo = ({
                         className="px-4 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-200"
                         icon={<FiTruck/>}
                         onClick={() => {
+                            if(client === null) {
+                                message.error({
+                                    content: "거래처 선택 후 다시 시도해주세요.",
+                                    key: 'saveGongcha',
+                                    duration: 3,
+                                });
+
+                                return;
+                            }
+
                             if (!dispatchAmount || dispatchAmount.length < 1) {
                                 message.error({
                                     content: "배차 금액 조회 후 다시 시도해주세요.",
@@ -1774,7 +1774,18 @@ const MoveInfo = ({
                     <Button
                         className="px-4 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-200"
                         icon={<SaveOutlined/>}
-                        onClick={handleSave}
+                        onClick={() => {
+                            if(client === null) {
+                                message.error({
+                                    content: "거래처 선택 후 다시 시도해주세요.",
+                                    key: 'saveGongcha',
+                                    duration: 3,
+                                });
+
+                                return;
+                            }
+                            handleSave()
+                        }}
                     >
                         저장
                     </Button>
