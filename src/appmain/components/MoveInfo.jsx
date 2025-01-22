@@ -877,7 +877,7 @@ const MoveInfo = ({
         const dispatch_memo = `총 배차가격: ${totalCalcPrice?.toLocaleString()}, 한대 차량가격: ${vehicleRoundingHalfUp.toLocaleString()}, 추가 인부 가격: ${transportHelperPrice}, 추가 이모 가격: ${cleaningHelperPrice}`;
 
         const shortItemTerm = mapShortItemNames(searchItemTerm);
-        const searchItemTermAndSearchSpecialITemTerm = `${searchItemTerm}, ${searchSpecialItemTerm}`.replace(/,\s*$/, "");
+        // const searchItemTermAndSearchSpecialITemTerm = `${searchItemTerm}, ${searchSpecialItemTerm}`.replace(/,\s*$/, "");
 
         if(supaManagerName?.length === 0) {
             message.error({
@@ -910,8 +910,9 @@ const MoveInfo = ({
             required_car_ton: vehicleTonnage?.toString(),
             number_of_car_actual: dispatchAmount[0]?.vehicleCount,
             head_count: head_count,
-            goods_name: shortItemTerm,
-            memo_dispatch: searchItemTermAndSearchSpecialITemTerm,
+            goods_name_abbreviation: shortItemTerm,
+            goods_name: searchItemTerm,
+            memo_dispatch: searchSpecialItemTerm,
             mng_name: customerName,
             start_mng_mobile: customerPhoneNumber,
             payment_type,
