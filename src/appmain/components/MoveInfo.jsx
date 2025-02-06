@@ -1237,9 +1237,13 @@ const MoveInfo = ({
                                     setUserOption({userId: option?.value, userName: option?.children});
                                 }}
                             >
-                                {userList?.map((user, index) => (
-                                    <Option key={index} value={user?.userId}>{user?.userName}</Option>
-                                ))}
+                                {userList
+                                    ?.slice()
+                                    .sort((a, b) => a.userName.localeCompare(b.userName, "ko-KR"))
+                                    .map((user, index) => (
+                                        <Option key={index} value={user?.userId}>{user?.userName}</Option>
+                                    ))
+                                }
                             </Select>
                         )}
                         {userList?.length === 0 && (
