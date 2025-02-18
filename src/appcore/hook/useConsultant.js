@@ -72,11 +72,11 @@ export const useRoadDistance = (location) => {
 // }
 
 // 배차 금액 조회
-export const useCalcConsultant = (consultantDataForm, enabled) => {
+export const useCalcConsultant = (consultantDataForm, isFormValid, isDistanceFetching) => {
     return useQuery({
             queryKey: ['calcConsultant', consultantDataForm],
             queryFn: ({queryKey}) => getCalcConsultant(queryKey[1]),
-            enabled,
+            enabled: isFormValid && !isDistanceFetching,
             cacheTime: 0,
             retry: false,
         }
