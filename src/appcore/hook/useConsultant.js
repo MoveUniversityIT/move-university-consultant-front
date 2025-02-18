@@ -77,6 +77,7 @@ export const useCalcConsultant = (consultantDataForm, enabled) => {
             queryKey: ['calcConsultant', consultantDataForm],
             queryFn: ({queryKey}) => getCalcConsultant(queryKey[1]),
             enabled,
+            cacheTime: 0,
             retry: false,
         }
     );
