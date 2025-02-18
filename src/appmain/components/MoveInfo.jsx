@@ -155,13 +155,16 @@ const MoveInfo = ({
     const [storageLoadDateCheckList, setStorageLoadDateCheckList] = useState([]);
     const [storageUnloadDateCheckList, setStorageUnloadDateCheckList] = useState([]);
 
+    const {isLoading: isDistanceData, data: roadDistanceData, isFetching: isDistanceFetching} = useRoadDistance(locationInfo);
+
     const {data: dispatchAmount, isLoading: isDispatchAmount, error: dispatchError} = useCalcConsultant(
         consultantDataForm,
-        isFormValid
+        isFormValid,
+        isDistanceFetching
     );
 
     // const {mutate: consultantMutate} = useCalcConsultant();
-    const {isLoading: isDistanceData, data: roadDistanceData} = useRoadDistance(locationInfo);
+
 
     const [specialItems, setSpecialItems] = useState({});
     const [searchSpecialItemTerm, setSearchSpecialItemTerm] = useState('');
@@ -1028,6 +1031,8 @@ const MoveInfo = ({
                 loadMethodName: loadMethod?.value,
                 loadFloorNumber: loadFloor,
                 loadHelperPeople: loadCustomers,
+                loadAreaInPyeong: loadArea,
+
                 unloadLocationName: unloadLocation,
                 unloadCityCode: unloadCityCode.substring(0, 6),
                 unloadSubCityCode: unloadCityCode.substring(6),
@@ -1035,6 +1040,8 @@ const MoveInfo = ({
                 unloadMethodName: unloadMethod?.value,
                 unloadFloorNumber: unloadFloor,
                 unloadHelperPeople: unloadCustomers,
+                unloadAreaInPyeong: unloadArea,
+
                 moveTypeId: moveType.key,
                 moveTypeName: moveType.value,
                 vehicleId: vehicleType.key,
@@ -1122,11 +1129,13 @@ const MoveInfo = ({
         loadMethod,
         loadFloor,
         loadCustomers,
+        loadArea,
         unloadLocation,
         unloadCityCode,
         unloadMethod,
         unloadFloor,
         unloadCustomers,
+        unloadArea,
         moveType,
         vehicleType,
         vehicleCount,
