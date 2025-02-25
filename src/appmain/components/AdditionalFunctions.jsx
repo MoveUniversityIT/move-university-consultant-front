@@ -39,7 +39,7 @@ const AdditionalFunctions = ({paymentMethod}) => {
             return;
         }
         if (!contractDeposit || isNaN(contractDeposit)) {
-            message.error("유효한 계약금을 입력하세요.");
+            message.error("유효한 예약금을 입력하세요.");
             return;
         }
 
@@ -60,7 +60,7 @@ const AdditionalFunctions = ({paymentMethod}) => {
             
 송부드린 견적, 계약서 확인해주시고 동의하시면
 1005-504-674760 우리은행 (주)이사대학
-총액 ${totalAmountFormatted} 중 이사 중개 계약금 ${contractDepositFormatted} 입금해주시고
+총액 ${totalAmountFormatted} 중 이사 중개 예약금 ${contractDepositFormatted} 입금해주시고
 
 잔금은 하차당일 모든 화물이 안전하게 잘 왔는지 확인하시고 카드, 세금계산서건이 아니라면 현장에서 기사님께 직접 치뤄주시면 되십니다!
 
@@ -79,7 +79,7 @@ const AdditionalFunctions = ({paymentMethod}) => {
 
 송부드린 계약서, 약관 확인해주시고 동의하시면
 1005-504-674760 우리은행(주) 이사대학
-총액 ${totalAmountFormatted} 중 이사 중개 계약금 ${contractDepositFormatted} 입금해주시고
+총액 ${totalAmountFormatted} 중 이사 중개 예약금 ${contractDepositFormatted} 입금해주시고
 
 잔금은 하차당일 모든 화물이 안전하게 잘왔는지 확인하시고, 예약금 입금계좌와 동일하게 
 1005-504-674760 우리은행(주) 이사대학 ${tempDeposit} 입금해주시면 됩니다!
@@ -170,7 +170,7 @@ ${totalAmountFormatted} 결제해주시면됩니다!
                     className="px-5 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:from-blue-600 hover:to-indigo-600 transition-transform transform hover:scale-105 duration-300"
                     icon={<MessageOutlined/>}
                     onClick={handlePaymentText}>
-                    계약금 문자
+                    예약금 문자
                 </Button>
                 <Button
                     className="px-5 py-3 bg-gradient-to-r from-green-400 to-teal-500 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:from-green-500 hover:to-teal-600 transition-transform transform hover:scale-105 duration-300"
@@ -207,7 +207,7 @@ ${totalAmountFormatted} 결제해주시면됩니다!
             <Modal
                 title={
                     <div className="w-full">
-                        <span className="text-lg font-semibold ml-1">총액 및 계약금 입력</span>
+                        <span className="text-lg font-semibold ml-1">총액 및 예약금 입력</span>
                         {paymentMethod && (
                             <span
                                 className="text-blue-700 font-semibold">
@@ -246,7 +246,7 @@ ${totalAmountFormatted} 결제해주시면됩니다!
                     </div>
 
                     <div>
-                        <p className="mb-2 text-lg font-semibold text-gray-700">계약금을 입력하세요:</p>
+                        <p className="mb-2 text-lg font-semibold text-gray-700">예약금을 입력하세요:</p>
                         <Input
                             placeholder="예: 50 또는 49.5"
                             value={contractDeposit}
