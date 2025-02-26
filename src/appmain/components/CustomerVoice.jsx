@@ -9,6 +9,49 @@ const CustomerVoice = () => {
     const [data, setData] = useState(null);
     const { mutate: getCustomerUploadVoice } = useGetCustomerUploadVoice();
 
+    const sortRecordingFiles = (urls) => {
+        return [...urls].sort((a, b) => {
+            // 파일명 추출 (URL에서 마지막 부분)
+            const fileNameA = a.split('/').pop();
+            const fileNameB = b.split('/').pop();
+            
+            // 정규표현식으로 날짜와 시간 추출
+            const patternA = /통화 녹음 \d+_(\d{6})_(\d{6})/.exec(fileNameA);
+            const patternB = /통화 녹음 \d+_(\d{6})_(\d{6})/.exec(fileNameB);
+            
+            if (patternA && patternB) {
+                const dateStrA = patternA[1];
+                const timeStrA = patternA[2];
+                const dateStrB = patternB[1];
+                const timeStrB = patternB[2];
+                
+                // 날짜 형식: DDMMYY
+                const dayA = dateStrA.substring(0, 2);
+                const monthA = dateStrA.substring(2, 4);
+                const yearA = dateStrA.substring(4, 6);
+                const hourA = timeStrA.substring(0, 2);
+                const minA = timeStrA.substring(2, 4);
+                const secA = timeStrA.substring(4, 6);
+                
+                const dayB = dateStrB.substring(0, 2);
+                const monthB = dateStrB.substring(2, 4);
+                const yearB = dateStrB.substring(4, 6);
+                const hourB = timeStrB.substring(0, 2);
+                const minB = timeStrB.substring(2, 4);
+                const secB = timeStrB.substring(4, 6);
+                
+                // 날짜 비교를 위한 문자열 생성 (YYMMDD 형식)
+                const dateTimeA = `20${yearA}-${monthA}-${dayA} ${hourA}:${minA}:${secA}`;
+                const dateTimeB = `20${yearB}-${monthB}-${dayB} ${hourB}:${minB}:${secB}`;
+                
+                // 날짜 비교
+                return new Date(dateTimeA) - new Date(dateTimeB);
+            }
+            
+            return 0;
+        });
+    };
+
     useEffect(() => {
         const query = searchParams.get("queryValue");
 
@@ -18,6 +61,9 @@ const CustomerVoice = () => {
             },
             {
                 onSuccess: (data) => {
+                    if (data && data.urls && Array.isArray(data.urls)) {
+                        data.urls = sortRecordingFiles(data.urls);
+                    }
                     setData(data);
                 },
             }
