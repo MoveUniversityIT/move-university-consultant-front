@@ -20,8 +20,8 @@ const CustomerVoice = () => {
             const patternB = /통화 녹음 \d+_(\d{6})_(\d{6})/.exec(fileNameB);
             
             if (patternA && patternB) {
-                const dateStrA = patternA[1];
-                const timeStrA = patternA[2];
+                const dateStrA = patternA[1]; // DDMMYY
+                const timeStrA = patternA[2]; // HHMMSS
                 const dateStrB = patternB[1];
                 const timeStrB = patternB[2];
                 
@@ -40,12 +40,12 @@ const CustomerVoice = () => {
                 const minB = timeStrB.substring(2, 4);
                 const secB = timeStrB.substring(4, 6);
                 
-                // 날짜 비교를 위한 문자열 생성 (YYMMDD 형식)
-                const dateTimeA = `20${yearA}-${monthA}-${dayA} ${hourA}:${minA}:${secA}`;
-                const dateTimeB = `20${yearB}-${monthB}-${dayB} ${hourB}:${minB}:${secB}`;
+                // 날짜 비교를 위한 문자열 생성 (YYYYMMDDHHMMSS 형식)
+                const dateTimeStrA = `20${yearA}${monthA}${dayA}${hourA}${minA}${secA}`;
+                const dateTimeStrB = `20${yearB}${monthB}${dayB}${hourB}${minB}${secB}`;
                 
-                // 날짜 비교
-                return new Date(dateTimeA) - new Date(dateTimeB);
+                // 문자열 직접 비교 (숫자로 변환하여 비교)
+                return Number(dateTimeStrA) - Number(dateTimeStrB);
             }
             
             return 0;
