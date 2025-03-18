@@ -21,26 +21,6 @@ export default function IsaTimeRequest() {
         return val;
     };
 
-    const formatPhone = (value) => {
-        let val = value.replace(/\D/g, "");
-        if (val.startsWith("02")) {
-            if (val.length > 2 && val.length <= 5) {
-                val = val.slice(0, 2) + "-" + val.slice(2);
-            } else if (val.length > 5 && val.length <= 9) {
-                val = val.slice(0, 2) + "-" + val.slice(2, 5) + "-" + val.slice(5);
-            } else if (val.length > 9) {
-                val = val.slice(0, 2) + "-" + val.slice(2, 6) + "-" + val.slice(6, 10);
-            }
-        } else {
-            if (val.length > 3 && val.length <= 7) {
-                val = val.slice(0, 3) + "-" + val.slice(3);
-            } else if (val.length > 7) {
-                val = val.slice(0, 3) + "-" + val.slice(3, 7) + "-" + val.slice(7, 11);
-            }
-        }
-        return val;
-    };
-
     const onFinish = async (values) => {
         try {
             const data = {
@@ -58,6 +38,7 @@ export default function IsaTimeRequest() {
                 moving_end_addr_2: values.moving_end_addr_2,
                 moving_type: values.moving_type,
                 moving_option: values.moving_option,
+                moving_memo: values.moving_memo,
             };
 
             const response = await API.post("/admin/isa-time", data);
@@ -86,8 +67,9 @@ export default function IsaTimeRequest() {
     };
 
     const handlePhoneChange = (e) => {
-        setUserPhone(e.target.value);
-        form.setFieldsValue({user_phone: e.target.value});
+        const onlyNumbers = e.target.value.replace(/\D/g, "");
+        setUserPhone(onlyNumbers);
+        form.setFieldsValue({ user_phone: onlyNumbers });
     };
 
     return (<div className="w-full h-full flex flex-col bg-white rounded-lg shadow-md p-6">
@@ -107,10 +89,10 @@ export default function IsaTimeRequest() {
                     <Form.Item
                         label="연락처"
                         name="user_phone"
-                        rules={[{required: true, message: "연락처를 입력해주세요."}]}
+                        rules={[{ required: true, message: "연락처를 입력해주세요." }]}
                     >
                         <Input
-                            placeholder="예) 01012345678 하이픈 없이 숫자만 입력"
+                            placeholder="예) 01012345678 (하이픈 없이 숫자만 입력)"
                             value={userPhone}
                             onChange={handlePhoneChange}
                         />
@@ -226,10 +208,21 @@ export default function IsaTimeRequest() {
                 </Col>
                 <Col xs={24} md={12}>
                     <Form.Item
-                        label="옵션 (복수라면 |로 연결)"
+                        label="생활서비스 (복수라면 |로 연결)"
                         name="moving_option"
                     >
                         <Input placeholder="예) 입주청소|에어컨설치|인터넷가입"/>
+                    </Form.Item>
+                </Col>
+            </Row>
+
+            <Row gutter={16}>
+                <Col xs={24}>
+                    <Form.Item
+                        label="이사 관련 메모"
+                        name="moving_memo"
+                    >
+                        <Input.TextArea placeholder="이사 관련 메모를 입력해주세요." rows={3} />
                     </Form.Item>
                 </Col>
             </Row>
