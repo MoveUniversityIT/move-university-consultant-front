@@ -6,10 +6,11 @@ import {Content} from "antd/es/layout/layout";
 import Sider from "antd/es/layout/Sider";
 import AdminNotice from "@component/admin/AdminNotice";
 import SystemManagement from "@component/admin/SystemManagement";
-import {FaBullhorn, FaQuestionCircle} from "react-icons/fa";
+import {FaBullhorn, FaQuestionCircle, FaTruck} from "react-icons/fa";
 import Qna from "@component/mindMap/Qna";
 import ProtectedRoute from "@/appcore/routes/ProtectedRoute";
 import SalesQna from "@component/mindMap/SalesQna";
+import IsaTimeRequest from "@component/admin/IsaTimeRequest";
 
 const AdminDashboard = () => {
     const [activeMenu, setActiveMenu] = useState('userManagement');
@@ -45,9 +46,18 @@ const AdminDashboard = () => {
                     icon: <FaQuestionCircle />,
                     label: '영업 QnA 설정',
                 },
+                {
+                    key: 'isaTimeRequest',
+                    icon: <FaTruck />,
+                    label: '이사타임 방문견적',
+                },
             ],
         },
     ];
+
+    // api_key: "mf2TA1sqesPJUOPlTzTZ",
+
+    // const response = await axios.post(sh_url, data);
 
     const renderContent = () => {
         switch (activeMenu) {
@@ -67,6 +77,12 @@ const AdminDashboard = () => {
                 return (
                     <ProtectedRoute requiredRoles={["ROLE_ADMIN"]}>
                         <SalesQna />
+                    </ProtectedRoute>
+                );
+            case 'isaTimeRequest':
+                return (
+                    <ProtectedRoute requiredRoles={["ROLE_ADMIN"]}>
+                        <IsaTimeRequest />
                     </ProtectedRoute>
                 );
             default:
