@@ -1,6 +1,6 @@
 import React, {useState} from "react";
-import axios from "axios";
-import {Form, Input, Button, Row, Col, message, Select} from "antd";
+import {Button, Col, Form, Input, message, Row, Select} from "antd";
+import API from "@api/API";
 
 const {Option} = Select;
 
@@ -43,8 +43,6 @@ export default function IsaTimeRequest() {
 
     const onFinish = async (values) => {
         try {
-            const sh_url = "https://www.24-time.com/api/marketing_api_update.php";
-
             const data = {
                 inquiry_type: "방문견적",
                 api_key: "mf2TA1sqesPJUOPlTzTZ",
@@ -62,7 +60,7 @@ export default function IsaTimeRequest() {
                 moving_option: values.moving_option,
             };
 
-            const response = await axios.post(sh_url, data);
+            const response = await API.post("/admin/isa-time", data);
 
             message.success(`방문견적 요청이 성공적으로 전송되었습니다! 
             ${response.data}`);
@@ -88,9 +86,8 @@ export default function IsaTimeRequest() {
     };
 
     const handlePhoneChange = (e) => {
-        const formatted = formatPhone(e.target.value);
-        setUserPhone(formatted);
-        form.setFieldsValue({user_phone: formatted});
+        setUserPhone(e.target.value);
+        form.setFieldsValue({user_phone: e.target.value});
     };
 
     return (<div className="w-full h-full flex flex-col bg-white rounded-lg shadow-md p-6">
@@ -113,7 +110,7 @@ export default function IsaTimeRequest() {
                         rules={[{required: true, message: "연락처를 입력해주세요."}]}
                     >
                         <Input
-                            placeholder="예) 010-1234-5678"
+                            placeholder="예) 01012345678 하이픈 없이 숫자만 입력"
                             value={userPhone}
                             onChange={handlePhoneChange}
                         />
