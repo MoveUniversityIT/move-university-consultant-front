@@ -820,6 +820,7 @@ const MoveInfo = ({
 
   const handleSort = (key, orderKey) => {
     const itemsArray = Object.values(items);
+    const originalSearchTerm = searchItemTerm;
 
     const targetItems = [
       "박스(포장됨)",
@@ -857,7 +858,7 @@ const MoveInfo = ({
     setItems(sortedItemsObject);
 
     // 검색어 업데이트
-    const updatedSearchTerm = sortedItems
+    let updatedSearchTerm = sortedItems
       .map((item) => {
         let tags = "";
 
@@ -878,6 +879,25 @@ const MoveInfo = ({
         return `${item.itemName}${tags}${itemCount}`;
       })
       .join(", ");
+
+    let originalItemsList = originalSearchTerm
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item !== "");
+
+    let updatedItemsList = updatedSearchTerm
+        .split(",")
+        .map((item) => item.trim());
+
+    let missingItems = originalItemsList.filter(
+        (item) => !updatedItemsList.includes(item)
+    );
+
+    if (missingItems.length > 0) {
+      updatedItemsList = [...updatedItemsList, ...missingItems];
+    }
+
+    updatedSearchTerm = updatedItemsList.join(", ");
 
     setSearchItemTerm(updatedSearchTerm);
   };
@@ -961,16 +981,6 @@ const MoveInfo = ({
 
     const shortItemTerm = mapShortItemNames(searchItemTerm);
     // const searchItemTermAndSearchSpecialITemTerm = `${searchItemTerm}, ${searchSpecialItemTerm}`.replace(/,\s*$/, "");
-
-    if (supaManagerName?.length === 0) {
-      message.error({
-        content: "담당자가 공차에 등록되어있지 않습니다.",
-        key: "errorGongcha",
-        duration: 2,
-      });
-
-      return;
-    }
 
     const gongchaData = {
       manager: supaManagerName[0]?.id,
