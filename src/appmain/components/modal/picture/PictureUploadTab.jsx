@@ -148,7 +148,7 @@ const PictureUploadTab = () => {
 
     const onFinish = (values) => {
         const uploadForm = new FormData();
-        uploadForm.append('customerName', values.customerName);
+        uploadForm.append('customerName', values.customerName.trim());
         uploadForm.append('customerPhoneNumber', values.customerPhoneNumber);
         uploadForm.append('requestDate', values.requestDate)
         fileList.forEach(file => {
