@@ -570,20 +570,20 @@ const ItemSearch = ({
         <Form.Item className="relative !mb-2">
             <div className="flex justify-between items-center mb-1">
                 <label className="block text-sm font-medium text-gray-700">물품명:</label>
-                <div>
-                    <Button
-                        type="default"
-                        size="small"
-                        onClick={() => handleSort("itemName", "desc")}
-                        icon={<SortAscendingOutlined/>}
-                        style={{
-                            backgroundColor: "#e6f7ff",
-                            color: "#1890ff",
-                            borderColor: "#91d5ff",
-                        }}
-                        className="ml-1"
-                    />
-                </div>
+                {/*<div>*/}
+                {/*    <Button*/}
+                {/*        type="default"*/}
+                {/*        size="small"*/}
+                {/*        onClick={() => handleSort("itemName", "desc")}*/}
+                {/*        icon={<SortAscendingOutlined/>}*/}
+                {/*        style={{*/}
+                {/*            backgroundColor: "#e6f7ff",*/}
+                {/*            color: "#1890ff",*/}
+                {/*            borderColor: "#91d5ff",*/}
+                {/*        }}*/}
+                {/*        className="ml-1"*/}
+                {/*    />*/}
+                {/*</div>*/}
             </div>
             <Input.TextArea
                 ref={searchTermRef}
