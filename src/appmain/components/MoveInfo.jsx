@@ -818,7 +818,7 @@ const MoveInfo = ({
         return resultText;
     };
 
-    const handleSort = () => {
+    const handleSort = (mode = "1") => {
         const key = "itemName";
         const orderKey = "desc";
         const itemsArray = Object.values(items);
@@ -903,7 +903,10 @@ const MoveInfo = ({
 
         setSearchItemTerm(updatedSearchTerm);
 
-        handleSaveGongcha(sortedItems, updatedSearchTerm);
+        // 공차등록인 경우
+        if(mode === "1") {
+            handleSaveGongcha(sortedItems, updatedSearchTerm);
+        }
     };
 
     const handleSaveGongcha = (item, searchItemTerm) => {
