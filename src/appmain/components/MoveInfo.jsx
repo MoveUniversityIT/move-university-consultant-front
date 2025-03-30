@@ -812,7 +812,9 @@ const MoveInfo = ({
 
         // 텍스트 형식으로 변환
         const resultText = Array.from(itemMap)
-            .map(([shortItemName, quantity]) => `${shortItemName}${quantity}`)
+            .map(([shortItemName, quantity]) =>
+                quantity === 1 ? shortItemName : `${shortItemName}${quantity}`
+            )
             .join(", ");
 
         return resultText;
@@ -837,13 +839,16 @@ const MoveInfo = ({
             [
                 (item) => {
                     const index = targetItems.indexOf(item.itemName);
+                    console.log(item);
                     return index !== -1 ? index : -Infinity;
                 },
+                "sortingIndex",
                 "additionalPrice", // 추가 요금
                 "itemCbm", // CBM
                 "weight", // 무게
             ],
             [
+                "asc",
                 "asc",
                 orderKey, // additionalPrice 기준
                 orderKey, // itemCbm 기준
