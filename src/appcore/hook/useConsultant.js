@@ -78,7 +78,9 @@ export const useCalcConsultant = (consultantDataForm, isFormValid, isDistanceFet
             queryFn: ({queryKey}) => getCalcConsultant(queryKey[1]),
             enabled: isFormValid && !isDistanceFetching,
             cacheTime: 0,
+            staleTime: 0,
             retry: false,
+            refetchOnMount: true,
         }
     );
 };
