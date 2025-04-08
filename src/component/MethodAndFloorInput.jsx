@@ -43,15 +43,23 @@ const MethodAndFloorInput = ({
             setFloor(2);
         }
 
+        // 0 이상 1 미만은 허용 안 함
+        if (value === '계단' && floor >= 0 && floor < 1) {
+            setFloor(1);
+        }
+
         setMethod({key: option.key, value});
     };
 
     const handleFloorChange = (setFloor) => (value) => {
-        if (value === undefined || value === null || value === '') {
-            setFloor(0);
-        } else {
-            setFloor(value);
+
+        // 0~1 미만은 금지
+        if (value >= 0 && value < 1) {
+            setFloor(1);
+            return;
         }
+
+        setFloor(value);
     }
 
     const handleAreaChange = (setArea) => (value) => {
