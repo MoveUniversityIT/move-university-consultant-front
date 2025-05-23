@@ -1351,7 +1351,8 @@ const MoveInfo = ({
 
             {dispatchError &&
                 roadDistanceData?.code !== 102 &&
-                roadDistanceData?.code !== 103 && (
+                roadDistanceData?.code !== 103 &&
+                (
                     <div
                         className="absolute mt-1 right-2 top-2 text-red-500 font-bold text-sm flex items-center justify-center"
                         style={{
@@ -1370,7 +1371,7 @@ const MoveInfo = ({
                         {dispatchError?.message}
                     </div>
                 )}
-            {(roadDistanceData?.code === 102 || roadDistanceData?.code === 103) && (
+            {(roadDistanceData?.code === 102 || roadDistanceData?.code === 103 || roadDistanceData?.code === 1) && (
                 <div
                     className="absolute mt-1 right-2 top-2 text-red-500 font-bold text-sm flex items-center justify-center"
                     style={{
