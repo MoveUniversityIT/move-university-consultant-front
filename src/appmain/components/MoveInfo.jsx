@@ -14,11 +14,7 @@ import {
     Tooltip,
 } from "antd";
 import dayjs from "dayjs";
-import {
-    useAddressSearch,
-    useCalcConsultant,
-    useRoadDistance,
-} from "@hook/useConsultant";
+import {useAddressSearch, useCalcConsultant, useRoadDistance,} from "@hook/useConsultant";
 import AddressInput from "@/component/AddressInput";
 import MethodAndFloorInput from "@/component/MethodAndFloorInput";
 import CustomDatePicker from "@/component/CustomDatePicker";
@@ -27,6 +23,7 @@ import ItemSearch from "@component/ItemSearch";
 import _ from "lodash";
 import PhoneNumberInput from "@component/PhoneNumberInput";
 import {
+    useIntermediaryList,
     useSaveReservation,
     useSupabaseIntermediary,
     useSupabaseManager,
@@ -220,6 +217,8 @@ const MoveInfo = ({
     const {data: supaManagerName} = useSupabaseManager(userOption);
     // 공차 거래처 조회
     const {data: supaIntermediaryName} = useSupabaseIntermediary(client?.value);
+
+    const { data: intermediaryList, isLoading } = useIntermediaryList();
 
     const {mutate: saveGongchaMutate} = useSupabaseSaveGongcha();
 
@@ -1445,22 +1444,9 @@ const MoveInfo = ({
                                 setClient({key: option.key, value});
                             }}
                         >
-                            {[
-                                "이사대학_KOR",
-                                "이사대학_전화",
-                                "숨고",
-                                "위매치",
-                                "이사대학_ENG",
-                                "이사대학_CHN",
-                                "이사대학_JAP",
-                                "아정당",
-                                "당근",
-                                "개인연락",
-                                "이사타임",
-                                "재이용",
-                            ].map((name, index) => (
-                                <Option key={index} value={name}>
-                                    {name}
+                            {intermediaryList?.map((item) => (
+                                <Option key={item.id} value={item.name}>
+                                    {item.name}
                                 </Option>
                             ))}
                         </Select>

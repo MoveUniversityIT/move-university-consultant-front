@@ -74,6 +74,15 @@ export const fetchIntermediaryrByName = async (name) => {
     return data;
 };
 
+export const fetchIntermediaryList = async () => {
+    const { data, error } = await supabase
+        .from('intermediary')
+        .select('id, name')
+
+    if (error) throw new Error(error.message);
+    return data;
+};
+
 export const postSaveGongcha = async (isaData) => {
     const {data, error} = await supabase.from("isa").insert(isaData);
 

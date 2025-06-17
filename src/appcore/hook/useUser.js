@@ -1,6 +1,6 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
 import {
-    deleteReservation,
+    deleteReservation, fetchIntermediaryList,
     fetchIntermediaryrByName,
     fetchManagerByName,
     getCheckEmail, getManagerUUID,
@@ -108,6 +108,14 @@ export const useSupabaseIntermediary = (intermediaryName) => {
         retry: false,
     })
 }
+
+// 공차 거래처 리스트
+export const useIntermediaryList = () => {
+    return useQuery({
+        queryKey: ['intermediary-list'],
+        queryFn: fetchIntermediaryList,
+    });
+};
 
 export const useSupabaseSaveGongcha = () => {
     return useMutation( {
