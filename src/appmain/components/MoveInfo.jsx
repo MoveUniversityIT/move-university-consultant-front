@@ -1444,22 +1444,9 @@ const MoveInfo = ({
                                 setClient({key: option.key, value});
                             }}
                         >
-                            {[
-                                "이사대학_KOR",
-                                "이사대학_전화",
-                                "숨고",
-                                "위매치",
-                                "이사대학_ENG",
-                                "이사대학_CHN",
-                                "이사대학_JAP",
-                                "아정당",
-                                "당근",
-                                "개인연락",
-                                "이사타임",
-                                "재이용",
-                            ].map((name, index) => (
-                                <Option key={index} value={name}>
-                                    {name}
+                            {intermediaryList?.map((item) => (
+                                <Option key={item.id} value={item.name}>
+                                    {item.name}
                                 </Option>
                             ))}
                         </Select>
