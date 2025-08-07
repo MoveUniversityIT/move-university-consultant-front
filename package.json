@@ -28,8 +28,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "cross-env NODE_ENV=development REACT_APP_BASE_URL=https://dev.xn--vk1b72x1ifuqp.kr REACT_IMAGE_BASE_URL=https://localhost NEXT_PUBLIC_SUPABASE_URL=https://vsawjhdweyefzzfgwkzk.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzYXdqaGR3ZXllZnp6Zmd3a3prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDg2MDA1ODEsImV4cCI6MjAyNDE3NjU4MX0.KI5KNlAo8ElA6hhfRwkNgQ3_J8ZD0OXHPdJtB4tpSrs webpack serve --mode development",
-    "build": "build --output public",
+    "start": "cross-env NODE_ENV=development REACT_APP_BASE_URL=http://localhost:8080/v1 REACT_IMAGE_BASE_URL=http://localhost:3000 NEXT_PUBLIC_SUPABASE_URL=https://vsawjhdweyefzzfgwkzk.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzYXdqaGR3ZXllZnp6Zmd3a3prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDg2MDA1ODEsImV4cCI6MjAyNDE3NjU4MX0.KI5KNlAo8ElA6hhfRwkNgQ3_J8ZD0OXHPdJtB4tpSrs webpack serve --mode development",
+    "build": "cross-env NODE_ENV=development webpack --config webpack.config.js --mode development",
     "start:prod": "cross-env NODE_ENV=production webpack serve --mode production",
     "build:prod": "cross-env NODE_ENV=production webpack --config webpack.config.js --mode production"
   },
